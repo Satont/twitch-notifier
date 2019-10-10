@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { info, error } from '../helpers/logs'
+import { Channel } from '../models/Channel'
+
 
 export enum Methods {
   GET = 'GET',
@@ -61,4 +63,12 @@ export class Twitch {
     }
   }
 
+  public async checkOnline (channels: number[]) {
+    try {
+      const request = await this.request({ method: Methods.GET, endpoint: `streams?first=100&user_id=${channels.join('&user_id')}` })
+      return request.data
+    } catch (e) {
+      throw new Error(e.message)
+    }
+  }
 }
