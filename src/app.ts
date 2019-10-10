@@ -5,7 +5,7 @@ import { connected } from './libs/db'
 import { info } from './helpers/logs'
 
 function init () {
-  if (!connected) setTimeout(() => init(), 500)
+  if (!connected) return setTimeout(() => init(), 500)
   require('../dest/libs/vk')
 
   info('Whole app initiated.')
