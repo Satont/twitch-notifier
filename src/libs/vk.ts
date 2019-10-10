@@ -1,5 +1,6 @@
 import { VkBot } from 'nodejs-vk-bot'
- 
+import { info } from '../helpers/logs'
+
 const bot = new VkBot(process.env.VKTOKEN)
  
 bot.command(['!подписка', '!follow'], (ctx) => {
@@ -15,5 +16,5 @@ export function say(userId: number | number[], message: string, attachment: stri
 } 
 
 bot.startPolling().then(() => {
-  console.log('VK bot connected.')
+  info('VK bot connected.')
 })

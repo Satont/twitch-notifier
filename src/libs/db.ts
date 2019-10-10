@@ -1,5 +1,6 @@
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize-typescript'
 import { join } from 'path'
+import { info, error } from '../helpers/logs'
 let connected: boolean = false
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
@@ -17,11 +18,11 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 
 sequelize.authenticate()
   .then(() => {
-    console.log('Succesfuly connected to db.')
+    info('Succesfuly connected to db.')
     sequelize.sync().then(() => connected = true)
   })
   .catch(err => {
-    console.error('Unable to connect to the database:', err)
+    error(`Unable to connect to the database: ${JSON.stringify(err)}`)
     process.exit()
   })
 

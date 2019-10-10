@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "babel-plugin-transform-typescript-metadata": "^0.2.2",
+    "chalk": "^2.4.2",
     "nodejs-vk-bot": "^2.4.30",
     "pg": "^7.12.1",
     "pg-hstore": "^2.3.3",
