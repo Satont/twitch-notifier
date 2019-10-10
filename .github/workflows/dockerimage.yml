@@ -1,0 +1,19 @@
+name: Docker Image CI - latest
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+        - name: Build & Push To GitHub Package as latest
+          uses: opspresso/action-docker@master
+          env:
+            USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+            REGISTRY: docker.pkg.github.com
+            LATEST: true
