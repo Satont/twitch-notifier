@@ -1,0 +1,5 @@
+node_modules
+dest
+package-lock.json
+start.sh
+token
