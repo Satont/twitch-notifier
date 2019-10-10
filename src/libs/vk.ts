@@ -10,6 +10,8 @@ bot.command(['!отписка', '!unfollow'], (ctx) => {
   ctx.reply('Hello!')
 })
 
-module.exports.say = (userId: number | number[], message: string, attachment: string) => bot.sendMessage(userId, message, attachment)
+export function say(userId: number | number[], message: string, attachment: string) {
+  bot.sendMessage(userId, message, attachment)
+} 
 
 bot.startPolling()
