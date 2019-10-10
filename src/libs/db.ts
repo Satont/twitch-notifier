@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
-import { readdirSync } from 'fs'
 import { join } from 'path'
+let connected: boolean = false
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST,
@@ -18,17 +18,12 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 sequelize.authenticate()
   .then(() => {
     console.log('Succesfuly connected to db.')
-    sequelize.sync()
+    sequelize.sync().then(() => connected = true)
   })
   .catch(err => {
     console.error('Unable to connect to the database:', err)
     process.exit()
   })
 
-/* for (let file of readdirSync(join(__dirname, '../models'))) {
-  sequelize.import(`${join(__dirname, '../models')}/${file}`)
-}
 
-sequelize.sync() */
-
-export { sequelize }
+export { sequelize, connected }
