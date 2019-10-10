@@ -1,15 +1,18 @@
 import { VkBot } from 'nodejs-vk-bot'
 import { info, error } from '../helpers/logs'
-import { Twitch, Methods } from './twitch'
+import { Twitch } from './twitch'
+import { User } from '../models/User'
+import { sequelize } from './db'
 
 const bot = new VkBot(process.env.VKTOKEN)
 const twitch = new Twitch(process.env.TWITCH_CLIENTID)
 
 bot.command(['!подписка', '!follow'], async (ctx) => {
-  const streamer: string = ctx.message.text.split(' ')[1]
+  const user = await User.findOne({where: { id: 123 }})
+  console.log(user)
+  let streamer: string = ctx.message.text.split(' ')[1]
   try {
-    const request = await twitch.getChannel(streamer)
-    ctx.reply(request)
+    streamer = await twitch.getChannel(streamer)
   } catch (e) {
     ctx.reply(e.message)
   }
