@@ -18,4 +18,4 @@ jobs:
           USERNAME: ${{ secrets.DOCKER_USERNAME }}
           PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           REGISTRY: docker.pkg.github.com
-          LATEST: "true"
+          TAG_NAME: master:latest
