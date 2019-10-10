@@ -1,4 +1,4 @@
-const VkBot = require('node-vk-bot-api')
+import { VkBot } from 'nodejs-vk-bot'
  
 const bot = new VkBot(process.env.VKTOKEN)
  
@@ -10,6 +10,6 @@ bot.command(['!отписка', '!unfollow'], (ctx) => {
   ctx.reply('Hello!')
 })
 
-module.exports.say = (userId, message, attachment) => bot.sendMesage(userId, message, attachment)
+module.exports.say = (userId: number, message: string, attachment: string) => bot.sendMesage(userId, message, attachment)
 
 bot.startPolling()
