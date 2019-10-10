@@ -14,4 +14,6 @@ export function say(userId: number | number[], message: string, attachment: stri
   bot.sendMessage(userId, message, attachment)
 } 
 
-bot.startPolling()
+bot.startPolling().then(() => {
+  console.log('VK bot connected.')
+})
