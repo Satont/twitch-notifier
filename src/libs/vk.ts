@@ -1,10 +1,20 @@
 import { VkBot } from 'nodejs-vk-bot'
-import { info } from '../helpers/logs'
+import { info, error } from '../helpers/logs'
+import { Twitch, Methods } from './twitch'
 
 const bot = new VkBot(process.env.VKTOKEN)
- 
-bot.command(['!подписка', '!follow'], (ctx) => {
-  ctx.reply('Hello!')
+const twitch = new Twitch(process.env.TWITCH_CLIENTID)
+
+bot.command(['!подписка', '!follow'], async (ctx) => {
+  const streamer: string = ctx.message.text.split(' ').slice().join(' ')
+  try {
+    const request = await twitch.request({ method: Methods.GET, endpoint: 'users', data: { login: streamer} })
+    info(request)
+    ctx.reply(request.data)
+  } catch (e) {
+    error(e.message)
+    ctx.reply(e.message)
+  }
 })
 
 bot.command(['!отписка', '!unfollow'], (ctx) => {

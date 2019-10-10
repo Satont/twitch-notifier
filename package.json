@@ -16,6 +16,7 @@
   "author": "Satont",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.0",
     "babel-plugin-transform-typescript-metadata": "^0.2.2",
     "chalk": "^2.4.2",
     "nodejs-vk-bot": "^2.4.30",
