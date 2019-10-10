@@ -1,5 +1,10 @@
 import "@babel/polyfill"
 import "reflect-metadata"
 
-require('../dest/libs/db')
-require('../dest/libs/vk')
+import { connected } from './libs/db'
+
+function init () {
+  if (!connected) setTimeout(() => init(), 500)
+  require('../dest/libs/vk')
+}
+init()
