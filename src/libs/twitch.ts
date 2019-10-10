@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { info } from '../helpers/logs'
+import { info, error } from '../helpers/logs'
 
 export enum Methods {
   GET = 'GET',
@@ -39,7 +39,7 @@ export class Twitch {
           'Client-ID': this.clientId
         }
       })
-      return query
+      return query.data
     } catch (e) {
       const twitchError: boolean = Boolean(e.response.data)
       const twitchData: TwitchError = e.response.data
@@ -50,7 +50,15 @@ export class Twitch {
   }
 
   public async getChannel(channelName: string) {
-    
+    try {
+      const request = await this.request({ method: Methods.GET, endpoint: `users?login=${channelName}` })
+      const response = request.data[0]
+      if (!request.data.length) throw new Error(`Channel ${channelName} wasn't found.`)
+      return { id: Number(response.id), login: response.login, displayName: response.display_name }
+    } catch (e) {
+      error(e.message)
+      return e.message
+    }
   }
 
 }

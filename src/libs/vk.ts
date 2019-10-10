@@ -6,13 +6,11 @@ const bot = new VkBot(process.env.VKTOKEN)
 const twitch = new Twitch(process.env.TWITCH_CLIENTID)
 
 bot.command(['!подписка', '!follow'], async (ctx) => {
-  const streamer: string = ctx.message.text.split(' ').slice().join(' ')
+  const streamer: string = ctx.message.text.split(' ')[1]
   try {
-    const request = await twitch.request({ method: Methods.GET, endpoint: 'users', data: { login: streamer} })
-    info(request)
-    ctx.reply(request.data)
+    const request = await twitch.getChannel(streamer)
+    ctx.reply(request)
   } catch (e) {
-    error(e.message)
     ctx.reply(e.message)
   }
 })
