@@ -1,4 +1,4 @@
-import { Table, Column, Model, Unique, PrimaryKey, AllowNull, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, Unique, PrimaryKey, AllowNull } from 'sequelize-typescript';
  
 @Table({
   tableName: 'channels',
