@@ -12,5 +12,8 @@ export class Channel extends Model<Channel> {
   public id: number;
  
   @Column
+  public username: string;
+
+  @Column
   public online: boolean;
 }
