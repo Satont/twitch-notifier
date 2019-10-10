@@ -1,6 +1,5 @@
 import axios from 'axios'
-import { info, error } from '../helpers/logs'
-import { Channel } from '../models/Channel'
+import { error } from '../helpers/logs'
 
 
 export enum Methods {
