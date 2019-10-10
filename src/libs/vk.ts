@@ -8,7 +8,7 @@ const bot = new VkBot(process.env.VKTOKEN)
 const twitch = new Twitch(process.env.TWITCH_CLIENTID)
 
 bot.command(['!подписка', '!follow'], async (ctx) => {
-  const user = await User.findOne({where: { id: 123 }})
+  const user = await User.findOne({ where: { id: 123 } })
   console.log(user)
   let streamer: string = ctx.message.text.split(' ')[1]
   try {
