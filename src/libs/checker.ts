@@ -1,7 +1,7 @@
 import { Twitch } from './twitch'
 import { Channel } from '../models/Channel'
 import { User } from '../models/User'
-import { chunk } from 'lodash-es'
+import { chunk } from 'lodash'
 import { say } from './vk'
 const twitch = new Twitch(process.env.TWITCH_CLIENTID)
 
