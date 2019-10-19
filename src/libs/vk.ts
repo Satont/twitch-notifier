@@ -6,13 +6,14 @@ import { Channel } from '../models/Channel'
 import { config } from '../helpers/config'
 import { remove } from 'lodash'
 
-const bot = new VkBot(config.vk.token)
+const bot = new VkBot({
+  token: config.vk.token
+})
 const twitch = new Twitch(config.twitch.clientId)
 
-bot.on(ctx => {
+bot.on((ctx) => {
   info(`Upcoming message from: ${ctx.message.user_id}, message: ${ctx.message.text}`)
 })
-
 
 bot.command(['!подписка'], async (ctx) => {
   const [user] = await User.findOrCreate({ where: { id: ctx.message.from_id }, defaults: { follows: [] } })
