@@ -1,7 +1,7 @@
 import { Twitch } from './twitch'
 import { Channel } from '../models/Channel'
 import { User } from '../models/User'
-import { chunk } from 'lodash'
+import { chunk, difference } from 'lodash'
 import { say } from './vk'
 import { config } from '../helpers/config'
 import { Op } from 'sequelize'
@@ -13,6 +13,10 @@ async function check () {
   let chunks = chunk(channels, 100)
   for (let chunk of chunks) {
     const checkChannels = await twitch.checkOnline(chunk.map(o => Number(o.id)))
+    const offlineChannels = difference(chunk, checkChannels.map(o => o.user_id))
+    for (let channel of offlineChannels) {
+      await Channel.update({ online: false }, { where: { id: channel.id }})
+    }
     for (let channel of checkChannels) {
       const dbChannel = await Channel.findOne({ where: { id: Number(channel.user_id) }})
       if (dbChannel.online) return false
