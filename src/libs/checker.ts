@@ -17,7 +17,7 @@ async function check () {
       const dbChannel = await Channel.findOne({ where: { id: Number(channel.user_id) }})
       if (dbChannel.online) return false
       else {
-        //await Channel.update({ online: true }, { where: { id: dbChannel.id }})
+        await Channel.update({ online: true }, { where: { id: dbChannel.id }})
         const users = await User.findAll({ 
           where: { 
             follows: { [Op.contains]: [dbChannel.id] }  
