@@ -2,9 +2,10 @@ import { VkBot } from 'nodejs-vk-bot'
 import { info, error } from '../helpers/logs'
 import { Twitch } from './twitch'
 import { User } from '../models/User'
+import { config } from '../helpers/config'
 
-const bot = new VkBot(process.env.VKTOKEN)
-const twitch = new Twitch(process.env.TWITCH_CLIENTID)
+const bot = new VkBot(config.vk.token)
+const twitch = new Twitch(config.twitch.clientId)
 
 bot.command(['!подписка', '!follow'], async (ctx) => {
   const user = await User.findOne({ where: { id: 123 } })

@@ -3,7 +3,8 @@ import { Channel } from '../models/Channel'
 import { User } from '../models/User'
 import { chunk } from 'lodash'
 import { say } from './vk'
-const twitch = new Twitch(process.env.TWITCH_CLIENTID)
+import { config } from '../helpers/config'
+const twitch = new Twitch(config.twitch.clientId)
 
 async function check () {
   setTimeout(() => check(), 5 * 60 * 1000)

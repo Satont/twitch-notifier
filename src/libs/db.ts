@@ -3,10 +3,11 @@ import { info } from '../helpers/logs'
 let connected: boolean = false
 import { User } from '../models/User'
 import { Channel } from '../models/Channel'
+import { config } from '../helpers/config'
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
+const sequelize = new Sequelize(config.db.name, config.db.user, config.db.password, {
+  host: config.db.host,
+  port: config.db.port,
   dialect: 'postgres',
   pool: {
     max: 10,
