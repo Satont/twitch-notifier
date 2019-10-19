@@ -21,7 +21,7 @@ async function check () {
         where: { follows: { [Op.contains]: [dbChannel.id] } },
         raw: true
       })
-      say(users.map(o => o.id), `${channel.user_name} онлайн!`)
+      say(users.map(o => o.id), `${channel.user_name} онлайн!\nhttps://twitch.tv/${channel.user_name}`)
     } else if (!channel && dbChannel.online) { // if channel offline but online in db, then set channel as offline in db
       await dbChannel.update({ online: false })
     } else if (channel && dbChannel.online) { // skip if channel online and online in db
