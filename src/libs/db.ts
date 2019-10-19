@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize-typescript'
 import { info } from '../helpers/logs'
-let connected: boolean = false
-import { User } from '../models/User'
-import { Channel } from '../models/Channel'
 import { config } from '../helpers/config'
+import { join } from 'path'
+
+let connected: boolean = false
 
 const sequelize = new Sequelize(config.db.name, config.db.user, config.db.password, {
   host: config.db.host,
@@ -15,7 +15,7 @@ const sequelize = new Sequelize(config.db.name, config.db.user, config.db.passwo
     acquire: 30000,
     idle: 10000
   },
-  models: [User, Channel],
+  models: [join(__dirname, '../models')],
   logging: false
 })
 
