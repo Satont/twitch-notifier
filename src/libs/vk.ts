@@ -9,6 +9,11 @@ import { remove } from 'lodash'
 const bot = new VkBot(config.vk.token)
 const twitch = new Twitch(config.twitch.clientId)
 
+bot.on(ctx => {
+  info(`Upcoming message from: ${ctx.message.user_id}, message: ${ctx.message.text}`)
+})
+
+
 bot.command(['!подписка'], async (ctx) => {
   const [user] = await User.findOrCreate({ where: { id: ctx.message.from_id }, defaults: { follows: [] } })
   const argument: string = ctx.message.text.split(' ')[1]
