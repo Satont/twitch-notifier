@@ -8,7 +8,7 @@ import { Op } from 'sequelize'
 const twitch = new Twitch(config.twitch.clientId)
 
 async function check () {
-  setTimeout(() => check(), 5 * 1000)
+  setTimeout(() => check(), 5 * 60 * 1000)
   const dbChannels = await Channel.findAll()
   const onlineChannels = flattenDeep(await getOnlineStreams(dbChannels.map(o => o.id)))
 
