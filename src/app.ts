@@ -7,6 +7,6 @@ function init () {
   if (!connected) return setTimeout(() => init(), 500)
   require('./libs/vk')
   require('./libs/checker')
-  info('Whole app initiated.')
+  info('Application works now.')
 }
 init()
