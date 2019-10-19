@@ -2,7 +2,6 @@ import { VkBot } from 'nodejs-vk-bot'
 import { info, error } from '../helpers/logs'
 import { Twitch } from './twitch'
 import { User } from '../models/User'
-import { sequelize } from './db'
 
 const bot = new VkBot(process.env.VKTOKEN)
 const twitch = new Twitch(process.env.TWITCH_CLIENTID)
@@ -14,6 +13,7 @@ bot.command(['!подписка', '!follow'], async (ctx) => {
   try {
     streamer = await twitch.getChannel(streamer)
   } catch (e) {
+    error(e)
     ctx.reply(e.message)
   }
 })
