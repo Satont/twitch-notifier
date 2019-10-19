@@ -1,14 +1,6 @@
 import axios from 'axios'
 import { error } from '../helpers/logs'
 
-
-export enum Methods {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
-}
-
 export class Twitch {
   helix: any;
 
