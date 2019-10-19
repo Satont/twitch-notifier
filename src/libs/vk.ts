@@ -66,6 +66,10 @@ bot.command(['!подписки'], async (ctx) => {
   }
 })
 
+bot.command(['!команды', '!help', '!commands'], ctx => {
+  ctx.reply('На данный момент доступны следующие команды: !подписка, !отписка, !подписки, !команды')
+})
+
 export function say(userId: number | number[], message: string, attachment?: string) {
   info(`Send message to ${Array.isArray(userId) ? userId.join(', ') : userId}. message: ${message}`)
   bot.sendMessage(userId, message, attachment)
