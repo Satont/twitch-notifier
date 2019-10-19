@@ -11,6 +11,6 @@ export class User extends Model<User> {
   @Column
   public id: number;
  
-  @Column(DataType.ARRAY(DataType.BIGINT))
+  @Column(DataType.ARRAY(DataType.INTEGER))
   public follows: number[];
 }

@@ -46,19 +46,30 @@ export class Twitch {
       const twitchData: TwitchError = e.response.data
 
       const errorMessage: string = twitchError ? `${twitchData.status} — ${twitchData.message}` : `${e.response.status} — ${e.response.statusText}`
-      throw new Error(`Error on request ${options.method} ${url}, body of error: ${errorMessage}`)
+      error(`Ошибка при запросе ${options.method} ${url}, тело ошибки: ${errorMessage}`)
+      throw new Error('Произошла ошибка при запросе к twitch.')
     }
   }
 
-  public async getChannel(channelName: string) {
+  public async getChannel(channelName: string): Promise<{id: number, login: string, displayName: string}> {
     try {
       const request = await this.request({ method: Methods.GET, endpoint: `users?login=${channelName}` })
       const response = request.data[0]
-      if (!request.data.length) throw new Error(`Channel ${channelName} wasn't found.`)
-      return { id: Number(response.id), login: response.login, displayName: response.display_name }
+      if (!request.data.length) throw new Error(`Канал ${channelName} не найден.`)
+      else return { id: Number(response.id), login: response.login, displayName: response.display_name }
     } catch (e) {
       error(e.message)
-      return e.message
+      throw new Error(e.message)
+    }
+  }
+
+  public async getChannelsById(channels: number[]): Promise<[{ id: number, displayName: string, login: string }]> {
+    try {
+      const request = await this.request({ method: Methods.GET, endpoint: `users?id=${channels.join('&id=')}` })
+      return request.data.map(o => { return { id: Number(o.id), displayName: o.display_name, login: o.login } })
+    } catch (e) {
+      error(e.message)
+      throw new Error(e.message)
     }
   }
 
