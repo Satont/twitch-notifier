@@ -37,7 +37,7 @@ export class Twitch {
 
   public async checkOnline (channels: number[]) {
     try {
-      const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id')}`)
+      const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
       return request.data.data
     } catch (e) {
       throw new Error(e.message)

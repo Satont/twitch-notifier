@@ -1,7 +1,8 @@
-import { VkBot } from 'nodejs-vk-bot'
+import VkBot from 'node-vk-bot-api'
 import { info, error } from '../helpers/logs'
 import { Twitch } from './twitch'
 import { User } from '../models/User'
+import { Channel } from '../models/Channel'
 import { config } from '../helpers/config'
 import { remove } from 'lodash'
 
@@ -16,6 +17,7 @@ bot.command(['!подписка'], async (ctx) => {
   }
   try {
     const streamer = await twitch.getChannel(argument)
+    await Channel.findOrCreate({ where: { id: streamer.id }, defaults: { username: streamer.login, online: false } })
     if (user.follows.includes(streamer.id)) {
       return ctx.reply(`Вы уже подписаны на ${streamer.displayName}.`)
     } else {
@@ -55,7 +57,7 @@ bot.command(['!отписка'], async (ctx) => {
 
 bot.command(['!подписки'], async (ctx) => {
   const user = await User.findOne({ where: { id: ctx.message.from_id } })
-  if (!user.follows.length) {
+  if (!user || !user.follows.length) {
     return ctx.reply('В данный момент вы ни на кого не подписаны.')
   } else {
     const channels = await twitch.getChannelsById(user.follows)
@@ -64,7 +66,8 @@ bot.command(['!подписки'], async (ctx) => {
   }
 })
 
-export function say(userId: number | number[], message: string, attachment: string) {
+export function say(userId: number | number[], message: string, attachment?: string) {
+  info(`Send message to ${Array.isArray(userId) ? userId.join(', ') : userId}. message: ${message}`)
   bot.sendMessage(userId, message, attachment)
 } 
 

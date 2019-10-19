@@ -15,7 +15,8 @@ const sequelize = new Sequelize(config.db.name, config.db.user, config.db.passwo
     acquire: 30000,
     idle: 10000
   },
-  models: [User, Channel]
+  models: [User, Channel],
+  logging: false
 })
 
 sequelize.authenticate()
