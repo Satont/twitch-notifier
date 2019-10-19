@@ -1,6 +1,4 @@
 # WIP!!!
-Project currently on WIP, so it's literally not working.
-
 
 Bot for twitch.tv to vk.com.
 Just notify users about some stream wen't online.
