@@ -40,7 +40,7 @@ async function getOnlineStreams(channels: number[]) {
 
 async function notifyVk (streamerName: string, streamerId: number) {
   const users = await User.findAll({ 
-    where: { follows: { [Op.contains]: [streamerId], service: 'vk' } },
+    where: { follows: { [Op.contains]: [streamerId] }, service: 'vk' },
     raw: true
   })
   sayVK(users.map(o => o.id), `${streamerName} онлайн!\nhttps://twitch.tv/${streamerName}`)
@@ -48,7 +48,7 @@ async function notifyVk (streamerName: string, streamerId: number) {
 
 async function notifyTg (streamerName: string, streamerId: number) {
   const users = await User.findAll({ 
-    where: { follows: { [Op.contains]: [streamerId], service: 'telegram' } },
+    where: { follows: { [Op.contains]: [streamerId] }, service: 'telegram' },
     raw: true
   })
   sayTG(users.map(o => o.id), `${streamerName} online!\nhttps://twitch.tv/${streamerName}`)
