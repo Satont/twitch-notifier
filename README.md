@@ -1,7 +1,8 @@
 # WIP!!!
 
-Bot for twitch.tv to vk.com.
-Just notify users about some stream wen't online.
+Notify users about some stream wen't online.
+
+Supported platforms: vk.com, telegram
 
 ##### Required env variables:
 
