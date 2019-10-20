@@ -13,13 +13,13 @@ const twitch = new Twitch(config.twitch.clientId)
 
 bot.updates.on('message', (ctx, next) => {
   if (ctx.senderId !== -187752469) {
-    info(`Upcoming message from: ${ctx.senderId}, message: ${ctx.text}`)
+    info(`Vk | New message from: ${ctx.senderId}, message: ${ctx.text}`)
   }
 
   return next()
 })
 bot.updates.hear(value => (value.startsWith('!подписка')), async (ctx) => {
-  const [user] = await User.findOrCreate({ where: { id: ctx.senderId }, defaults: { follows: [] } })
+  const [user] = await User.findOrCreate({ where: { id: ctx.senderId, service: 'vk' }, defaults: { follows: [], service: 'vk' } })
   const argument: string = ctx.text.split(' ')[1]
   if (!argument) {
     return ctx.reply('Вы должны указать на кого подписаться.')
@@ -45,7 +45,7 @@ bot.updates.hear(value => (value.startsWith('!подписка')), async (ctx) =
 
 
 bot.updates.hear(value => (value.startsWith('!отписка')), async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.senderId } })
+  const user = await User.findOne({ where: { id: ctx.senderId, service: 'vk' } })
   if (!user) {
     return ctx.reply('В данный момент вы ни на кого не подписаны.')
   }
@@ -72,7 +72,7 @@ bot.updates.hear(value => (value.startsWith('!отписка')), async (ctx) => 
 })
 
 bot.updates.hear(value => (value.startsWith('!подписки')), async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.senderId } })
+  const user = await User.findOne({ where: { id: ctx.senderId, service: 'vk' } })
   if (!user || !user.follows.length) {
     return ctx.reply('В данный момент вы ни на кого не подписаны.')
   } else {

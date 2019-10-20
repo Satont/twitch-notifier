@@ -9,6 +9,9 @@ const config = {
   vk: {
     token: process.env.VKTOKEN
   },
+  telegram: {
+    token: process.env.TGTOKEN
+  },
   twitch: {
     clientId: process.env.TWITCH_CLIENTID
   }
