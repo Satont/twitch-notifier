@@ -24,6 +24,9 @@ bot.updates.hear(value => (value.startsWith('!подписка')), async (ctx) =
   if (!argument) {
     return ctx.reply('Вы должны указать на кого подписаться.')
   }
+  if (/[^a-zA-Z0-9_]/gmu.test(argument)) {
+    return ctx.reply('Имя стримера может содержать только "a-z", "0-9" и "_" символы')
+  }
   try {
     const streamer = await twitch.getChannel(argument)
     await Channel.findOrCreate({ where: { id: streamer.id }, defaults: { username: streamer.login, online: false } })
@@ -49,6 +52,9 @@ bot.updates.hear(value => (value.startsWith('!отписка')), async (ctx) => 
   const argument: string = ctx.text.split(' ')[1]
   if (!argument) {
     return ctx.reply('Вы должны указать от кого отписаться.')
+  }
+  if (/[^a-zA-Z0-9_]/gmu.test(argument)) {
+    return ctx.reply('Имя стримера может содержать только "a-z", "0-9" и "_" символы')
   }
   try {
     const streamer = await twitch.getChannel(argument)
