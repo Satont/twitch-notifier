@@ -5,7 +5,10 @@ import { chunk, flattenDeep } from 'lodash'
 import { say as sayVK } from './vk'
 import { say as sayTG } from './telegram'
 import { config } from '../helpers/config'
+import { error } from '../helpers/logs'
 import { Op } from 'sequelize'
+import axios from 'axios'
+
 const twitch = new Twitch(config.twitch.clientId)
 
 async function check () {
@@ -39,17 +42,36 @@ async function getOnlineStreams(channels: number[]) {
 }
 
 async function notifyVk (streamerName: string, streamerId: number) {
+  const streamMetaData = await getStreamMetaData(streamerId)
+  const game = streamMetaData.game ? `Игра: ${streamMetaData.game}` : ''
+  const title = streamMetaData.channel.status ? `Название стрима: ${streamMetaData.channel.status}` : ''
   const users = await User.findAll({ 
     where: { follows: { [Op.contains]: [streamerId] }, service: 'vk' },
     raw: true
   })
-  sayVK(users.map(o => o.id), `${streamerName} онлайн!\nhttps://twitch.tv/${streamerName}`)
+  sayVK(users.map(o => o.id), `${streamerName} онлайн!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`)
 }
 
 async function notifyTg (streamerName: string, streamerId: number) {
+  const streamMetaData = await getStreamMetaData(streamerId)
+  const game = streamMetaData.game ? `Game: ${streamMetaData.game}` : ''
+  const title = streamMetaData.channel.status ? `Title: ${streamMetaData.channel.status}` : ''
   const users = await User.findAll({ 
     where: { follows: { [Op.contains]: [streamerId] }, service: 'telegram' },
     raw: true
   })
-  sayTG(users.map(o => o.id), `${streamerName} online!\nhttps://twitch.tv/${streamerName}`)
+  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`)
+}
+
+async function getStreamMetaData (id: number) {
+  let request: any
+  try {
+    request = await axios.get(`https://api.twitch.tv/kraken/streams/${id}`, { 
+      headers: { 'Accept': 'application/vnd.twitchtv.v5+json', 'Client-ID': config.twitch.clientId }
+    })
+    return request.data.stream
+  } catch (e) {
+    error(e)
+    throw new Error(e)
+  }
 }
