@@ -101,7 +101,8 @@ export function say(userId: number | number[], message: string, attachment?: str
     bot.api.messages.send({
       random_id: Math.random() * (1000000000 - 9) + 10,
       user_ids: chunk,
-      message
+      message,
+      dont_parse_links: true
     })
   }
 } 
