@@ -86,10 +86,12 @@ bot.command('follows', async (ctx) => {
   }
 })
 
-export function say (chatId: number | number[], message: string) {
+export function say (chatId: number | number[], message: string, imgUrl: string) {
   const targets = Array.isArray(chatId) ? chatId : [chatId]
   for (const target of targets) {
-    bot.telegram.sendMessage(target, message)
+    bot.telegram.sendPhoto(target, imgUrl, {
+      caption: message
+    })
   }
 }
 

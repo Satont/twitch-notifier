@@ -60,7 +60,7 @@ async function notifyTg (streamerName: string, streamerId: number) {
     where: { follows: { [Op.contains]: [streamerId] }, service: 'telegram' },
     raw: true
   })
-  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`)
+  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, `${streamMetaData.preview.large}?timestamp=${Date.now()}`)
 }
 
 async function getStreamMetaData (id: number) {
