@@ -56,11 +56,12 @@ async function notifyTg (streamerName: string, streamerId: number) {
   const streamMetaData = await getStreamMetaData(streamerId)
   const game = streamMetaData.game ? `Game: ${streamMetaData.game}` : ''
   const title = streamMetaData.channel.status ? `Title: ${streamMetaData.channel.status}` : ''
+  const preview = streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720')
   const users = await User.findAll({ 
     where: { follows: { [Op.contains]: [streamerId] }, service: 'telegram' },
     raw: true
   })
-  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, `${streamMetaData.preview.large}?timestamp=${Date.now()}`)
+  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, `${preview}?timestamp=${Date.now()}`)
 }
 
 async function getStreamMetaData (id: number) {
