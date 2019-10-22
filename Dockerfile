@@ -10,6 +10,8 @@ ENV TWITCH_CLIENTID TWITCH_CLIENTID
 
 RUN apk add --no-cache bash
 
+EXPOSE 3000
+
 COPY . /app
 WORKDIR /app
 

@@ -14,6 +14,9 @@ const config = {
   },
   twitch: {
     clientId: process.env.TWITCH_CLIENTID
+  },
+  panel: {
+    port: process.env.PANEL_PORT || 3000
   }
 }
 
