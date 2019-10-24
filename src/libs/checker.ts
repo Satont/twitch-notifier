@@ -2,7 +2,7 @@ import { Twitch } from './twitch'
 import { Channel } from '../models/Channel'
 import { User } from '../models/User'
 import { chunk, flattenDeep } from 'lodash'
-import { say as sayVK } from './vk'
+import { say as sayVK, bot as vk } from './vk'
 import { say as sayTG } from './telegram'
 import { config } from '../helpers/config'
 import { error } from '../helpers/logs'
@@ -49,7 +49,10 @@ async function notifyVk (streamerName: string, streamerId: number) {
     where: { follows: { [Op.contains]: [streamerId] }, service: 'vk' },
     raw: true
   })
-  sayVK(users.map(o => o.id), `${streamerName} онлайн!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`)
+  const photo = await vk.upload.messagePhoto({
+    source: streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720')
+  })
+  sayVK(users.map(o => o.id), `${streamerName} онлайн!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, photo.toString())
 }
 
 async function notifyTg (streamerName: string, streamerId: number) {

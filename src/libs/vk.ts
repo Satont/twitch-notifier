@@ -96,15 +96,17 @@ export function say(userId: number | number[], message: string, attachment?: str
   info(`Send message to ${Array.isArray(userId) ? userId.join(', ') : userId}. message: ${message}`)
   const targets = Array.isArray(userId) ? userId : [userId]
   const chunks = chunk(targets, 100)
-
   for (const chunk of chunks) {
     bot.api.messages.send({
       random_id: Math.random() * (1000000000 - 9) + 10,
       user_ids: chunk,
       message,
-      dont_parse_links: true
+      dont_parse_links: true,
+      attachment: attachment
     })
   }
 } 
 
 bot.updates.start().then(() => info('VK bot connected.')).catch(console.error)
+
+export { bot }
