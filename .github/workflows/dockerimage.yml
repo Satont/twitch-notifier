@@ -1,15 +1,21 @@
-name: Publish Docker
-on: [push]
+name: Docker Image CI - latest
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
-  build:
+  docker:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: satont/twitch-notifier
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        registry: docker.pkg.github.com
-        tag: latest
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Build & Push to Docker Hub
+        uses: opspresso/action-docker@master
+        env:
+          USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          REGISTRY: docker.pkg.github.com
+          IMAGE_NAME: "satont/twitch-notifier"
+          TAG_NAME: master:latest
