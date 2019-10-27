@@ -18,7 +18,9 @@ bot.use((ctx, next) => {
   next()
 })
 
-const followScene = new BaseScene('follow')
+const followScene = new BaseScene('follow', {
+  ttl: 60
+})
 followScene.enter((ctx) => ctx.reply('Enter streamer username you want to follow'))
 followScene.on('message', async (ctx) => {
   const [user] = await User.findOrCreate({ where: { id: ctx.from.id, service }, defaults: { follows: [], service } })
@@ -42,7 +44,9 @@ followScene.on('message', async (ctx) => {
   ctx.scene.leave()
 })
 
-const unFollowScene = new BaseScene('unfollow')
+const unFollowScene = new BaseScene('unfollow', {
+  ttl: 60
+})
 unFollowScene.enter((ctx) => ctx.reply('Enter streamer username you want to unfollow'))
 unFollowScene.on('message', async (ctx) => {
   const user = await User.findOne({ where: { id: ctx.from.id, service } })
@@ -73,6 +77,10 @@ const stage = new Stage([followScene, unFollowScene])
 stage.command('cancel', Stage.leave())
 bot.use(stage.middleware())
 
+
+bot.command(['start', 'help'], ({ reply }) => {
+  reply(`Hi! I will notify you about the beginning of the broadcasts on Twitch.`)
+})
 bot.command('follow', Stage.enter('follow'))
 bot.command('unfollow', Stage.enter('unfollow'))
 bot.command('follows', async (ctx) => {
