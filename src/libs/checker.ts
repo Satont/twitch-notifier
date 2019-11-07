@@ -43,8 +43,8 @@ async function getOnlineStreams(channels: number[]) {
 
 async function notifyVk (streamerName: string, streamerId: number) {
   const streamMetaData = await getStreamMetaData(streamerId)
-  const game = streamMetaData.game ? `Игра: ${streamMetaData.game}` : ''
-  const title = streamMetaData.channel.status ? `Название стрима: ${streamMetaData.channel.status}` : ''
+  const game = streamMetaData.game ? `Игра: ${streamMetaData.game}\n` : ''
+  const title = streamMetaData.channel.status ? `Название стрима: ${streamMetaData.channel.status}\n` : ''
   const users = await User.findAll({ 
     where: { follows: { [Op.contains]: [streamerId] }, service: 'vk' },
     raw: true
@@ -52,19 +52,19 @@ async function notifyVk (streamerName: string, streamerId: number) {
   const photo = await vk.upload.messagePhoto({
     source: streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720')
   })
-  sayVK(users.map(o => o.id), `${streamerName} онлайн!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, photo.toString())
+  sayVK(users.map(o => o.id), `${streamerName} онлайн!\n${game}${title}https://twitch.tv/${streamerName}`, photo.toString())
 }
 
 async function notifyTg (streamerName: string, streamerId: number) {
   const streamMetaData = await getStreamMetaData(streamerId)
-  const game = streamMetaData.game ? `Game: ${streamMetaData.game}` : ''
-  const title = streamMetaData.channel.status ? `Title: ${streamMetaData.channel.status}` : ''
+  const game = streamMetaData.game ? `Game: ${streamMetaData.game}\n` : ''
+  const title = streamMetaData.channel.status ? `Title: ${streamMetaData.channel.status}\n` : ''
   const preview = streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720')
   const users = await User.findAll({ 
     where: { follows: { [Op.contains]: [streamerId] }, service: 'telegram' },
     raw: true
   })
-  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}\n${title}\nhttps://twitch.tv/${streamerName}`, `${preview}?timestamp=${Date.now()}`)
+  sayTG(users.map(o => o.id), `${streamerName} online!\n${game}${title}https://twitch.tv/${streamerName}`, `${preview}?timestamp=${Date.now()}`)
 }
 
 async function getStreamMetaData (id: number) {
