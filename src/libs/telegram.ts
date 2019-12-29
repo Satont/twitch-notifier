@@ -16,7 +16,7 @@ bot.use(session())
 bot.use(async (ctx, next) => {
   if (!ctx.message) return
   info(`Telegram | New message from ${ctx.from.username} [${ctx.from.id}], message: ${ctx.message.text}`)
-  const [user] = await User.findOrCreate({ where: { id: ctx.from.id, service }, defaults: { follows: [], service: 'vk' } })
+  const [user] = await User.findOrCreate({ where: { id: ctx.from.id, service }, defaults: { follows: [], service } })
   ctx.userDb = user
   next()
 })
