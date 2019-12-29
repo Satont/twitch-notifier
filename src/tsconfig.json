@@ -17,7 +17,7 @@
   "baseUrl": "src/bot",
   "outDir": "../dest",
   "inlineSourceMap": true,
-  "skipLibCheck": true
+  "skipLibCheck": true,
   },
   "exclude": [
     "node_modules"
