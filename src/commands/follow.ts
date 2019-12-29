@@ -5,7 +5,7 @@ import { Channel } from '../models/Channel'
 
 const twitch = new Twitch(config.twitch.clientId)
 
-export default async ({ service, userId, channel }: { service: 'telegram' | 'vk', userId: number, channel: string }) => {
+export default async ({ service, userId, channel }: { service: 'telegram' | 'vk', userId: number, channel: string }): Promise<boolean> => {
   if (/[^a-zA-Z0-9_]/gmu.test(channel)) {
     throw new Error('Username can cointain only "a-z", "0-9" and "_" symbols.')
   }
