@@ -3,18 +3,21 @@ import { Stage, session, BaseScene } from 'telegraf'
 import { config } from '../helpers/config'
 import { info, error } from '../helpers/logs'
 import { User } from '../models/User'
-import { Channel } from '../models/Channel'
-import { Twitch } from './twitch'
-import { remove } from 'lodash'
+import follow from '../commands/follow'
+import unfollow from '../commands/unfollow'
+import live from '../commands/live'
+import follows from '../commands/follows'
+import { isBoolean } from 'util'
 
-const service = 'telegram'
-const twitch = new Twitch(config.twitch.clientId)
+const service = 'vk'
 const bot = new Telegraf(config.telegram.token)
 
 bot.use(session())
-bot.use((ctx, next) => {
+bot.use(async (ctx, next) => {
   if (!ctx.message) return
   info(`Telegram | New message from ${ctx.from.username} [${ctx.from.id}], message: ${ctx.message.text}`)
+  const [user] = await User.findOrCreate({ where: { id: ctx.from.id, service }, defaults: { follows: [], service: 'vk' } })
+  ctx.userDb = user
   next()
 })
 
@@ -23,19 +26,11 @@ const followScene = new BaseScene('follow', {
 })
 followScene.enter((ctx) => ctx.reply('Enter streamer username you want to follow'))
 followScene.on('message', async (ctx) => {
-  const [user] = await User.findOrCreate({ where: { id: ctx.from.id, service }, defaults: { follows: [], service } })
-  if (/[^a-zA-Z0-9_]/gmu.test(ctx.message.text)) {
-    return ctx.reply('Username can cointain only "a-z", "0-9" и "_" symbols')
-  }
+  const channel = ctx.message.text
   try {
-    const streamer = await twitch.getChannel(ctx.message.text)
-    await Channel.findOrCreate({ where: { id: streamer.id }, defaults: { username: streamer.login, online: false } })
-    if (user.follows.includes(streamer.id)) {
-      return ctx.reply(`You already followed to ${streamer.displayName}.`)
-    } else {
-      user.follows.push(streamer.id)
-      await user.update({ follows: user.follows })
-      await ctx.reply(`You successfully subscribed to ${streamer.displayName}!`)
+    const followed = await follow({ userId: ctx.from.id, service, channel })
+    if (followed) {
+      ctx.reply(`You successfuly followed to ${channel}`)
     }
   } catch (e) {
     error(e)
@@ -49,21 +44,13 @@ const unFollowScene = new BaseScene('unfollow', {
 })
 unFollowScene.enter((ctx) => ctx.reply('Enter streamer username you want to unfollow'))
 unFollowScene.on('message', async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.from.id, service } })
-  if (!user) {
-    return ctx.reply('You are not following to anyone.')
-  }
-  if (/[^a-zA-Z0-9_]/gmu.test(ctx.message.text)) {
-    return ctx.reply('Username can cointain only "a-z", "0-9" и "_" symbols')
-  }
+  const channel = ctx.message.text
   try {
-    const streamer = await twitch.getChannel(ctx.message.text)
-    if (!user.follows.includes(streamer.id)) {
-      return ctx.reply(`You are not followed for ${streamer.displayName}.`)
+    const unfollowed = await unfollow({ service, userId: ctx.from.id, channel })
+    if (!unfollowed) {
+      ctx.reply(`You aren't followed to ${channel}.`)
     } else {
-      remove(user.follows, (o: number) => o === streamer.id)
-      await user.update({ follows: user.follows })
-      await ctx.reply(`You successfully unsubscribed from ${streamer.displayName}.`)
+      ctx.reply(`You was successfuly unfollowed from ${channel}.`)
     }
   } catch (e) {
     error(e)
@@ -84,13 +71,21 @@ bot.command(['start', 'help'], ({ reply }) => {
 bot.command('follow', Stage.enter('follow'))
 bot.command('unfollow', Stage.enter('unfollow'))
 bot.command('follows', async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.from.id, service } })
-  if (!user || !user.follows.length) {
-    return ctx.reply('You are not followed to anyone.')
+  const channels = await follows({ userId: ctx.from.id, service })
+  if (isBoolean(channels)) {
+    ctx.reply(`You aren't followed to anyone`)
   } else {
-    const channels = await twitch.getChannelsById(user.follows)
-    const follows = channels.map(o => o.displayName).join(', ')
-    ctx.reply(`Your list of follows: ${follows}`)
+    ctx.reply(`You are followed to ${channels.join(', ')}`)
+  }
+})
+
+bot.command('live', async (ctx) => {
+  const channels = await live({ userId: ctx.from.id, service })
+  if (isBoolean(channels)) {
+    ctx.reply(`There is no channels currently online`)
+  } else {
+    const links = channels.map((o) => `https://twitch.tv/${o}`)
+    ctx.reply(`Currently online: \n ${links.join('\n')}`)
   }
 })
 

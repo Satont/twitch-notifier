@@ -1,41 +1,36 @@
 import { VK } from 'vk-io'
 import { info, error } from '../helpers/logs'
-import { Twitch } from './twitch'
 import { User } from '../models/User'
-import { Channel } from '../models/Channel'
+import follow from '../commands/follow'
+import unfollow from '../commands/unfollow'
+import follows from '../commands/follows'
+import live from '../commands/live'
 import { config } from '../helpers/config'
-import { remove, chunk } from 'lodash'
+import { chunk, isBoolean } from 'lodash'
 
 const bot = new VK({
   token: config.vk.token
 })
-const twitch = new Twitch(config.twitch.clientId)
+const service = 'vk'
 
-bot.updates.on('message', (ctx, next) => {
+bot.updates.on('message', async (ctx, next) => {
   if (ctx.senderId !== -187752469) {
     info(`Vk | New message from: ${ctx.senderId}, message: ${ctx.text}`)
   }
-
+  const [user] = await User.findOrCreate({ where: { id: ctx.senderId, service: 'vk' }, defaults: { follows: [], service: 'vk' } })
+  ctx.dbUser = user
   return next()
 })
+
 bot.updates.hear(value => (value.startsWith('!подписка')), async (ctx) => {
-  const [user] = await User.findOrCreate({ where: { id: ctx.senderId, service: 'vk' }, defaults: { follows: [], service: 'vk' } })
-  const argument: string = ctx.text.split(' ')[1]
-  if (!argument) {
+  const channel: string = ctx.text.split(' ')[1]
+  if (!channel) {
     return ctx.reply('Вы должны указать на кого подписаться.')
   }
-  if (/[^a-zA-Z0-9_]/gmu.test(argument)) {
-    return ctx.reply('Имя стримера может содержать только "a-z", "0-9" и "_" символы')
-  }
   try {
-    const streamer = await twitch.getChannel(argument)
-    await Channel.findOrCreate({ where: { id: streamer.id }, defaults: { username: streamer.login, online: false } })
-    if (user.follows.includes(streamer.id)) {
-      return ctx.reply(`Вы уже подписаны на ${streamer.displayName}.`)
-    } else {
-      user.follows.push(streamer.id)
-      await user.update({ follows: user.follows })
-      await ctx.reply(`Вы успешно подписались на ${streamer.displayName}!\nЧто бы отписаться напишите: !отписка ${streamer.displayName}`)
+    const followed = await follow({ service, userId: ctx.senderId, channel })
+    if (followed) {
+      ctx.reply(`Вы успешно подписались на ${channel}.`)
     }
   } catch (e) {
     error(e)
@@ -43,27 +38,17 @@ bot.updates.hear(value => (value.startsWith('!подписка')), async (ctx) =
   }
 })
 
-
 bot.updates.hear(value => (value.startsWith('!отписка')), async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.senderId, service: 'vk' } })
-  if (!user) {
-    return ctx.reply('В данный момент вы ни на кого не подписаны.')
-  }
-  const argument: string = ctx.text.split(' ')[1]
-  if (!argument) {
+  const channel: string = ctx.text.split(' ')[1]
+  if (!channel) {
     return ctx.reply('Вы должны указать от кого отписаться.')
   }
-  if (/[^a-zA-Z0-9_]/gmu.test(argument)) {
-    return ctx.reply('Имя стримера может содержать только "a-z", "0-9" и "_" символы')
-  }
   try {
-    const streamer = await twitch.getChannel(argument)
-    if (!user.follows.includes(streamer.id)) {
-      return ctx.reply(`Вы не подписаны на канал ${streamer.displayName}.`)
+    const unfollowed = await unfollow({ service, userId: ctx.senderId, channel })
+    if (!unfollowed) {
+      ctx.reply(`Вы не подписаны на ${channel}.`)
     } else {
-      remove(user.follows, (o: number) => o === streamer.id)
-      await user.update({ follows: user.follows })
-      await ctx.reply(`Вы успешно отписались от ${streamer.displayName}.`)
+      ctx.reply(`Вы успешно отписались от ${channel}.`)
     }
   } catch (e) {
     error(e)
@@ -72,13 +57,21 @@ bot.updates.hear(value => (value.startsWith('!отписка')), async (ctx) => 
 })
 
 bot.updates.hear(value => (value.startsWith('!подписки')), async (ctx) => {
-  const user = await User.findOne({ where: { id: ctx.senderId, service: 'vk' } })
-  if (!user || !user.follows.length) {
-    return ctx.reply('В данный момент вы ни на кого не подписаны.')
+  const followed = await follows({ userId: ctx.senderId, service })
+  if (isBoolean(followed)) {
+    ctx.reply(`Вы ни на кого не подписаны.`)
   } else {
-    const channels = await twitch.getChannelsById(user.follows)
-    const follows = channels.map(o => o.displayName).join(', ')
-    ctx.reply(`Вы подписаны на: ${follows}`)
+    ctx.reply(`Вы подписаны на ${followed.join(', ')}.`)
+  }
+})
+
+bot.updates.hear(value => (value.startsWith('!онлайн')), async (ctx) => {
+  const channels = await live({ userId: ctx.senderId, service })
+  if (isBoolean(channels)) {
+    ctx.reply(`Сейчас нет ни одного канала онлайн из ваших подписок.`)
+  } else {
+    const links = channels.map((o) => `https://twitch.tv/${o}`)
+    ctx.reply(`Сейчас онлайн: \n ${links.join('\n')}`)
   }
 })
 
@@ -89,6 +82,7 @@ bot.updates.hear(value => (value.startsWith('!команды')), async (ctx) => 
   !отписка username
   !подписки 
   !команды
+  !онлайн
   `)
 })
 
