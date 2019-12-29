@@ -9,7 +9,7 @@ import live from '../commands/live'
 import follows from '../commands/follows'
 import { isBoolean } from 'util'
 
-const service = 'vk'
+const service = 'telegram'
 const bot = new Telegraf(config.telegram.token)
 
 bot.use(session())
