@@ -85,7 +85,7 @@ bot.command('live', async (ctx) => {
     ctx.reply(`There is no channels currently online`)
   } else {
     const links = channels.map((o) => `https://twitch.tv/${o}`)
-    ctx.reply(`Currently online: \n ${links.join('\n')}`)
+    ctx.reply(`Currently online: \n${links.join('\n')}`)
   }
 })
 

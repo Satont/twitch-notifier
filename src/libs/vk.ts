@@ -71,7 +71,7 @@ bot.updates.hear(value => (value.startsWith('!онлайн')), async (ctx) => {
     ctx.reply(`Сейчас нет ни одного канала онлайн из ваших подписок.`)
   } else {
     const links = channels.map((o) => `https://twitch.tv/${o}`)
-    ctx.reply(`Сейчас онлайн: \n ${links.join('\n')}`)
+    ctx.reply(`Сейчас онлайн: \n${links.join('\n')}`)
   }
 })
 
