@@ -1,13 +1,13 @@
 import { Sequelize } from 'sequelize-typescript'
 import { info } from '../helpers/logs'
-import { config } from '../helpers/config'
+import { db } from '../helpers/config'
 import { join } from 'path'
 
 let connected: boolean = false
 
-const sequelize = new Sequelize(config.db.name, config.db.user, config.db.password, {
-  host: config.db.host,
-  port: config.db.port,
+const sequelize = new Sequelize(db.name, db.user, db.password, {
+  host: db.host,
+  port: db.port,
   dialect: 'postgres',
   pool: {
     max: 10,
