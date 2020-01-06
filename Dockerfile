@@ -17,5 +17,7 @@ WORKDIR /app
 
 RUN npm i
 RUN npm run build
+RUN cp database.js.example database.js
+RUN cp config.js.example config.js
 
 CMD npm start
