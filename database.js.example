@@ -4,6 +4,7 @@ module.exports = {
     password: 'database_dev',
     database: 'database_dev',
     host: '127.0.0.1',
+    port: Number(process.env.DB_PORT),
     dialect: 'postgres',
     migrationStorageTableName: 'migrations',
   },

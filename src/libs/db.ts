@@ -5,7 +5,7 @@ import { join } from 'path'
 
 let connected: boolean = false
 
-const sequelize = new Sequelize(db.name, db.user, db.password, {
+const sequelize = new Sequelize(db.database, db.username, db.password, {
   host: db.host,
   port: db.port,
   dialect: 'postgres',
