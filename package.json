@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p src",
-    "start": "npm run migration:migrate && node dest/app",
+    "start": "NODE_ENV=production npm run migration:migrate && NODE_ENV=production node dest/app",
     "migration:generate": "sh tools/generateMigration.sh",
     "migration:migrate": "sequelize-cli db:migrate",
     "migration:undo": "sequelize-cli db:undo",
