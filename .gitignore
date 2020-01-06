@@ -4,3 +4,5 @@ package-lock.json
 start.sh
 token
 test.ts
+config.js
+database.js
