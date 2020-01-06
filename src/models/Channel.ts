@@ -1,10 +1,11 @@
-import { Table, Column, Model, Unique, PrimaryKey, AllowNull } from 'sequelize-typescript';
- 
+import { Table, Column, Model, Unique, PrimaryKey, AllowNull, HasMany } from 'sequelize-typescript';
+import Follow from './Follow'
+
 @Table({
   tableName: 'channels',
   timestamps: false
 })
-export class Channel extends Model<Channel> {
+export default class Channel extends Model<Channel> {
   @AllowNull(false)
   @Unique
   @PrimaryKey
@@ -16,4 +17,7 @@ export class Channel extends Model<Channel> {
 
   @Column
   public online: boolean;
+
+  @HasMany(() => Follow)
+  public follows: Follow[]
 }
