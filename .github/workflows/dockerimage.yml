@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@master
       - name: Build & Push to Docker Hub
-        uses: opspresso/action-docker@master
+        uses: opspresso/action-docker@v0.2.1
         env:
           USERNAME: ${{ secrets.DOCKER_USERNAME }}
           PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
