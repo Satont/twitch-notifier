@@ -1,5 +1,5 @@
 # Twitch Notifier
-![](https://img.shields.io/github/workflow/status/satont/twitch-notifier/Docker Image CI - latest?style=for-the-badge) ![](https://img.shields.io/david/satont/twitch-notifier?style=for-the-badge)
+![](https://img.shields.io/github/workflow/status/satont/twitch-notifier/Docker%20Image%20CI%20-%20latest?style=for-the-badge) ![](https://img.shields.io/david/satont/twitch-notifier?style=for-the-badge)
 
 ## About
 Bot for track twitch channels going live and notify followed users about that!
