@@ -1,0 +1,10 @@
+version: "3.2"
+
+services:
+  twitch-notifier:
+    image: docker.pkg.github.com/satont/twitch-notifier/master:latest
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env
