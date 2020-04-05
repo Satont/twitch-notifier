@@ -14,14 +14,14 @@ async function check () {
   for (let dbChannel of dbChannels) {
     const channel = onlineChannels.find(o => Number(o.user_id) === dbChannel.id)
 
-    if (channel && !dbChannel.online) { // channel online, do notify
+    if (channel && !dbChannel.online) { // twitch channel online, but offline in db => do notify
       await dbChannel.update({ online: true })
       notifyUsers(channel.user_name, dbChannel.id)
-    } else if (!channel && dbChannel.online) { // if channel offline but online in db, then set channel as offline in db
+    } else if (!channel && dbChannel.online) { // if channel offline on twtch but online in db, then set channel as offline in db
       await dbChannel.update({ online: false })
-    } else if (channel && dbChannel.online) { // skip if channel online and online in db
+    } else if (channel && dbChannel.online) { // skip if twitch channel online and online in db
       continue
-    } else await dbChannel.update({ online: false })
+    } else await dbChannel.update({ online: false }) // set channel in db as offline
   }
 }
 check()
