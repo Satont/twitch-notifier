@@ -4,14 +4,19 @@ import TelegramService from '../messengers/telegram'
 import { Op } from 'sequelize'
 import { User } from '../models/User'
 import { Twitch, StreamMetadata } from './twitch'
+import { error } from '../helpers/logs'
 
 const spaceRegexp = /^\s*$/
 const twitch = new Twitch(config.twitch.clientId)
 
-export const notify = async(streamerName: string, streamerId: number) => {
-  const streamMetaData = await twitch.getStreamMetaData(streamerId)
-  sendVk(streamMetaData)
-  sendTelegram(streamMetaData)
+export const notify = async (streamerId: number) => {
+  try {
+    const streamMetaData = await twitch.getStreamMetaData(streamerId)
+    sendVk(streamMetaData)
+    sendTelegram(streamMetaData)
+  } catch (e) {
+    error(e)
+  }
 }
 
 const sendVk = async (streamMetaData: StreamMetadata) => {

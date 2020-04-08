@@ -16,7 +16,7 @@ async function check () {
 
     if (channel && !dbChannel.online) { // twitch channel online, but offline in db => do notify
       await dbChannel.update({ online: true })
-      notifyUsers(channel.user_name, dbChannel.id)
+      notifyUsers(dbChannel.id)
     } else if (!channel && dbChannel.online) { // if channel offline on twtch but online in db, then set channel as offline in db
       await dbChannel.update({ online: false })
     } else if (channel && dbChannel.online) { // skip if twitch channel online and online in db
