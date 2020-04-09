@@ -1,4 +1,5 @@
 /* do not change everything in this file until you don't know what are you doing */
+require('dotenv').config()
 
 module.exports = {
   development: {
