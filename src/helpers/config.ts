@@ -10,6 +10,12 @@ export const config = {
   },
   panel: {
     port: Number(process.env.PANEL_PORT) || 3000
+  },
+  proxy: {
+    host: process.env.PROXY_HOST,
+    port: Number(process.env.PROXY_PORT),
+    username: process.env.PROXY_USERNAME,
+    password: process.env.PROXY_PASSWORD
   }
 }
 

@@ -1,5 +1,4 @@
-import Telegraf, { SceneContextMessageUpdate } from 'telegraf'
-import { Stage, session, BaseScene } from 'telegraf'
+import Telegraf, { SceneContextMessageUpdate, Stage, session, BaseScene, TelegramOptions } from 'telegraf'
 import { config } from '../helpers/config'
 import { info, error } from '../helpers/logs'
 import { User } from '../models/User'
@@ -9,8 +8,12 @@ import live from '../commands/live'
 import follows from '../commands/follows'
 import { isBoolean } from 'util'
 import { IService, SendMessageOpts } from './interface'
+import { agent as ProxyAgent } from '../helpers/tgProxy'
 
 const service = 'telegram'
+const telegramOpts: TelegramOptions = {
+  agent: ProxyAgent as any
+} 
 
 class Telegram extends IService {
   scenes: { [x: string]: BaseScene<SceneContextMessageUpdate> } = {
@@ -66,7 +69,7 @@ class Telegram extends IService {
     this.init()
   }
   protected init(): void {
-    this.bot = new Telegraf(config.telegram.token)
+    this.bot = new Telegraf(config.telegram.token, { telegram: telegramOpts })
     this.bot.launch().then(() => info('Telegram bot started.')).catch(e => error(e))
     this.loadMiddlewares()
     this.registerScenes()
