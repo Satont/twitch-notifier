@@ -1,4 +1,5 @@
 import 'source-map-support/register'
+import 'reflect-metadata'
 
 import { init as SentryInit } from '@sentry/node'
 
