@@ -11,7 +11,6 @@ import { connected } from './libs/db'
 import { info } from './helpers/logs'
 
 function init () {
-  throw new Error('test')
   if (!connected) return setTimeout(() => init(), 500)
   require('./messengers/vk')
   require('./messengers/telegram')
