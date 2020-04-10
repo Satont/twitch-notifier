@@ -12,9 +12,12 @@ import { IService, SendMessageOpts } from './interface'
 const service = 'vk'
 
 class Vk extends IService {
+  service = service
+
   bot: VkIO
   constructor() {
     super()
+    this.init()
   }
   protected init() {
     this.bot = new VkIO({ token: config.vk.token })

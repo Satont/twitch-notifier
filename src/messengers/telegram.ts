@@ -16,6 +16,8 @@ const telegramOpts: TelegramOptions = {
 } 
 
 class Telegram extends IService {
+  service = service
+  
   scenes: { [x: string]: BaseScene<SceneContextMessageUpdate> } = {
     follow: new BaseScene('follow', {
       ttl: 60,
