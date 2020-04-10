@@ -17,6 +17,7 @@
   "baseUrl": "src/bot",
   "outDir": "../dest",
   "inlineSourceMap": true,
+  "inlineSources": true,
   "skipLibCheck": true,
   },
   "exclude": [
