@@ -12,7 +12,7 @@ async function check () {
   const onlineChannels = flattenDeep(await getOnlineStreams(dbChannels.map(o => o.id)))
 
   for (let dbChannel of dbChannels) {
-    const channel = onlineChannels.find(o => Number(o.user_id) === dbChannel.id)
+    const channel = onlineChannels.find(o => Number(o.channel._id) === dbChannel.id)
 
     if (channel && !dbChannel.online) { // twitch channel online, but offline in db => do notify
       await dbChannel.update({ online: true })

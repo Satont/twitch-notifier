@@ -23,10 +23,10 @@ export class Twitch {
 
   public async getChannel(channelName: string): Promise<{id: number, login: string, displayName: string}> {
     try {
-      const request = await this.helix.get(`users?login=${channelName}`)
-      const response = request.data.data[0]
-      if (!request.data.data.length) throw new Error(`Channel ${channelName} not found.`)
-      else return { id: Number(response.id), login: response.login, displayName: response.display_name }
+      const request = await this.kraken.get(`users?login=${channelName}`)
+      const response = request.data
+      if (!response.users.length) throw new Error(`Channel ${channelName} not found.`)
+      else return { id: Number(response.users[0]._id), login: response.users[0].name, displayName: response.users[0].display_name }
     } catch (e) {
       error(e.message)
       throw new Error(e.message)
@@ -35,8 +35,8 @@ export class Twitch {
 
   public async getChannelsById(channels: number[]): Promise<[{ id: number, displayName: string, login: string }]> {
     try {
-      const request = await this.helix.get(`users?id=${channels.join('&id=')}`)
-      return request.data.data.map(o => { return { id: Number(o.id), displayName: o.display_name, login: o.login } })
+      const request = await this.kraken.get(`users?id=${channels.join('&id=')}`)
+      return request.data.users.map(o => { return { id: Number(o._id), displayName: o.display_name, login: o.name } })
     } catch (e) {
       error(e.message)
       throw new Error(e.message)
@@ -45,8 +45,8 @@ export class Twitch {
 
   public async checkOnline (channels: number[]) {
     try {
-      const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
-      return request.data.data
+      const request = await this.kraken.get(`streams?first=100&channel=${channels.join('&channel=')}`)
+      return request.data.streams
     } catch (e) {
       throw new Error(e.message)
     }
