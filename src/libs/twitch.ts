@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import { error } from '../helpers/logs'
+import { error, info } from '../helpers/logs'
 
 export default new class Twitch {
   helix: AxiosInstance
@@ -36,7 +36,7 @@ export default new class Twitch {
         'Authorization': `OAuth ${this.token}`
       },
     })
-
+    info('Bot token refreshed and validated')
     this.inited = true
   }
 
@@ -47,8 +47,7 @@ export default new class Twitch {
       if (!response.users.length) throw new Error(`Channel ${channelName} not found.`)
       else return { id: Number(response.users[0]._id), login: response.users[0].name, displayName: response.users[0].display_name }
     } catch (e) {
-      error(e.message)
-      throw new Error(e.message)
+      error(e)
     }
   }
 
@@ -57,8 +56,7 @@ export default new class Twitch {
       const request = await this.kraken.get(`users?id=${channels.join('&id=')}`)
       return request.data.users.map(o => { return { id: Number(o._id), displayName: o.display_name, login: o.name } })
     } catch (e) {
-      error(e.message)
-      throw new Error(e.message)
+      error(e)
     }
   }
 
@@ -67,7 +65,7 @@ export default new class Twitch {
       const request = await this.kraken.get(`streams?first=100&channel=${channels.join('&channel=')}`)
       return request.data.streams
     } catch (e) {
-      throw new Error(e.message)
+      error(e)
     }
   }
 
@@ -77,7 +75,6 @@ export default new class Twitch {
       return data.stream
     } catch (e) {
       error(e)
-      throw new Error(e)
     }
   }
 
@@ -87,7 +84,6 @@ export default new class Twitch {
       return data.data
     } catch (e) {
       error(e)
-      throw new Error(e)
     }
   }
 }
