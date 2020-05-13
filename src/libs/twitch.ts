@@ -13,13 +13,19 @@ export default new class Twitch {
   }
 
   private async init() {
+    info('Initiliazing twitch class')
     const request = await axios.get(`http://auth.satont.ru/refresh?refresh_token=${process.env.TWITCH_REFRESHTOKEN}`)
-    this.token = request.data.token
+      .catch(error)
+    this.token = request ? request.data.token : null
 
     const validateRequest = await axios.get(`https://id.twitch.tv/oauth2/validate`, { headers: { Authorization: `OAuth ${this.token}` } })
+      .catch(error)
 
-    this.clientId = validateRequest.data.client_id
+    this.clientId = validateRequest ? validateRequest.data.client_id : null
 
+    if (!this.clientId || !this.token) {
+      error(`Cannot init twitch class, ${this.token}, ${this.clientId}`)
+    }
     this.helix = axios.create({
       baseURL: 'https://api.twitch.tv/helix/',
       headers: {
