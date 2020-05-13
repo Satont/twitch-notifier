@@ -7,6 +7,6 @@ export default async ({ userId, service}: { userId: number, service: 'vk' | 'tel
     return false
   } else {
     const channels = await Twitch.getChannelsById(user.follows)
-    return channels.map(o => o.displayName)
+    return channels.map(o => o.login)
   }
 }

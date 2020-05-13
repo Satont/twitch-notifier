@@ -59,17 +59,18 @@ export default new class Twitch {
 
   public async getChannelsById(channels: number[]): Promise<[{ id: number, displayName: string, login: string }]> {
     try {
-      const request = await this.kraken.get(`users?id=${channels.join('&id=')}`)
-      return request.data.users.map(o => { return { id: Number(o._id), displayName: o.display_name, login: o.name } })
+      const request = await this.helix.get(`users?id=${channels.join('&id=')}`)
+ 
+      return request.data.data.map(o => { return { id: Number(o.id), displayName: o.display_name, login: o.login } })
     } catch (e) {
       error(e)
     }
   }
 
-  public async checkOnline (channels: number[]) {
+  public async checkOnline(channels: number[]) {
     try {
-      const request = await this.kraken.get(`streams?first=100&channel=${channels.join('&channel=')}`)
-      return request.data.streams
+      const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
+      return request.data.data
     } catch (e) {
       error(e)
     }

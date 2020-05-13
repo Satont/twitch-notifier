@@ -17,6 +17,6 @@ export default async ({ userId, service}: { userId: number, service: 'vk' | 'tel
     })
 
     const channels = await Twitch.getChannelsById(liveChannels.map((o) => o.id))
-    return channels.map(o => o.displayName)
+    return channels.map(o => o.login)
   }
 }
