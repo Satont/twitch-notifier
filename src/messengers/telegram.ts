@@ -1,4 +1,4 @@
-import { Telegraf, Stage, session, BaseScene } from 'telegraf'
+import { Telegraf, Stage, session, BaseScene, Context } from 'telegraf'
 import { config } from '../helpers/config'
 import { info, error } from '../helpers/logs'
 import { User } from '../models/User'
@@ -82,9 +82,15 @@ class Telegram extends IService {
     try {
       const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
       for (const target of targets) {
-        this.bot.telegram.sendPhoto(target, opts.image, {
-          caption: opts.message
-        })
+        if (opts.image) {
+          this.bot.telegram.sendPhoto(target, opts.image, {
+            caption: opts.message,
+          })
+        } else {
+          this.bot.telegram.sendMessage(target, opts.message, {
+            disable_web_page_preview: true,
+          })
+        }
       }
       return true
     } catch (e) {
@@ -114,15 +120,15 @@ class Telegram extends IService {
     this.bot.command(['start', 'help'], ({ reply }) => reply(`Hi! I will notify you about the beginning of the broadcasts on Twitch.`))
     this.bot.command('follow', Stage.enter('follow'))
     this.bot.command('unfollow', Stage.enter('unfollow'))
-    this.bot.command('follows', async (ctx) => {
+    this.bot.command('follows', async (ctx: Context) => {
       const channels = await follows({ userId: ctx.from.id, service })
-      if (isBoolean(channels)) ctx.reply(`You aren't followed to anyone`)
-      else ctx.reply(`You are followed to ${channels.join(', ')}`)
+      if (isBoolean(channels)) this.sendMessage({ target: ctx.from.id, message: `You aren't followed to someone` })
+      else this.sendMessage({ target: ctx.from.id, message: `You are followed to ${channels.join(', ')}` })
     })
-    this.bot.command('live', async (ctx) => {
+    this.bot.command('live', async (ctx: Context) => {
       const channels = await live({ userId: ctx.from.id, service })
-      if (isBoolean(channels)) ctx.reply(`There is no channels currently online`) 
-      else ctx.reply(`Currently online: \n${channels.map((o) => 'https://twitch.tv/' + o).join('\n')}`)
+      if (isBoolean(channels)) this.sendMessage({ target: ctx.from.id, message: `There is no channels currently online` })
+      else this.sendMessage({ target: ctx.from.id, message: `Currently online: \n${channels.map((o) => 'https://twitch.tv/' + o).join('\n')}` })
     })
   }
 }
