@@ -1,24 +1,43 @@
 import axios, { AxiosInstance } from 'axios'
 import { error } from '../helpers/logs'
 
-export class Twitch {
+export default new class Twitch {
   helix: AxiosInstance
   kraken: AxiosInstance
+  token: string
+  clientId: string
+  inited: boolean
 
-  constructor(clientId: string) {
+  constructor() {
+    this.init()
+  }
+
+  private async init() {
+    const request = await axios.get(`http://auth.satont.ru/refresh?refresh_token=${process.env.TWITCH_REFRESHTOKEN}`)
+    this.token = request.data.token
+
+    const validateRequest = await axios.get(`https://id.twitch.tv/oauth2/validate`, { headers: { Authorization: `OAuth ${this.token}` } })
+
+    this.clientId = validateRequest.data.client_id
+
     this.helix = axios.create({
       baseURL: 'https://api.twitch.tv/helix/',
       headers: {
-        'Client-ID': clientId,
+        'Client-ID': this.clientId,
+        'Authorization': `Bearer ${this.token}`
       },
     })
+
     this.kraken = axios.create({
       baseURL: 'https://api.twitch.tv/kraken/',
       headers: {
         'Accept': 'application/vnd.twitchtv.v5+json',
-        'Client-ID': clientId,
+        'Client-ID': this.clientId,
+        'Authorization': `OAuth ${this.token}`
       },
     })
+
+    this.inited = true
   }
 
   public async getChannel(channelName: string): Promise<{id: number, login: string, displayName: string}> {
@@ -56,6 +75,16 @@ export class Twitch {
     try {
       const { data } = await this.kraken.get(`streams/${id}`)
       return data.stream
+    } catch (e) {
+      error(e)
+      throw new Error(e)
+    }
+  }
+
+  public async getUsers(ids: number[]): Promise<any> {
+    try {
+      const { data } = await this.helix.get(`users?id=${ids.join('&id=')}`)
+      return data.data
     } catch (e) {
       error(e)
       throw new Error(e)

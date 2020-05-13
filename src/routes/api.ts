@@ -3,8 +3,7 @@ const router = Router()
 import { Channel } from '../models/Channel'
 import { User } from '../models/User'
 import { sequelize as db} from '../libs/db'
-import axios from 'axios'
-import { config } from '../helpers/config'
+import Twitch from '../libs/twitch'
 
 router.get('/', async (req, res) => {
   res.send('Nothing to do here :)')
@@ -24,11 +23,9 @@ router.get('/top10', async (req, res) => {
   order by followers_count desc
   limit 10`
   const [top]: any = await db.query(query)
-  const request = await axios.get(`https://api.twitch.tv/helix/users?id=${top.map(o => o.channel_id).join('&id=')}`, { headers: {
-    'Client-ID': config.twitch.clientId
-  }})
-  for (const channel of request.data.data) {
-    const index = request.data.data.indexOf(channel)
+  const users = await Twitch.getUsers(top.map(o => o.channel_id))
+  for (const channel of users) {
+    const index = users.indexOf(channel)
     top[index].imageUrl = channel.profile_image_url
   }
   res.json(top)

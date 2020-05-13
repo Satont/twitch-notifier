@@ -1,10 +1,7 @@
-import { Twitch } from '../libs/twitch'
-import { config } from '../helpers/config'
+import Twitch from '../libs/twitch'
 import { User } from '../models/User'
 import { Channel } from '../models/Channel'
 import { Op } from 'sequelize'
-
-const twitch = new Twitch(config.twitch.clientId)
 
 export default async ({ userId, service}: { userId: number, service: 'vk' | 'telegram'}): Promise<boolean | string[]> => {
   const user = await User.findOne({ where: { id: userId, service } })
@@ -19,7 +16,7 @@ export default async ({ userId, service}: { userId: number, service: 'vk' | 'tel
       raw: true,
     })
 
-    const channels = await twitch.getChannelsById(liveChannels.map((o) => o.id))
+    const channels = await Twitch.getChannelsById(liveChannels.map((o) => o.id))
     return channels.map(o => o.displayName)
   }
 }

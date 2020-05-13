@@ -5,9 +5,6 @@ export const config = {
   telegram: {
     token: process.env.TGTOKEN
   },
-  twitch: {
-    clientId: process.env.TWITCH_CLIENTID
-  },
   panel: {
     port: Number(process.env.PANEL_PORT) || 3000
   },

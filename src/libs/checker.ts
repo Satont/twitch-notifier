@@ -1,12 +1,12 @@
-import { Twitch } from './twitch'
+import Twitch from './twitch'
 import { Channel } from '../models/Channel'
 import { chunk, flattenDeep } from 'lodash'
-import { config } from '../helpers/config'
 import { notify as notifyUsers } from './sender'
 
-const twitch = new Twitch(config.twitch.clientId)
 
 async function check () {
+  if (!Twitch.inited) return setTimeout(() => check(), 2 * 1000)
+
   setTimeout(() => check(), 5 * 60 * 1000)
   const dbChannels = await Channel.findAll()
   const onlineChannels = flattenDeep(await getOnlineStreams(dbChannels.map(o => o.id)))
@@ -30,7 +30,7 @@ async function getOnlineStreams(channels: number[]) {
   let onlineChannels: any[] = []
   const chunks = chunk(channels, 100)
   for (const chunk of chunks) {
-    onlineChannels.push((await twitch.checkOnline(chunk)))
+    onlineChannels.push((await Twitch.checkOnline(chunk)))
   }
   return onlineChannels
 }

@@ -1,17 +1,15 @@
-import { config } from '../helpers/config'
 import VkService from '../messengers/vk'
 import TelegramService from '../messengers/telegram'
 import { Op } from 'sequelize'
 import { User } from '../models/User'
-import { Twitch, StreamMetadata } from './twitch'
+import Twitch, { StreamMetadata } from './twitch'
 import { error } from '../helpers/logs'
 
 const spaceRegexp = /^\s*$/
-const twitch = new Twitch(config.twitch.clientId)
 
 export const notify = async (streamerId: number) => {
   try {
-    const streamMetaData = await twitch.getStreamMetaData(streamerId)
+    const streamMetaData = await Twitch.getStreamMetaData(streamerId)
     sendVk(streamMetaData)
     sendTelegram(streamMetaData)
   } catch (e) {
