@@ -13,6 +13,7 @@ export default new class Twitch {
   }
 
   private async init() {
+    this.inited = false
     info('Initiliazing twitch class')
     const request = await axios.get(`http://auth.satont.ru/refresh?refresh_token=${process.env.TWITCH_REFRESHTOKEN}`)
       .catch(error)
@@ -44,6 +45,7 @@ export default new class Twitch {
     })
     info('Bot token refreshed and validated')
     this.inited = true
+    setTimeout(() => this.init(), 1 * 30 * 60 * 1000)
   }
 
   public async getChannel(channelName: string): Promise<{id: number, login: string, displayName: string}> {
