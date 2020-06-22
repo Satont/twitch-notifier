@@ -40,3 +40,30 @@ const sendTelegram = async (streamMetaData: StreamMetadata) => {
   const message = `${streamMetaData.channel.display_name} online!\n${game}${title}https://twitch.tv/${streamMetaData.channel.name}`
   TelegramService.sendMessage({ target: users, message, image: `${preview}?timestamp=${Date.now()}` })
 }
+
+export const notifyGameChange = async (streamer: { name: string, id: number }, oldGame: string, newGame: string) => {
+  try {
+    sendVkGameChange(streamer, oldGame, newGame)
+    sendTelegramGameChange(streamer, oldGame, newGame)
+  } catch (e) {
+    error(e)
+  }
+}
+
+const sendVkGameChange = async (streamer: { name: string, id: number }, oldGame: string, newGame: string) => {
+  const users = (await User.findAll({ 
+    where: { follows: { [Op.contains]: [streamer.id] }, service: 'vk', follow_game_change: true },
+    raw: true
+  })).map(o => o.id)
+  const message = `${streamer.name} теперь стримит ${newGame}! Предыдущая категория: ${oldGame}\nhttps://twitch.tv/${streamer.name}`
+  await VkService.sendMessage({ target: users, message })
+}
+
+const sendTelegramGameChange = async (streamer: { name: string, id: number }, oldGame: string, newGame: string) => {
+  const users = (await User.findAll({
+    where: { follows: { [Op.contains]: [streamer.id] }, service: 'telegram', follow_game_change: true },
+    raw: true
+  })).map(o => o.id)
+  const message = `${streamer.name} now streaming ${newGame}! Previous category: ${oldGame}\nhttps://twitch.tv/${streamer.name}`
+  TelegramService.sendMessage({ target: users, message,  })
+}

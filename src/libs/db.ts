@@ -16,7 +16,7 @@ const sequelize = new Sequelize(db.database, db.username, db.password, {
     idle: 10000
   },
   models: [join(__dirname, '../models')],
-  logging: false
+  logging: true
 })
 
 sequelize.authenticate()

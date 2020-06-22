@@ -17,4 +17,8 @@ export class User extends Model<User> {
   @Default('vk')
   @Column
   public service: string;
+
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  public follow_game_change: boolean;
 }

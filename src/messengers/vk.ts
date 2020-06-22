@@ -8,6 +8,7 @@ import live from '../commands/live'
 import { config } from '../helpers/config'
 import { chunk, isBoolean } from 'lodash'
 import { IService, SendMessageOpts } from './interface'
+import gameChange from '../commands/gameChange'
 
 const service = 'vk'
 
@@ -97,6 +98,11 @@ class Vk extends IService {
       if (isBoolean(channels)) ctx.reply(`Сейчас нет ни одного канала онлайн из ваших подписок.`)
       else ctx.reply(`Сейчас онлайн: \n${channels.map((o) => 'https://twitch.tv/' + o).join('\n')}`)
     })
+    this.bot.updates.hear(value => (value.startsWith('!watch_game_change')), async (ctx) => {
+      const result = await gameChange({ userId: ctx.senderId, service })
+      if (result) this.sendMessage({ target: ctx.from.id, message: 'Отслеживание изменения игры было включено'})
+      else this.sendMessage({ target: ctx.from.id, message: 'Отслеживание изменения игры было включено'})
+    })
     this.bot.updates.hear(value => (value.startsWith('!команды')), async (ctx) => {
       ctx.reply(`
       На данный момент доступны следующие команды: 
@@ -105,6 +111,7 @@ class Vk extends IService {
       !подписки 
       !команды
       !онлайн
+      !watch_game_change
       `)
     })
   }
