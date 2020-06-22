@@ -16,4 +16,7 @@ export class Channel extends Model<Channel> {
 
   @Column
   public online: boolean;
+
+  @Column
+  public game: string
 }

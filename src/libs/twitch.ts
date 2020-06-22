@@ -69,7 +69,11 @@ export default new class Twitch {
     }
   }
 
-  public async checkOnline(channels: number[]) {
+  public async checkOnline(channels: number[]): Promise<Array<{
+    user_id: string,
+    user_name: string,
+    game_id: string
+  }>> {
     try {
       const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
       return request.data.data

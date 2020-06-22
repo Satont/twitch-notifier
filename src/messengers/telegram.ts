@@ -6,6 +6,7 @@ import follow from '../commands/follow'
 import unfollow from '../commands/unfollow'
 import live from '../commands/live'
 import follows from '../commands/follows'
+import gameChange from '../commands/gameChange'
 import { isBoolean } from 'util'
 import { IService, SendMessageOpts } from './interface'
 import { agent as ProxyAgent } from '../helpers/tgProxy'
@@ -129,6 +130,11 @@ class Telegram extends IService {
       const channels = await live({ userId: ctx.from.id, service })
       if (isBoolean(channels)) this.sendMessage({ target: ctx.from.id, message: `There is no channels currently online` })
       else this.sendMessage({ target: ctx.from.id, message: `Currently online: \n${channels.map((o) => 'https://twitch.tv/' + o).join('\n')}` })
+    })
+    this.bot.command('watch_game_change', async (ctx: Context) => {
+      const result = await gameChange({ userId: ctx.from.id, service })
+      if (result) this.sendMessage({ target: ctx.from.id, message: 'Watching game change was enabled'})
+      else this.sendMessage({ target: ctx.from.id, message: 'Watching game change was disabled'})
     })
   }
 }
