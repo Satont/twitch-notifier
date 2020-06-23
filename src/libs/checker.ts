@@ -13,6 +13,9 @@ async function check () {
 
   for (let dbChannel of dbChannels) {
     const channel = onlineChannels.find(o => Number(o.user_id) === dbChannel.id)
+
+    if (!channel) continue;
+
     const metadata = await Twitch.getStreamMetaData(Number(channel.user_id))
 
     if (channel && !dbChannel.online) { // twitch channel online, but offline in db => do notify
@@ -39,6 +42,7 @@ async function getOnlineStreams(channels: number[]): Promise<Array<{
   for (const chunk of chunks) {
     onlineChannels.push((await Twitch.checkOnline(chunk)))
   }
+
   return onlineChannels
 }
 
