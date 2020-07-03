@@ -2,18 +2,18 @@ import VkService from '../messengers/vk'
 import TelegramService from '../messengers/telegram'
 import { Op } from 'sequelize'
 import { User } from '../models/User'
-import Twitch, { StreamMetadata } from './twitch'
+import { StreamMetadata } from './twitch'
 import { error } from '../helpers/logs'
 
 const spaceRegexp = /^\s*$/
 
-export const notify = async (streamerId: number) => {
+export const notify = async (metadata: StreamMetadata) => {
+  if (!metadata) return
   try {
-    const streamMetaData = await Twitch.getStreamMetaData(streamerId)
-    sendVk(streamMetaData)
-    sendTelegram(streamMetaData)
+    await sendVk(metadata)
+    await sendTelegram(metadata)
   } catch (e) {
-    error(e)
+    console.debug(e)
   }
 }
 

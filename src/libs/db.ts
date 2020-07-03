@@ -11,17 +11,16 @@ const sequelize = new Sequelize(db.database, db.username, db.password, {
   dialect: 'postgres',
   pool: {
     max: 10,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+    min: 1,
   },
   models: [join(__dirname, '../models')],
-  logging: true
+  logging: process.env.NODE_ENV === 'development'
 })
 
 sequelize.authenticate()
   .then(() => {
-    sequelize.sync().then(() => connected = true).then(() => info('Succesfuly connected to db.'))
+    connected = true
+    info('Succesfuly connected to db.')
   })
   .catch(err => {
     console.log(err)

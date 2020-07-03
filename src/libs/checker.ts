@@ -3,7 +3,6 @@ import { Channel } from '../models/Channel'
 import { chunk, flattenDeep } from 'lodash'
 import { notify as notifyUsers, notifyGameChange } from './sender'
 
-
 async function check () {
   if (!Twitch.inited) return setTimeout(() => check(), 2 * 1000)
 
@@ -13,19 +12,19 @@ async function check () {
 
   for (let dbChannel of dbChannels) {
     const channel = onlineChannels.find(o => Number(o.user_id) === dbChannel.id)
+    const metadata = channel ? await Twitch.getStreamMetaData(Number(channel?.user_id)) : null
 
-    const metadata = await Twitch.getStreamMetaData(Number(channel?.user_id))
-
-    if (channel && !dbChannel.online) { // twitch channel online, but offline in db => do notify
-      await dbChannel.update({ online: true, game: metadata.game })
-      notifyUsers(dbChannel.id)
-    } else if (!channel && dbChannel.online) { // if channel offline on twtch but online in db, then set channel as offline in db
+    if (channel && metadata) {
+      if (!dbChannel.online) {
+        await dbChannel.update({ online: true, game: metadata?.game })
+        notifyUsers(metadata)
+      } else {
+        await checkGame(channel, { old: dbChannel.game, new: metadata?.game })
+        await dbChannel.update({ game: metadata?.game })
+      }
+    } else {
       await dbChannel.update({ online: false })
-    } else if (channel && dbChannel.online) { // skip if twitch channel online and online in db
-      checkGame(channel, { old: dbChannel.game, new: metadata?.game })
-      dbChannel.update({ game: metadata.game })
-      continue
-    } else await dbChannel.update({ online: false, }) // set channel in db as offline
+    }
   }
 }
 check()
