@@ -55,7 +55,7 @@ export default new class Twitch {
       if (!response.users.length) throw new Error(`Channel ${channelName} not found.`)
       else return { id: Number(response.users[0]._id), login: response.users[0].name, displayName: response.users[0].display_name }
     } catch (e) {
-      error(e)
+      console.debug(e)
     }
   }
 
@@ -65,7 +65,7 @@ export default new class Twitch {
  
       return request.data.data.map(o => { return { id: Number(o.id), displayName: o.display_name, login: o.login } })
     } catch (e) {
-      error(e)
+      console.debug(e)
     }
   }
 
@@ -78,7 +78,7 @@ export default new class Twitch {
       const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
       return request.data.data
     } catch (e) {
-      error(e)
+      console.debug(e)
     }
   }
 
@@ -87,7 +87,7 @@ export default new class Twitch {
       const { data } = await this.kraken.get(`streams/${id}`)
       return data.stream
     } catch (e) {
-      error(e)
+      console.debug(e)
     }
   }
 
@@ -96,7 +96,7 @@ export default new class Twitch {
       const { data } = await this.helix.get(`users?id=${ids.join('&id=')}`)
       return data.data
     } catch (e) {
-      error(e)
+      console.debug(e)
     }
   }
 }
