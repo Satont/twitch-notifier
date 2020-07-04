@@ -44,7 +44,7 @@ const sendTelegram = async (streamMetaData: StreamMetadata) => {
 export const notifyGameChange = async (streamer: { name: string, id: number }, oldGame: string, newGame: string) => {
   try {
     sendVkGameChange(streamer, oldGame, newGame)
-    sendTelegramGameChange(streamer, oldGame, newGame)
+    sendTelegramGameChange(streamer, oldGame || '<i>nothing</i>', newGame || '<i>nothing</i>')
   } catch (e) {
     error(e)
   }

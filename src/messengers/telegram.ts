@@ -120,10 +120,12 @@ class Telegram extends IService {
         if (opts.image) {
           this.bot.telegram.sendPhoto(target, opts.image, {
             caption: opts.message,
+            parse_mode: 'HTML',
           })
         } else {
           this.bot.telegram.sendMessage(target, opts.message, {
             disable_web_page_preview: true,
+            parse_mode: 'HTML',
           })
         }
       }
