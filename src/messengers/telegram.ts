@@ -20,7 +20,22 @@ class Telegram extends IService {
     follow: new BaseScene('follow', {
       ttl: 60,
       enterHandlers: [
-        (ctx) => ctx.reply('Enter streamer username you want to follow')
+        async (ctx) => {
+          const channel = ctx.message.text.substring(ctx.message.entities[0].length).trim()
+          if (!channel || !channel.length) return ctx.reply('Enter streamer username you want to follow')
+          
+          try {
+            const followed = await follow({ userId: ctx.from.id, service, channel })
+            if (followed) {
+              ctx.reply(`You successfuly followed to ${channel}`)
+            }
+          } catch (e) {
+            error(e)
+            ctx.reply(e.message)
+          } finally {
+            ctx.scene.leave()
+          }
+        }
       ],
       handlers: [
         async (ctx) => {
@@ -33,15 +48,33 @@ class Telegram extends IService {
           } catch (e) {
             error(e)
             ctx.reply(e.message)
+          } finally {
+            ctx.scene.leave()
           }
-          ctx.scene.leave()
         }
       ]
     }),
     unfollow: new BaseScene('unfollow', {
       ttl: 60,
       enterHandlers: [
-        (ctx) => ctx.reply('Enter streamer username you want to unfollow')
+        async (ctx) => {
+          const channel = ctx.message.text.substring(ctx.message.entities[0].length).trim()
+          if (!channel || !channel.length) return ctx.reply('Enter streamer username you want to unfollow')
+
+          try {
+            const unfollowed = await unfollow({ service, userId: ctx.from.id, channel })
+            if (!unfollowed) {
+              ctx.reply(`You aren't followed to ${channel}.`)
+            } else {
+              ctx.reply(`You was successfuly unfollowed from ${channel}.`)
+            }
+          } catch (e) {
+            error(e)
+            ctx.reply(e.message)
+          } finally {
+            ctx.scene.leave()
+          }
+        }
       ],
       handlers: [
         async (ctx) => {
@@ -56,8 +89,9 @@ class Telegram extends IService {
           } catch (e) {
             error(e)
             ctx.reply(e.message)
+          } finally {
+            ctx.scene.leave()
           }
-          ctx.scene.leave()
         }
       ]
     }),
