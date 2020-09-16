@@ -9,16 +9,12 @@ const spaceRegexp = /^\s*$/
 
 export const notify = async (metadata: StreamMetadata) => {
   if (!metadata) return
-  try {
-    await sendVk(metadata)
-    await sendTelegram(metadata)
-  } catch (e) {
-    console.debug(e)
-  }
+  await sendVk(metadata).catch(console.error)
+  await sendTelegram(metadata).catch(console.error)
 }
 
 const sendVk = async (streamMetaData: StreamMetadata) => {
-  const photo = await VkService.uploadPhoto(streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720'))
+  const photo = await VkService.uploadPhoto(streamMetaData.preview.template.replace('{width}', '1280').replace('{height}', '720')).catch(() => null)
   const game = streamMetaData.game ? `Игра: ${streamMetaData.game}\n` : ''
   const title = spaceRegexp.test(streamMetaData.channel.status) ? '' : `Название стрима: ${streamMetaData.channel.status}\n`
   const users = (await User.findAll({ 
