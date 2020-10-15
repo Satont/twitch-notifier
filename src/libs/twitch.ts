@@ -15,11 +15,19 @@ export default new class Twitch {
   private async init() {
     this.inited = false
     info('Initiliazing twitch class')
-    const request = await axios.get(`http://auth.satont.ru/refresh?refresh_token=${process.env.TWITCH_REFRESHTOKEN}`)
+    const request =
+      await axios.get(
+        `http://auth.satont.ru/refresh?refresh_token=${process.env.TWITCH_REFRESHTOKEN}`
+      )
       .catch(error)
     this.token = request ? request.data.token : null
 
-    const validateRequest = await axios.get(`https://id.twitch.tv/oauth2/validate`, { headers: { Authorization: `OAuth ${this.token}` } })
+    const validateRequest =
+      await axios.get(
+        `https://id.twitch.tv/oauth2/validate`, {
+          headers: { Authorization: `OAuth ${this.token}` }
+        }
+      )
       .catch(error)
 
     this.clientId = validateRequest ? validateRequest.data.client_id : null
@@ -48,22 +56,35 @@ export default new class Twitch {
     setTimeout(() => this.init(), 1 * 30 * 60 * 1000)
   }
 
-  public async getChannel(channelName: string): Promise<{id: number, login: string, displayName: string}> {
+  public async getChannel(channelName: string): Promise<{
+    id: number, login: string, displayName: string
+  }> {
     try {
       const request = await this.kraken.get(`users?login=${channelName}`)
       const response = request.data
-      if (!response.users.length) throw new Error(`Channel ${channelName} not found.`)
-      else return { id: Number(response.users[0]._id), login: response.users[0].name, displayName: response.users[0].display_name }
+      if (!response.users.length) {
+        throw new Error(`Channel ${channelName} not found.`)
+      } else {
+        return {
+          id: Number(response.users[0]._id),
+          login: response.users[0].name,
+          displayName: response.users[0].display_name
+        }
+      }
     } catch (e) {
       console.debug(e)
     }
   }
 
-  public async getChannelsById(channels: number[]): Promise<[{ id: number, displayName: string, login: string }]> {
+  public async getChannelsById(channels: number[]): Promise<[{
+    id: number, displayName: string, login: string
+  }]> {
     try {
       const request = await this.helix.get(`users?id=${channels.join('&id=')}`)
- 
-      return request.data.data.map(o => { return { id: Number(o.id), displayName: o.display_name, login: o.login } })
+
+      return request.data.data.map(channel => ({
+        id: Number(channel.id), displayName: channel.display_name, login: channel.login
+      }))
     } catch (e) {
       console.debug(e)
     }
@@ -75,7 +96,8 @@ export default new class Twitch {
     game_id: string
   }>> {
     try {
-      const request = await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
+      const request =
+        await this.helix.get(`streams?first=100&user_id=${channels.join('&user_id=')}`)
       return request.data.data
     } catch (e) {
       console.debug(e)

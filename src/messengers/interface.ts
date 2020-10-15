@@ -3,12 +3,12 @@ import { info } from "../helpers/logs"
 export type SendMessageOpts = {
   target: number | number[],
   message: string,
-  image?: string 
+  image?: string
 }
 
 export type Commands = ['follow', 'unfollow', 'live', 'follows']
 
-export class IService { 
+export class IService {
   service?: string
 
   protected init(): void {

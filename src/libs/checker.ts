@@ -51,5 +51,7 @@ async function checkGame(channel: {
 
   if (game.old === game.new) return;
 
-  await notifyGameChange({ name: channel.user_name, id: Number(channel.user_id) }, game.old, game.new)
+  await notifyGameChange(
+    { name: channel.user_name, id: Number(channel.user_id) }, game.old, game.new
+  )
 }

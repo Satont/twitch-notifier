@@ -1,5 +1,5 @@
 import { Table, Column, Model, Unique, PrimaryKey, AllowNull } from 'sequelize-typescript';
- 
+
 @Table({
   tableName: 'channels',
   timestamps: false
@@ -10,7 +10,7 @@ export class Channel extends Model<Channel> {
   @PrimaryKey
   @Column
   public id: number;
- 
+
   @Column
   public username: string;
 
@@ -18,5 +18,5 @@ export class Channel extends Model<Channel> {
   public online: boolean;
 
   @Column
-  public game: string
+  public game: string;
 }

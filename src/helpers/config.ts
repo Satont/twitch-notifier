@@ -1,4 +1,4 @@
-export const config = { 
+export const config = {
   vk: {
     token: process.env.VKTOKEN
   },

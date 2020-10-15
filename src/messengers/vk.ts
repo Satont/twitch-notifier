@@ -47,8 +47,13 @@ class Vk extends IService {
   }
   protected async loadMiddlewares() {
     this.bot.updates.on('message', async (ctx, next) => {
-      if (ctx.senderId !== -187752469) info(`Vk | New message from: ${ctx.senderId}, message: ${ctx.text}`)
-      const [user] = await User.findOrCreate({ where: { id: ctx.senderId, service }, defaults: { follows: [], service: 'vk' } })
+      if (ctx.senderId !== -187752469) {
+        info(`Vk | New message from: ${ctx.senderId}, message: ${ctx.text}`)
+      }
+      const [user] =
+        await User.findOrCreate(
+          { where: { id: ctx.senderId, service }, defaults: { follows: [], service: 'vk' } }
+        )
       ctx.dbUser = user
       return next()
     })
@@ -90,25 +95,37 @@ class Vk extends IService {
     })
     this.bot.updates.hear(value => (value.startsWith('!подписки')), async (ctx) => {
       const followed = await follows({ userId: ctx.senderId, service })
-      if (isBoolean(followed)) ctx.reply(`Вы ни на кого не подписаны.`) 
+      if (isBoolean(followed)) ctx.reply(`Вы ни на кого не подписаны.`)
       else ctx.reply(`Вы подписаны на ${followed.join(', ')}.`)
     })
     this.bot.updates.hear(value => (value.startsWith('!онлайн')), async (ctx) => {
-      const channels = await live({ userId: ctx.senderId, service })
-      if (isBoolean(channels)) ctx.reply(`Сейчас нет ни одного канала онлайн из ваших подписок.`)
-      else ctx.reply(`Сейчас онлайн: \n${channels.map((o) => 'https://twitch.tv/' + o).join('\n')}`)
+      let channels = await live({ userId: ctx.senderId, service })
+      if (!channels) {
+        ctx.reply(`Сейчас нет ни одного канала онлайн из ваших подписок.`)
+      } else {
+        channels = channels.map(channel => 'https://twitch.tv/' + channel).join('\n')
+        ctx.reply(`Сейчас онлайн: \n${channels}`)
+      }
     })
     this.bot.updates.hear(value => (value.startsWith('!watch_game_change')), async (ctx) => {
       const result = await gameChange({ userId: ctx.senderId, service })
-      if (result) this.sendMessage({ target: ctx.from.id, message: 'Отслеживание изменения игры было включено'})
-      else this.sendMessage({ target: ctx.from.id, message: 'Отслеживание изменения игры было включено'})
+      if (result) {
+        this.sendMessage(
+          { target: ctx.from.id, message: 'Отслеживание изменения игры было включено'}
+        )
+      }
+      else {
+        this.sendMessage(
+          { target: ctx.from.id, message: 'Отслеживание изменения игры было включено'}
+        )
+      }
     })
     this.bot.updates.hear(value => (value.startsWith('!команды')), async (ctx) => {
       ctx.reply(`
-      На данный момент доступны следующие команды: 
+      На данный момент доступны следующие команды:
       !подписка username
       !отписка username
-      !подписки 
+      !подписки
       !команды
       !онлайн
       !watch_game_change

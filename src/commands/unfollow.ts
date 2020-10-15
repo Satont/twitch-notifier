@@ -3,7 +3,9 @@ import { User } from '../models/User'
 import { Channel } from '../models/Channel'
 import { remove } from 'lodash'
 
-export default async ({ service, userId, channel }: { service: 'telegram' | 'vk', userId: number, channel: string }): Promise<boolean> => {
+export default async (
+  { service, userId, channel }: { service: 'telegram' | 'vk', userId: number, channel: string }
+): Promise<boolean> => {
   if (/[^a-zA-Z0-9_]/gmu.test(channel)) {
     throw new Error('Username can cointain only "a-z", "0-9" and "_" symbols.')
   }

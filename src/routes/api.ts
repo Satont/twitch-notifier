@@ -16,12 +16,13 @@ router.get('/counts', async (req, res) => {
 })
 
 router.get('/top10', async (req, res) => {
-  const query = `select channels.username, count(users.id) as followers_count, channels.id as channel_id
-  from channels 
-  JOIN users ON channels.id = ANY(users.follows)
-  group by channels.username, channel_id
-  order by followers_count desc
-  limit 10`
+  const query =
+    `select channels.username, count(users.id) as followers_count, channels.id as channel_id
+    from channels
+    JOIN users ON channels.id = ANY(users.follows)
+    group by channels.username, channel_id
+    order by followers_count desc
+    limit 10`
   const [top]: any = await db.query(query)
   const users = await Twitch.getUsers(top.map(o => o.channel_id))
   for (const channel of users) {

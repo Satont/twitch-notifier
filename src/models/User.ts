@@ -1,5 +1,7 @@
-import { Table, Column, Model, PrimaryKey, AllowNull, DataType, IsIn, Default } from 'sequelize-typescript';
- 
+import {
+  Table, Column, Model, PrimaryKey, AllowNull, DataType, IsIn, Default
+} from 'sequelize-typescript';
+
 @Table({
   tableName: 'users',
   timestamps: false
@@ -9,7 +11,7 @@ export class User extends Model<User> {
   @PrimaryKey
   @Column
   public id: number;
- 
+
   @Column(DataType.ARRAY(DataType.INTEGER))
   public follows: number[];
 
