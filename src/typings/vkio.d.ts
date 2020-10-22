@@ -1,7 +1,7 @@
 import { Chat } from '../entities/Chat'
 
-declare module 'telegraf' {
-  interface Context {
+declare module 'vk-io' {
+  interface MessageContext {
     public ChatEntity: Chat
   } 
 }
