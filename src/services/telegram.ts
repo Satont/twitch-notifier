@@ -6,6 +6,7 @@ import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
 import { followsCommand } from '../commands/follows'
+import { liveCommand } from '../commands/live'
 
 class Telegram extends ServiceInterface {
   service = 'telegram'
@@ -69,6 +70,14 @@ class Telegram extends ServiceInterface {
     this.sendMessage({
       target: String(msg.chat.id),
       message: await followsCommand({ chat: msg.ChatEntity }),
+    })
+  }
+
+  @command('live')
+  async live(msg: Context) {
+    this.sendMessage({
+      target: String(msg.chat.id),
+      message: await liveCommand({ chat: msg.ChatEntity }),
     })
   }
 

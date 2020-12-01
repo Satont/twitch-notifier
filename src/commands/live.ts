@@ -1,13 +1,15 @@
+import { getConnection } from 'typeorm'
 import { Chat } from '../entities/Chat'
-import { Twitch } from '../libs/twitch'
+import { Follow } from '../entities/Follow'
 
-export async function followsCommand({ chat }: { chat: Chat }) {
-  const streams: Array<{ channel: string, category: string, title: string }> = []
-  for (const stream of await Twitch.getStreams(chat.follows.map(f => f.channel.id))) {
-    const category = (await stream.getGame())?.name
-    streams.push({ channel: (await stream.getUser()).name, category, title: stream.title })
-  }
+const followRepository = getConnection().getRepository(Follow)
 
-  const names = streams.map(s => `https://twitch.tv/${s.channel} | Title: ${s.title} | Category: ${s.category}`)
+export async function liveCommand({ chat }: { chat: Chat }) {
+  const streams = (await followRepository.find({
+    where: { chat },
+    relations: ['channel'],
+  })).map(f => f.channel)
+
+  const names = streams.map(s => `https://twitch.tv/${s.username} | Title: ${s.title} | Category: ${s.category}`)
   return `Currently live:\n${names.join('\n')}`
 }
