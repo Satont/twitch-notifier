@@ -1,6 +1,6 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
 import Telegraf, { Context } from 'telegraf'
-import { chatIn, error, info, warning } from '../libs/logger'
+import { chatIn, chatOut, error, info, warning } from '../libs/logger'
 import { Chat } from '../entities/Chat'
 import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
@@ -86,6 +86,7 @@ class Telegram extends ServiceInterface {
           parse_mode: 'HTML',
         })
       }
+      chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
     }
   }
 }
