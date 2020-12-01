@@ -1,7 +1,7 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
 import Telegraf, { Context } from 'telegraf'
 import { chatIn, chatOut, error, info, warning } from '../libs/logger'
-import { Chat } from '../entities/Chat'
+import { Chat, Services } from '../entities/Chat'
 import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
@@ -9,7 +9,7 @@ import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
 
 class Telegram extends ServiceInterface {
-  service = 'telegram'
+  service = Services.TELEGRAM
   bot: Telegraf<any> = null
 
   async init() {
@@ -37,7 +37,7 @@ class Telegram extends ServiceInterface {
 
   async ensureUser(ctx: Context) {
     const repository = getConnection().getRepository(Chat)
-    const data = { id: String(ctx.chat.id) }
+    const data = { id: String(ctx.chat.id), service: Services.TELEGRAM }
     const user = await repository.findOne(data, { relations: ['follows', 'follows.channel'] }) || await repository.create(data).save()
 
     ctx.ChatEntity = user

@@ -12,7 +12,6 @@ export class WebhooksController {
 
   @Post()
   async postRequest(@Body() body: ITwitchStreamChangedPayload, @Res() res: Response) {
-    console.log(body)
     TwitchWatcher.processPayload(body.data)
     res.sendStatus(200)
   }

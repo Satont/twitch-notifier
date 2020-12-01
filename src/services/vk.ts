@@ -1,13 +1,14 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
 import { VK as VKIO, MessageContext  } from 'vk-io'
 import { error, info, warning } from '../libs/logger'
-import { Chat } from '../entities/Chat'
-import { getConnection } from 'typeorm'
+import { Chat, Services } from '../entities/Chat'
+import { getConnection, In } from 'typeorm'
 import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
+import { chunk } from 'lodash'
 
 class VK extends ServiceInterface {
-  service = 'vk'
+  service = Services.VK
   bot: VKIO = null
 
   async init() {
@@ -33,7 +34,7 @@ class VK extends ServiceInterface {
 
   async ensureUser(ctx: MessageContext) {
     const repository = getConnection().getRepository(Chat)
-    const data = { id: String(ctx.chatId) }
+    const data = { id: String(ctx.chatId), service: Services.VK }
     const user = await repository.findOne(data) || await repository.create(data).save()
 
     ctx.ChatEntity = user
@@ -58,7 +59,26 @@ class VK extends ServiceInterface {
   }
 
   async sendMessage(opts: SendMessageOpts) {
-    return true
+    const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
+    const chunks = chunk(targets.map(t => Number(t)), 100)
+    const attachment = opts.image ? this.uploadPhoto(opts.image) : undefined
+    for (const chunk of chunks) {
+      await this.bot.api.messages.send({
+        random_id: Math.random() * (1000000000 - 9) + 10,
+        user_ids: chunk,
+        message: opts.message,
+        dont_parse_links: true,
+        attachment,
+      })
+    }
+  }
+
+  public async uploadPhoto(source: string) {
+    return await this.bot.upload.messagePhoto({
+      source: { 
+        value: source,
+      },
+    })
   }
 }
 

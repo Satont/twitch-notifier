@@ -1,13 +1,19 @@
 import { Follow } from './Follow'
-import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique } from 'typeorm'
+
+export enum Services {
+  VK = 'vk',
+  TELEGRAM = 'tg'
+}
 
 @Entity('chats')
+@Unique(['id', 'service'])
 export class Chat extends BaseEntity {
   @PrimaryColumn()
-  id: string;
+  id: string
 
-  @Column()
-  followGameChange: boolean = false
+  @Column({ enum: Services })
+  service: Services
 
   @CreateDateColumn()
   createdAt!: Date

@@ -15,18 +15,15 @@ export async function followCommand({ chat, channelName }: { chat: Chat, channel
   }
 
   const streamer = await Twitch.getUser({ name: channelName.toLowerCase() })
-  const channel = await channelRepository.findOne({ id: streamer.id }) || await channelRepository.create({
-    id: streamer.id,
-    username: streamer.name,
-  }).save()
-  TwitchWatcher.addChannelToWebhooks(channel.id)
+  const follow = await followRepository.findOne({
+    chat,
+    channel: { id: streamer.id },
+  })
 
-  if (chat.follows.find(f => f.channel.id === streamer.id)) {
-    return `You already followed to ${streamer.displayName}.`
+  if (!follow) {
+    return `You are not followed to ${streamer.name}`
   } else {
-    const follow = await followRepository.create({ chat, channel }).save()
-    chat.follows.push(follow)
-    await chat.save()
-    return 'Success'
+    await follow.remove()
+    return `Successuly unfollowed.`
   }
 }

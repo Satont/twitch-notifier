@@ -63,14 +63,14 @@ class TwitchWatcherClass {
       }
       if (!channel.online) {
         for (const service of services) {
-          service.sendMessage({
+          service.makeAnnounce({
             message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
             ...messageOpts,
           })
         }
-      } else if (channel.category !== category && channel.online) {
+      } else if (channel.category !== category) {
         for (const service of services) {
-          service.sendMessage({
+          service.makeAnnounce({
             message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
             ...messageOpts,
           })
