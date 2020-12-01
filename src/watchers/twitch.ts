@@ -37,10 +37,21 @@ class TwitchWatcherClass {
     setTimeout((() => this.initWebhooks()), options.validityInSeconds * 1000)
   }
 
+  async addChannelToWebhooks(channelId: string) {
+    const siteUrl = process.env.SITE_URL
+    if (!siteUrl) return
+    const options = {
+      callbackUrl: `${siteUrl}/twitch/webhooks/callback`,
+      validityInSeconds: 864000,
+    }
+
+    await Twitch.apiClient.helix.webHooks.unsubscribeFromStreamChanges(channelId, options)
+    await Twitch.apiClient.helix.webHooks.subscribeToStreamChanges(channelId, options)
+  }
+
   async processPayload(data: ITwitchStreamChangedPayload['data']) {
     for (const stream of data) {
-      const category = (await Twitch.apiClient.helix.games.getGameById(stream.game_id))?.name
-
+      const category = stream.game_name
       const channel = await this.channelsRepository.findOne(stream.user_id, { relations: ['followers', 'followers.chat' ] })
         || this.channelsRepository.create({
           id: stream.user_id,

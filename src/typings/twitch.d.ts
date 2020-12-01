@@ -2,7 +2,9 @@ export interface ITwitchStreamChangedChannel {
   user_id: string,
   user_name: string,
   game_id: string,
+  game_name: string,
   community_ids?: string[],
+  tag_ids: string[]
   type: string,
   title: string,
   viewer_count: number,

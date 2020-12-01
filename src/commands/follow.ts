@@ -3,6 +3,7 @@ import { Channel } from '../entities/Channel'
 import { Chat } from '../entities/Chat'
 import { Follow } from '../entities/Follow'
 import { Twitch } from '../libs/twitch'
+import TwitchWatcher from '../watchers/twitch'
 
 const channelRepository = getConnection().getRepository(Channel)
 const followRepository = getConnection().getRepository(Follow)
@@ -18,6 +19,7 @@ export async function followCommand({ chat, channelName }: { chat: Chat, channel
     id: streamer.id,
     username: streamer.name,
   }).save()
+  TwitchWatcher.addChannelToWebhooks(channel.id)
 
   if (chat.follows.find(f => f.channel.id === streamer.id)) {
     return `You already followed to ${streamer.displayName}.`

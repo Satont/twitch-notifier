@@ -84,20 +84,21 @@ class Telegram extends ServiceInterface {
   async sendMessage(opts: SendMessageOpts) {
     const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
     for (const target of targets) {
+      const log = () => chatOut(`TG [${target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
       if (opts.image) {
         this.bot?.telegram.sendPhoto(target, opts.image, {
           caption: opts.message,
           parse_mode: 'HTML',
         }).then(() => {
-          chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
-        }).catch(() => null)
+          log()
+        }).catch(console.error)
       } else {
         this.bot?.telegram.sendMessage(target, opts.message, {
           disable_web_page_preview: true,
           parse_mode: 'HTML',
         }).then(() => {
-          chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
-        }).catch(() => null)
+          log()
+        }).catch(console.error)
       }
     }
   }

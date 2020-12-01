@@ -3,7 +3,7 @@ import { Response } from 'express'
 import { ITwitchStreamChangedPayload } from '../../../typings/twitch'
 import TwitchWatcher from '../../../watchers/twitch'
 
-@Controller('webhooks/callback')
+@Controller('twitch/webhooks/callback')
 export class WebhooksController {
   @Get()
   async getRequest(@Query() query: any) {
@@ -12,6 +12,7 @@ export class WebhooksController {
 
   @Post()
   async postRequest(@Body() body: ITwitchStreamChangedPayload, @Res() res: Response) {
+    console.log(body)
     TwitchWatcher.processPayload(body.data)
     res.sendStatus(200)
   }
