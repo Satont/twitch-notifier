@@ -9,6 +9,7 @@ const start = async () => {
     return setTimeout(() => start(), 1000)
   }
   import('./libs/loader')
+  import('./web')
 }
 start()
 

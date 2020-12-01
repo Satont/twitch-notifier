@@ -13,7 +13,10 @@ export class Channel extends BaseEntity {
   online: boolean = false
 
   @Column({ nullable: true })
-  game?: string
+  category?: string
+
+  @Column({ nullable: true })
+  title?: string
 
   @CreateDateColumn()
   createdAt!: Date

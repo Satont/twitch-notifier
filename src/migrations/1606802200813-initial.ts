@@ -1,21 +1,25 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class initial1606797164361 implements MigrationInterface {
-    name = 'initial1606797164361'
+export class initial1606802200813 implements MigrationInterface {
+    name = 'initial1606802200813'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             CREATE TABLE "chats" (
                 "id" character varying NOT NULL,
                 "followGameChange" boolean NOT NULL,
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_0117647b3c4a4e5ff198aeb6206" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
             CREATE TABLE "follows" (
                 "id" SERIAL NOT NULL,
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "chatId" character varying,
                 "channelId" character varying,
+                CONSTRAINT "UQ_d63caec7a6eee9b38484e88dfef" UNIQUE ("chatId", "channelId"),
                 CONSTRAINT "PK_8988f607744e16ff79da3b8a627" PRIMARY KEY ("id")
             )
         `);
@@ -24,7 +28,8 @@ export class initial1606797164361 implements MigrationInterface {
                 "id" character varying NOT NULL,
                 "username" character varying NOT NULL,
                 "online" boolean NOT NULL,
-                "game" character varying NOT NULL,
+                "category" character varying,
+                "title" character varying,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 CONSTRAINT "PK_bc603823f3f741359c2339389f9" PRIMARY KEY ("id")

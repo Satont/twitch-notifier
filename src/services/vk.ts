@@ -1,4 +1,4 @@
-import { ServiceInterface } from './_interface'
+import { SendMessageOpts, ServiceInterface } from './_interface'
 import { VK as VKIO, MessageContext  } from 'vk-io'
 import { error, info, warning } from '../libs/logger'
 import { Chat } from '../entities/Chat'
@@ -55,6 +55,10 @@ class VK extends ServiceInterface {
   @command('follow')
   async follow(msg: MessageContext, args?: string[], arg?: string) {
     msg.reply(await followCommand({ chat: msg.ChatEntity, channelName: arg }))
+  }
+
+  async sendMessage(opts: SendMessageOpts) {
+    return true
   }
 }
 

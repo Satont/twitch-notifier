@@ -18,6 +18,7 @@ const loader = async () => {
   const folders = {
     services: 'Service',
     libs: 'Lib',
+    watchers: 'Watcher',
   }
   for (const folder of Object.keys(folders)) {
     try {

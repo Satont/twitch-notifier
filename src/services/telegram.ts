@@ -59,7 +59,7 @@ class Telegram extends ServiceInterface {
   async follow(msg: Context, args?: string[], arg?: string) {
     if (!arg) return msg.reply('arg is empty')
     this.sendMessage({
-      target: msg.chat.id,
+      target: String(msg.chat.id),
       message: await followCommand({ chat: msg.ChatEntity, channelName: arg }),
     })
   }
@@ -67,7 +67,7 @@ class Telegram extends ServiceInterface {
   @command('follows')
   async follows(msg: Context) {
     this.sendMessage({
-      target: msg.chat.id,
+      target: String(msg.chat.id),
       message: await followsCommand({ chat: msg.ChatEntity }),
     })
   }
@@ -76,17 +76,20 @@ class Telegram extends ServiceInterface {
     const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
     for (const target of targets) {
       if (opts.image) {
-        this.bot.telegram.sendPhoto(target, opts.image, {
+        this.bot?.telegram.sendPhoto(target, opts.image, {
           caption: opts.message,
           parse_mode: 'HTML',
-        })
+        }).then(() => {
+          chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
+        }).catch(() => null)
       } else {
-        this.bot.telegram.sendMessage(target, opts.message, {
+        this.bot?.telegram.sendMessage(target, opts.message, {
           disable_web_page_preview: true,
           parse_mode: 'HTML',
-        })
+        }).then(() => {
+          chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
+        }).catch(() => null)
       }
-      chatOut(`TG [${opts.target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
     }
   }
 }
