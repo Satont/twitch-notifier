@@ -1,19 +1,20 @@
-import { Collection, Entity, OneToMany, PrimaryKey, Property } from '@mikro-orm/core'
 import { Follow } from './Follow'
+import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
-@Entity({
-  tableName: 'chats',
-})
-export class Chat {
-  @PrimaryKey()
-  id!: number
+@Entity('chats')
+export class Chat extends BaseEntity {
+  @PrimaryColumn()
+  id: string;
 
-  @Property()
-  chatId!: number
-
-  @Property()
+  @Column()
   followGameChange: boolean = false
 
-  @OneToMany(() => Follow, follow => follow.chat)
-  follows = new Collection<Follow>(this)
+  @CreateDateColumn()
+  createdAt!: Date
+
+  @UpdateDateColumn()
+  updatedAt!: Date
+
+  @OneToMany(() => Follow, category => category.chat)
+  follows: Follow[]
 }

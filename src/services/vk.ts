@@ -1,19 +1,21 @@
 import { ServiceInterface } from './_interface'
 import { VK as VKIO, MessageContext  } from 'vk-io'
-import { error, info } from '../libs/logger'
+import { error, info, warning } from '../libs/logger'
 import { Chat } from '../entities/Chat'
-import { orm } from '../libs/db'
+import { getConnection } from 'typeorm'
+import { command } from '../decorators/command'
+import { followCommand } from '../commands/follow'
 
-export default new class VK extends ServiceInterface {
+class VK extends ServiceInterface {
   service = 'vk'
   bot: VKIO = null
-  commands = [
-    { name: 'follow', fnc: this.follow },
-  ]
 
   async init() {
     const token = process.env.VK_GROUP_TOKEN
-    if (!token) return false
+    if (!token) {
+      warning('VK: group token not setuped, telegram library will not works.')
+      return
+    }
 
     try {
       this.bot = new VKIO({ token })
@@ -30,11 +32,10 @@ export default new class VK extends ServiceInterface {
   }
 
   async ensureUser(ctx: MessageContext) {
-    const repository = orm.em.fork().getRepository(Chat)
-    const data = { chatId: ctx.chatId }
-    const user = await repository.findOne(data) || repository.assign(new Chat(), data)
-    await repository.persistAndFlush(user)
-    
+    const repository = getConnection().getRepository(Chat)
+    const data = { id: String(ctx.chatId) }
+    const user = await repository.findOne(data) || await repository.create(data).save()
+
     ctx.ChatEntity = user
   }
 
@@ -47,11 +48,14 @@ export default new class VK extends ServiceInterface {
     const command = this.commands.find(c => c.name === commandName)
     if (!command) return
 
-    command['fnc'].call(VK, msg, args, arg)
+    await this[command.fnc](msg, args, arg)
     return true
   }
 
+  @command('follow')
   async follow(msg: MessageContext, args?: string[], arg?: string) {
-    return true
+    msg.reply(await followCommand({ chat: msg.ChatEntity, channelName: arg }))
   }
 }
+
+export default new VK()

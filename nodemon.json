@@ -1,6 +1,6 @@
 {
-  "watch": ["src/bot"],
-  "exec": "npm run migration:up && ts-node src/index.ts",
+  "watch": ["src"],
+  "exec": "npm run build; NODE_ENV=development npm run start",
   "ext": "ts",
   "ignore": [
     "src/migrations/**"

@@ -8,31 +8,10 @@ import { getFunctionNameFromStackTrace } from '../commons/stacktrace'
 
 const levelFormat = {
   error: '!!! ERROR !!!',
-  debug: 'DEBUG:',
   chatIn: '<<<',
   chatOut: '>>>',
-  whisperOut: 'W>>>',
   info: '!!!',
-  timeout: '+timeout',
-  ban: '+ban',
-  unban: '-ban',
-  follow: '+follow',
-  host: '+host',
-  raid: '+raid',
-  unfollow: '-follow',
-  cheer: '+cheer',
-  donate: '+donate',
-  sub: '+sub',
-  bits: '+bits',
-  raided: '+raided',
-  hostring: '?hosting',
-  hosted: '+hosted',
-  subgift: '+subgift',
-  resub: '+resub',
-  moded: '+moderator',
-  unmoded: '-moderator',
-  redemption: '+redemption',
-  highlight: '+highlight',
+  warning: 'WARNING',
 }
 
 const logDir = './logs'
@@ -60,28 +39,6 @@ function log(message: any) {
   const formattedMessage = format(level, message)
   process.stdout.write(formattedMessage + '\n')
   file.write(stripAnsi(formattedMessage) + os.EOL)
-}
-
-export function isDebugEnabled(category: string) {
-  if (!process.env.DEBUG) return false
-  const categories = category.split('.')
-  let bEnabled = false
-  bEnabled = process.env.DEBUG.includes(category) || process.env.DEBUG.includes(categories[0] + '.*')
-  bEnabled = process.env.DEBUG === '*' || bEnabled
-  return bEnabled
-}
-
-export function debug(category: string, message: any) {
-  const categories = category.split('.')
-  if (categories.length > 2 && category !== '*') {
-    throw Error('For debug use only <main>.<sub> or bot*')
-  }
-
-  if (isDebugEnabled(category) || category == '*') {
-    const formattedMessage = format('debug', message, category)
-    process.stdout.write(formattedMessage + '\n')
-    file.write(formattedMessage + os.EOL)
-  }
 }
 
 export function error(message: any) {

@@ -1,17 +1,19 @@
-import { orm, start as connect } from './libs/db'
+import 'reflect-metadata'
+import 'source-map-support/register'
+import { createConnection, getConnection } from 'typeorm'
 import { error } from './libs/logger'
 
 const start = async () => {
-  if (!orm?.isConnected()) {
-    await connect()
-    return start()
+  await createConnection()
+  if (!getConnection().isConnected) {
+    return setTimeout(() => start(), 1000)
   }
+  import('./libs/loader')
 }
 start()
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   error(reason)
-  error(promise)
 })
 process.on('uncaughtException', (err: Error) => {
   const date = new Date().toISOString()

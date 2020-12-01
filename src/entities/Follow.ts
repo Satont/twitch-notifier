@@ -1,17 +1,19 @@
-import { Entity, ManyToOne, PrimaryKey } from '@mikro-orm/core'
 import { Channel } from './Channel'
 import { Chat } from './Chat'
+import { Entity, PrimaryGeneratedColumn, BaseEntity, ManyToOne, CreateDateColumn, Unique } from 'typeorm'
 
-@Entity({
-  tableName: 'chats',
-})
-export class Follow {
-  @PrimaryKey()
+@Entity('follows')
+@Unique(['chat', 'channel'])
+export class Follow extends BaseEntity {
+  @PrimaryGeneratedColumn()
   id!: number
 
-  @ManyToOne({ fieldName: 'chatId' })
+  @CreateDateColumn()
+  createdAt!: Date
+
+  @ManyToOne(() => Chat, category => category.follows)
   chat!: Chat
 
-  @ManyToOne({ fieldName: 'channelId' })
+  @ManyToOne(() => Channel, category => category.followers)
   channel!: Channel
 }

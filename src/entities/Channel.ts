@@ -1,25 +1,26 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core'
+import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Follow } from './Follow'
 
+@Entity('channels')
+export class Channel extends BaseEntity {
+  @PrimaryColumn()
+  id!: string
 
-@Entity({
-  tableName: 'channels',
-})
-export class Channel {
-  @PrimaryKey()
-  id!: number
-
-  @Property()
+  @Column()
   username!: string
 
-  @Property()
+  @Column()
   online: boolean = false
 
-  @Property()
+  @Column({ nullable: true })
   game?: string
 
-  @Property()
-  createdAt = new Date()
+  @CreateDateColumn()
+  createdAt!: Date
 
-  @Property({ onUpdate: () => new Date() })
-  updatedAt = new Date()
+  @UpdateDateColumn()
+  updatedAt!: Date
+
+  @OneToMany(() => Follow, category => category.channel)
+  followers: Follow[]
 }

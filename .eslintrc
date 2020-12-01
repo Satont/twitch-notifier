@@ -33,5 +33,6 @@
     "useJSXTextNode": true,
     "project": ["./tsconfig.json"],
     "tsconfigRootDir": "./"
-  }
+  },
+  "ignorePatterns": ["src/migrations"]
 }
