@@ -58,7 +58,7 @@ class TwitchWatcherClass {
         })
 
       const messageOpts = {
-        image: stream.thumbnail_url,
+        image: stream.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080'),
         target: channel.followers.map(f => f.chat.id),
       }
       if (!channel.online) {

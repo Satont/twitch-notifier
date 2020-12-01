@@ -86,8 +86,7 @@ class Telegram extends ServiceInterface {
     for (const target of targets) {
       const log = () => chatOut(`TG [${target}]: ${opts.message}`.replace(/(\r\n|\n|\r)/gm, ' '))
       if (opts.image) {
-        const image = opts.image.replace('{width}', '1080').replace('{height}', '1920')
-        this.bot?.telegram.sendPhoto(target, image, {
+        this.bot?.telegram.sendPhoto(target, opts.image, {
           caption: opts.message,
           parse_mode: 'HTML',
         }).then(() => {

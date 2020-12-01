@@ -2,7 +2,7 @@ import { SendMessageOpts, ServiceInterface } from './_interface'
 import { VK as VKIO, MessageContext  } from 'vk-io'
 import { error, info, warning } from '../libs/logger'
 import { Chat, Services } from '../entities/Chat'
-import { getConnection, In } from 'typeorm'
+import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
 import { chunk } from 'lodash'
@@ -75,7 +75,7 @@ class VK extends ServiceInterface {
 
   public async uploadPhoto(source: string) {
     return await this.bot.upload.messagePhoto({
-      source: { 
+      source: {
         value: source,
       },
     })
