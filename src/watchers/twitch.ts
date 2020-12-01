@@ -15,20 +15,22 @@ class TwitchWatcherClass {
           id: stream.user_id,
         })
 
+      const messageOpts = {
+        image: stream.thumbnail_url,
+        target: channel.followers.map(f => f.chat.id),
+      }
       if (!channel.online) {
         for (const service of services) {
           service.sendMessage({
             message: `${stream.user_name} online!\nCategory:${category}\nTitle:${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
-            image: stream.thumbnail_url,
-            target: channel.followers.map(f => f.chat.id),
+            ...messageOpts,
           })
         }
       } else if (channel.category !== category && channel.online) {
         for (const service of services) {
           service.sendMessage({
             message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
-            image: stream.thumbnail_url,
-            target: channel.followers.map(f => f.chat.id),
+            ...messageOpts,
           })
         }
       }
