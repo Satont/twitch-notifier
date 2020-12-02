@@ -8,10 +8,10 @@ import TwitchWatcher from '../watchers/twitch'
 const channelRepository = getConnection().getRepository(Channel)
 const followRepository = getConnection().getRepository(Follow)
 
-export async function followCommand({ chat, channelName }: { chat: Chat, channelName: string }) {
+export async function followCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: i18 }) {
   channelName = channelName.replace(/\s/g, '')
   if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
-    return 'Username can cointain only "a-z", "0-9" and "_" symbols.'
+    return i18n.t('commands.follow:errors.username')
   }
 
   const streamer = await Twitch.getUser({ name: channelName.toLowerCase() })

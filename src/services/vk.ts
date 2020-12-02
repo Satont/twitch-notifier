@@ -54,9 +54,9 @@ class VK extends ServiceInterface {
     return true
   }
 
-  @command('follow')
+  @command('follow', { description: 'qwe' })
   async follow(msg: MessageContext, args?: string[], arg?: string) {
-    msg.reply(await followCommand({ chat: msg.ChatEntity, channelName: arg }))
+    msg.reply(await followCommand({ chat: msg.ChatEntity, channelName: arg, i18n: null as any }))
   }
 
   async sendMessage(opts: SendMessageOpts) {

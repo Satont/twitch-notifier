@@ -25,7 +25,16 @@ class Telegram extends ServiceInterface {
       warning('TELEGRAM: bot token not setuped, telegram library will not works.')
       return
     }
+
     this.bot = new Telegraf(accessToken)
+    this.bot.use(async (ctx: Context, next) => {
+      if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
+
+      ctx.ChatEntity = await this.ensureUser(ctx)
+      ctx.i18n = i18n.clone(ctx.ChatEntity.settings.language)
+      next()
+    })
+    this.bot.on('message', (msg) => this.listener(msg))
   }
 
   async init() {
@@ -33,14 +42,6 @@ class Telegram extends ServiceInterface {
       await this.bot.launch()
       await this.bot.telegram.setMyCommands(this.commands.map(c => ({ command: c.name, description: c.description })))
 
-      this.bot.use(async (ctx: Context, next) => {
-        if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
-
-        ctx = await this.ensureUser(ctx)
-
-        ctx.i18n = i18n.cloneInstance({ lng: ctx.ChatEntity.settings.language })
-        next()
-      })
       this.bot.on('message', (msg) => this.listener(msg))
 
       info('Telegram Service initialized.')
@@ -56,8 +57,7 @@ class Telegram extends ServiceInterface {
       ?? this.chatRepository.create({ ...data, settings: new ChatSettings() })
     chat.save()
 
-    ctx.ChatEntity = chat
-    return ctx
+    return chat
   }
 
   async listener(ctx: Context) {
@@ -75,10 +75,9 @@ class Telegram extends ServiceInterface {
 
   @command('follow', { description: 'Follow to some user.' })
   async follow(ctx: Context, args: string[], arg: string) {
-    if (!arg) return ctx.reply('arg is empty')
     this.sendMessage({
       target: String(ctx.chat.id),
-      message: await followCommand({ chat: ctx.ChatEntity, channelName: arg }),
+      message: await followCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
     })
   }
 
@@ -91,8 +90,8 @@ class Telegram extends ServiceInterface {
   }
 
   @command('test', { description: 'test' })
-  async test(ctx: Context, args: string[], arg: string) {
-    ctx.reply(ctx.i18n.t('test', { t: ctx.from.username }))
+  async test(ctx: Context) {
+    ctx.reply(ctx.i18n.translate(ctx.message.text.replace('/test ', ''), { t: ctx.from.username }))
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
@@ -149,7 +148,6 @@ class Telegram extends ServiceInterface {
   @telegramAction('language_setting_set_english')
   async languageSetEnglish(ctx: Context) {
     ctx.ChatEntity.settings.language = Languages.ENGLISH
-    ctx.i18n.language = ctx.ChatEntity.settings.language
     await ctx.ChatEntity.save()
     ctx.reply('Language setted to english.')
   }
@@ -157,7 +155,6 @@ class Telegram extends ServiceInterface {
   @telegramAction('language_setting_set_russian')
   async languageSetRussian(ctx: Context) {
     ctx.ChatEntity.settings.language = Languages.RUSSIAN
-    ctx.i18n.language = ctx.ChatEntity.settings.language
     await ctx.ChatEntity.save()
     ctx.reply('Язык установлен на русский.')
   }

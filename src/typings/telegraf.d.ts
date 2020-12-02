@@ -1,10 +1,10 @@
 import { Chat } from '../entities/Chat'
-import { i18n } from 'i18next'
+import { I18n } from '../libs/i18n'
 
 declare module 'telegraf' {
   interface Context {
     public ChatEntity: Chat
     public isAction?: boolean
-    public i18n: i18n
+    public i18n: I18n
   }
 }
