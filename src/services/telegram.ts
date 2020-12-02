@@ -39,6 +39,7 @@ class Telegram extends ServiceInterface {
       this.bot.on('message', (msg) => this.listener(msg))
 
       info('Telegram Service initialized.')
+      this.inited = true
     } catch (e) {
       error(e)
     }

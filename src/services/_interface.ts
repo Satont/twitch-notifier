@@ -10,6 +10,7 @@ export interface SendMessageOpts {
 export const services: ServiceInterface[] = []
 
 export class ServiceInterface {
+  inited = false
   service!: Services
   commands: Array<{ name: string, fnc: string, description?: string }>
 
@@ -27,6 +28,7 @@ export class ServiceInterface {
   }
 
   async makeAnnounce(opts: SendMessageOpts) {
+    if (!this.inited) return
     const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
     const repository = getConnection().getRepository(Chat)
     const chats = (await repository.find({ service: this.service, id: In(targets) })).map(c => c.id)

@@ -27,6 +27,7 @@ class VK extends ServiceInterface {
       })
       await this.bot.updates.start()
       info('VK Service initialized.')
+      this.inited = true
     } catch (e) {
       error(e)
     }

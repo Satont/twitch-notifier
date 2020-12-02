@@ -3,6 +3,7 @@ import { chunk } from 'lodash'
 import { info, warning } from './logger'
 
 class TwitchClient {
+  authProvider: ClientCredentialsAuthProvider = null
   apiClient: ApiClient = null
 
   async init() {
@@ -11,8 +12,8 @@ class TwitchClient {
       warning('TWITCH: client_id or client_secret not setuped, twitch library will not works.')
       return
     }
-    const authProvider = new ClientCredentialsAuthProvider(client_id, client_secret)
-    this.apiClient = new ApiClient({ authProvider })
+    this.authProvider = new ClientCredentialsAuthProvider(client_id, client_secret)
+    this.apiClient = new ApiClient({ authProvider: this.authProvider })
 
     info('Twitch library initialized.')
   }
