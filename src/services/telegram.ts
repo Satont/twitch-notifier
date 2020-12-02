@@ -10,11 +10,14 @@ import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
 import { ChatSettings, Languages } from '../entities/ChatSettings'
 import { unFollowCommand } from '../commands/unfollow'
+import TelegrafI18n from 'telegraf-i18n'
+import { resolve } from 'path'
 
 class Telegram extends ServiceInterface {
   readonly service = Services.TELEGRAM
   bot: Telegraf<any> = null
   private readonly chatRepository = getConnection().getRepository(Chat)
+  i18n: TelegrafI18n
 
   constructor() {
     super()
@@ -25,6 +28,14 @@ class Telegram extends ServiceInterface {
       return
     }
     this.bot = new Telegraf(accessToken)
+
+    this.i18n = new TelegrafI18n({
+      defaultLanguage: 'english',
+      useSession: true,
+      defaultLanguageOnMissing: true,
+      directory: resolve(process.cwd(), 'locales'),
+    })
+    this.bot.use(this.i18n.middleware())
   }
 
   async init() {
@@ -36,6 +47,7 @@ class Telegram extends ServiceInterface {
         if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
 
         ctx = await this.ensureUser(ctx)
+        ctx.i18n.locale(ctx.ChatEntity.settings.language)
         next()
       })
       this.bot.on('message', (msg) => this.listener(msg))
@@ -87,6 +99,11 @@ class Telegram extends ServiceInterface {
     })
   }
 
+  @command('test', { description: 'test' })
+  async test(ctx: Context, args: string[], arg: string) {
+    ctx.reply(ctx.i18n.t('test', { test: ctx.from.username }))
+  }
+
   @command('follows', { description: 'Shows list of your follows.' })
   async follows(ctx: Context) {
     this.sendMessage({
@@ -103,16 +120,17 @@ class Telegram extends ServiceInterface {
     })
   }
 
+  @command('start', { description: 'Start command' })
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')
   async settings(ctx: Context) {
     const getInlineKeyboard = () => Markup.inlineKeyboard([
-      Markup.callbackButton('Game change notification', 'game_change_notification'),
+      Markup.callbackButton('Game change notification', 'game_change_notification_setting'),
       Markup.callbackButton('Language', 'language_setting'),
     ])
 
     if (ctx.message?.text) {
-      await ctx.reply('This is list of bot settings', getInlineKeyboard().extra())
+      await ctx.reply('Hi! I will notify you about the beginning of the broadcasts on Twitch.', getInlineKeyboard().extra())
     } else if (ctx.isAction) {
       ctx.editMessageReplyMarkup(getInlineKeyboard())
     } else {
