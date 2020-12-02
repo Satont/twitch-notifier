@@ -67,7 +67,7 @@ class VK extends ServiceInterface {
 
   @command('start', { description: 'Start command' })
   async startCommand(ctx: MessageContext, args?: string[], arg?: string) {
-    ctx.reply({
+    ctx.send({
       message: 'menu',
       keyboard: Keyboard.builder()
         .textButton({
@@ -95,6 +95,13 @@ class VK extends ServiceInterface {
           label: 'Cat purring',
           payload: {
             command: 'purr',
+          },
+          color: Keyboard.PRIMARY_COLOR,
+        })
+        .callbackButton({
+          label: 'test callback',
+          payload: {
+            command: 'test_callback',
           },
           color: Keyboard.PRIMARY_COLOR,
         }),
