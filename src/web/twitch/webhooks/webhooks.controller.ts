@@ -16,7 +16,7 @@ export class WebhooksController {
     if (!body.data.length) {
       const regexp = /(\buser_id=\b)([0-9]+)/gm
       const user_id = regexp.exec(req.headers.link as string)[2]
-      body.data[0] = { ...body.data[0], user_id, type: body.data[0].type ?? 'offline' }
+      body.data[0] = { user_id, type: 'offline' } as any
     }
 
     TwitchWatcher.processPayload(body.data)

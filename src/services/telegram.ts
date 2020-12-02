@@ -8,7 +8,7 @@ import { followCommand } from '../commands/follow'
 import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
-import { ChatSettings } from '../entities/ChatSettings'
+import { ChatSettings, Languages } from '../entities/ChatSettings'
 import { unFollowCommand } from '../commands/unfollow'
 
 class Telegram extends ServiceInterface {
@@ -34,7 +34,8 @@ class Telegram extends ServiceInterface {
 
       this.bot.use(async (ctx: Context, next) => {
         if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
-        await this.ensureUser(ctx)
+
+        ctx = await this.ensureUser(ctx)
         next()
       })
       this.bot.on('message', (msg) => this.listener(msg))
@@ -53,76 +54,101 @@ class Telegram extends ServiceInterface {
     chat.save()
 
     ctx.ChatEntity = chat
+    return ctx
   }
 
-  async listener(msg: Context) {
-    if (!msg.chat?.id || !msg.message?.text) return
-    const commandName = msg.message.text.substring(1).split(' ')[0]
-    const args = msg.message.text.split(' ').slice(1)
-    const arg = msg.message.text.substring(1).replace(commandName, '')
+  async listener(ctx: Context) {
+    if (!ctx.chat?.id || !ctx.message?.text) return
+    const commandName = ctx.message.text.substring(1).split(' ')[0]
+    const args = ctx.message.text.split(' ').slice(1)
+    const arg = ctx.message.text.substring(1).replace(commandName, '')
 
     const command = this.commands.find(c => c.name === commandName)
     if (!command) return
 
-    await this[command.fnc](msg, args, arg)
+    await this[command.fnc](ctx, args, arg)
     return true
   }
 
   @command('follow', { description: 'Follow to some user.' })
-  async follow(msg: Context, args: string[], arg: string) {
-    if (!arg) return msg.reply('arg is empty')
+  async follow(ctx: Context, args: string[], arg: string) {
+    if (!arg) return ctx.reply('arg is empty')
     this.sendMessage({
-      target: String(msg.chat.id),
-      message: await followCommand({ chat: msg.ChatEntity, channelName: arg }),
+      target: String(ctx.chat.id),
+      message: await followCommand({ chat: ctx.ChatEntity, channelName: arg }),
     })
   }
 
   @command('unfollow', { description: 'Unfollow from some user.' })
-  async unfollow(msg: Context, args: string[], arg: string) {
+  async unfollow(ctx: Context, args: string[], arg: string) {
     this.sendMessage({
-      target: String(msg.chat.id),
-      message: await unFollowCommand({ chat: msg.ChatEntity, channelName: arg }),
+      target: String(ctx.chat.id),
+      message: await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg }),
     })
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
-  async follows(msg: Context) {
+  async follows(ctx: Context) {
     this.sendMessage({
-      target: String(msg.chat.id),
-      message: await followsCommand({ chat: msg.ChatEntity }),
+      target: String(ctx.chat.id),
+      message: await followsCommand({ chat: ctx.ChatEntity }),
     })
   }
 
   @command('live', { description: 'Check currently live streams from your follow list.' })
-  async live(msg: Context) {
+  async live(ctx: Context) {
     this.sendMessage({
-      target: String(msg.chat.id),
-      message: await liveCommand({ chat: msg.ChatEntity }),
+      target: String(ctx.chat.id),
+      message: await liveCommand({ chat: ctx.ChatEntity }),
     })
   }
 
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')
-  async settings(msg: Context) {
+  async settings(ctx: Context) {
     const getInlineKeyboard = () => Markup.inlineKeyboard([
       Markup.callbackButton('Game change notification', 'game_change_notification'),
+      Markup.callbackButton('Language', 'language_setting'),
     ])
 
-    if (msg.message?.text) {
-      await msg.reply('This is list of bot settings', getInlineKeyboard().extra())
-    } else if (msg.isAction) {
-      msg.editMessageReplyMarkup(getInlineKeyboard())
+    if (ctx.message?.text) {
+      await ctx.reply('This is list of bot settings', getInlineKeyboard().extra())
+    } else if (ctx.isAction) {
+      ctx.editMessageReplyMarkup(getInlineKeyboard())
     } else {
       return getInlineKeyboard()
     }
   }
 
-  @telegramAction('game_change_notification')
-  async gameChangeNotificationAction(msg: Context) {
-    await msg.editMessageReplyMarkup(Markup.inlineKeyboard([
-      Markup.urlButton('Test', 'http://vk.com'),
+  @telegramAction('game_change_notification_setting')
+  async gameChangeNotificationAction(ctx: Context) {
+    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
+      Markup.callbackButton('Test', 'http://vk.com'),
       Markup.callbackButton('«', 'get_settings'),
     ]))
+  }
+
+  @telegramAction('language_setting')
+  async language(ctx: Context) {
+    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
+      Markup.callbackButton('English', 'language_setting_set_english'),
+      Markup.callbackButton('Russian', 'language_setting_set_russian'),
+      Markup.callbackButton('«', 'get_settings'),
+    ]))
+  }
+
+  @telegramAction('language_setting_set_english')
+  async languageSetEnglish(ctx: Context) {
+    ctx.ChatEntity.settings.language = Languages.ENGLISH
+    await ctx.ChatEntity.save()
+    ctx.reply('Language setted to english.')
+  }
+
+  @telegramAction('language_setting_set_russian')
+  async languageSetRussian(ctx: Context) {
+    ctx.ChatEntity.settings.language = Languages.RUSSIAN
+    await ctx.ChatEntity.save()
+    ctx.reply('Язык установлен на русский.')
   }
 
   async sendMessage(opts: SendMessageOpts) {

@@ -7,6 +7,7 @@ export function telegramAction(name: string): MethodDecorator {
     import('../services/telegram').then((v) => {
       v.default.bot.action(name, async (ctx: Context, next) => {
         ctx.isAction = true
+        ctx = await v.default.ensureUser(ctx)
         await v.default[methodName](ctx, next)
         next()
       })

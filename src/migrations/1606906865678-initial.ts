@@ -1,13 +1,14 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class initial1606889510106 implements MigrationInterface {
-    name = 'initial1606889510106'
+export class initial1606906865678 implements MigrationInterface {
+    name = 'initial1606906865678'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             CREATE TABLE "chats_settings" (
                 "id" SERIAL NOT NULL,
                 "game_change_notification" boolean NOT NULL DEFAULT false,
+                "language" character varying NOT NULL DEFAULT 'english',
                 CONSTRAINT "PK_cafeab5c755e94c547405cea61d" PRIMARY KEY ("id")
             )
         `);

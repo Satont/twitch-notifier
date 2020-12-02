@@ -1,6 +1,6 @@
 import { getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
-import { info, warning } from '../libs/logger'
+import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
 import { services } from '../services/_interface'
 import { ITwitchStreamChangedPayload } from '../typings/twitch'
@@ -8,33 +8,17 @@ import { ITwitchStreamChangedPayload } from '../typings/twitch'
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
 
-  constructor() {
-    this.initWebhooks()
-  }
 
-  private async initWebhooks() {
-    const siteUrl = process.env.SITE_URL
-    if (!siteUrl) {
-      warning('TWITCH: siteUrl not setuped, streams udpates will not be recieved.')
-      return
-    }
-
-    const options = {
-      callbackUrl: `${siteUrl}/twitch/webhooks/callback`,
-      validityInSeconds: 864000,
-    }
-
+  async init() {
     const channelsRepository = getConnection().getRepository(Channel)
     const channels = await channelsRepository.find()
 
     for (const channel of channels) {
-      await Twitch.apiClient.helix.webHooks.unsubscribeFromStreamChanges(channel.id, options)
-      await Twitch.apiClient.helix.webHooks.subscribeToStreamChanges(channel.id, options)
+      await this.addChannelToWebhooks(channel.id)
     }
 
     info(`TWITCH: webhook subscribed to ${channels.length} channels`)
-
-    setTimeout((() => this.initWebhooks()), options.validityInSeconds * 1000)
+    setTimeout((() => this.init()), 864000 * 1000)
   }
 
   async addChannelToWebhooks(channelId: string) {
@@ -58,14 +42,14 @@ class TwitchWatcherClass {
         })
 
       const messageOpts = {
-        image: stream.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080'),
-        target: channel.followers.map(f => f.chat.id),
+        image: stream.thumbnail_url?.replace('{width}', '1920').replace('{height}', '1080'),
       }
       if (stream.type === 'live') {
         if (!channel.online) {
           for (const service of services) {
             service.makeAnnounce({
               message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
+              target: channel.followers.map(f => f.chat.chatId),
               ...messageOpts,
             })
           }
@@ -75,6 +59,7 @@ class TwitchWatcherClass {
           for (const service of services) {
             service.makeAnnounce({
               message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
+              target: channel.followers.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
               ...messageOpts,
             })
           }
