@@ -115,12 +115,12 @@ class Telegram extends ServiceInterface {
   @telegramAction('get_settings')
   async settings(ctx: Context) {
     const getInlineKeyboard = () => Markup.inlineKeyboard([
-      Markup.callbackButton('Game change notification', 'game_change_notification_setting'),
-      Markup.callbackButton('Language', 'language_setting'),
+      Markup.callbackButton(ctx.i18n.translate('telegram.settings.game_change_notification_setting.button'), 'game_change_notification_setting'),
+      Markup.callbackButton(ctx.i18n.translate('telegram.settings.language.button'), 'language_setting'),
     ])
 
     if (ctx.message?.text) {
-      await ctx.reply('Hi! I will notify you about the beginning of the broadcasts on Twitch.', getInlineKeyboard().extra())
+      await ctx.reply(ctx.i18n.translate('bot.description'), getInlineKeyboard().extra())
     } else if (ctx.isAction) {
       ctx.editMessageReplyMarkup(getInlineKeyboard())
     } else {
@@ -139,24 +139,20 @@ class Telegram extends ServiceInterface {
   @telegramAction('language_setting')
   async language(ctx: Context) {
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
-      Markup.callbackButton('English', 'language_setting_set_english'),
-      Markup.callbackButton('Russian', 'language_setting_set_russian'),
+      Markup.callbackButton('English', 'language_set_english_setting'),
+      Markup.callbackButton('Russian', 'language_set_russian_setting'),
       Markup.callbackButton('«', 'get_settings'),
     ]))
   }
 
-  @telegramAction('language_setting_set_english')
+  @telegramAction('language_set_english_setting')
+  @telegramAction('language_set_russian_setting')
   async languageSetEnglish(ctx: Context) {
-    ctx.ChatEntity.settings.language = Languages.ENGLISH
+    const lang = ctx.callbackQuery.data.split('_')[2] as Languages
+    ctx.ChatEntity.settings.language = lang
+    ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()
-    ctx.reply('Language setted to english.')
-  }
-
-  @telegramAction('language_setting_set_russian')
-  async languageSetRussian(ctx: Context) {
-    ctx.ChatEntity.settings.language = Languages.RUSSIAN
-    await ctx.ChatEntity.save()
-    ctx.reply('Язык установлен на русский.')
+    ctx.reply(ctx.i18n.translate('telegram.settings.language.changed'))
   }
 
   async sendMessage(opts: SendMessageOpts) {
