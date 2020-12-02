@@ -1,5 +1,5 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
-import Telegraf, { Context } from 'telegraf'
+import Telegraf, { Context, Markup } from 'telegraf'
 import { chatIn, chatOut, error, info, warning } from '../libs/logger'
 import { Chat, Services } from '../entities/Chat'
 import { getConnection } from 'typeorm'
@@ -7,28 +7,36 @@ import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
 import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
+import { telegramAction } from '../decorators/telegramAction'
 
 class Telegram extends ServiceInterface {
-  service = Services.TELEGRAM
+  readonly service = Services.TELEGRAM
   bot: Telegraf<any> = null
+  private readonly chatRepository = getConnection().getRepository(Chat)
 
-  async init() {
+  constructor() {
+    super()
+
     const accessToken = process.env.TELEGRAM_BOT_TOKEN
     if (!accessToken) {
       warning('TELEGRAM: bot token not setuped, telegram library will not works.')
       return
     }
+    this.bot = new Telegraf(accessToken)
+  }
 
+  async init() {
     try {
-      this.bot = new Telegraf(accessToken)
-
       await this.bot.launch()
+      await this.bot.telegram.setMyCommands(this.commands.map(c => ({ command: c.name, description: c.description })))
+
       this.bot.use(async (ctx: Context, next) => {
-        chatIn(`TG [${ctx.from.username}]: ${ctx.message.text}`)
+        if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
         await this.ensureUser(ctx)
         next()
       })
       this.bot.on('message', (msg) => this.listener(msg))
+
       info('Telegram Service initialized.')
     } catch (e) {
       error(e)
@@ -36,11 +44,12 @@ class Telegram extends ServiceInterface {
   }
 
   async ensureUser(ctx: Context) {
-    const repository = getConnection().getRepository(Chat)
     const data = { id: String(ctx.chat.id), service: Services.TELEGRAM }
-    const user = await repository.findOne(data, { relations: ['follows', 'follows.channel'] }) || await repository.create(data).save()
+    const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] }) || this.chatRepository.create(data)
+    chat.id = String(ctx.chat.id)
+    chat.save()
 
-    ctx.ChatEntity = user
+    ctx.ChatEntity = chat
   }
 
   async listener(msg: Context) {
@@ -56,7 +65,7 @@ class Telegram extends ServiceInterface {
     return true
   }
 
-  @command('follow')
+  @command('follow', { description: 'Follow to some user.' })
   async follow(msg: Context, args?: string[], arg?: string) {
     if (!arg) return msg.reply('arg is empty')
     this.sendMessage({
@@ -65,7 +74,7 @@ class Telegram extends ServiceInterface {
     })
   }
 
-  @command('follows')
+  @command('follows', { description: 'Shows list of your follows.' })
   async follows(msg: Context) {
     this.sendMessage({
       target: String(msg.chat.id),
@@ -73,12 +82,24 @@ class Telegram extends ServiceInterface {
     })
   }
 
-  @command('live')
+  @command('live', { description: 'Check currently live streams from your follow list.' })
   async live(msg: Context) {
     this.sendMessage({
       target: String(msg.chat.id),
       message: await liveCommand({ chat: msg.ChatEntity }),
     })
+  }
+
+  @command('settings', { description: 'Settings menu.' })
+  async test(msg: Context) {
+    msg.reply('Settings', Markup.inlineKeyboard([
+      Markup.callbackButton('Game change notification', 'game_change_notification'),
+    ]).extra())
+  }
+
+  @telegramAction('game_change_notification')
+  async gameChangeNotificationAction(msg: Context) {
+    await msg.reply('true')
   }
 
   async sendMessage(opts: SendMessageOpts) {
@@ -89,16 +110,16 @@ class Telegram extends ServiceInterface {
         this.bot?.telegram.sendPhoto(target, opts.image, {
           caption: opts.message,
           parse_mode: 'HTML',
-        }).then(() => {
-          log()
-        }).catch(console.error)
+        })
+          .then(() => log())
+          .catch(console.error)
       } else {
         this.bot?.telegram.sendMessage(target, opts.message, {
           disable_web_page_preview: true,
           parse_mode: 'HTML',
-        }).then(() => {
-          log()
-        }).catch(console.error)
+        })
+          .then(() => log())
+          .catch(console.error)
       }
     }
   }

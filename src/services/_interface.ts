@@ -11,7 +11,7 @@ export const services: ServiceInterface[] = []
 
 export class ServiceInterface {
   service!: Services
-  commands: Array<{ name: string, fnc: string }>
+  commands: Array<{ name: string, fnc: string, description?: string }>
 
   constructor() {
     services.push(this)
