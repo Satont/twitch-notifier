@@ -21,9 +21,10 @@ class VK extends ServiceInterface {
     try {
       this.bot = new VKIO({ token })
 
-      this.bot.updates.on('message_new', async (msg) => {
+      this.bot.updates.on('message_new', async (msg, next) => {
         await this.ensureUser(msg)
         await this.listener(msg)
+        next()
       })
       await this.bot.updates.start()
       info('VK Service initialized.')

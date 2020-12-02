@@ -1,0 +1,8 @@
+{
+  "language": {
+    "changed": "Language is set to english."
+  },
+  "bot": {
+    "description": "Hello! I will notify you when Twitch broadcasts start."
+  }
+}
