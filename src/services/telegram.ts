@@ -90,16 +90,30 @@ class Telegram extends ServiceInterface {
     })
   }
 
+
+
   @command('settings', { description: 'Settings menu.' })
-  async test(msg: Context) {
-    msg.reply('Settings', Markup.inlineKeyboard([
+  @telegramAction('get_settings')
+  async settings(msg: Context) {
+    const getInlineKeyboard = () => Markup.inlineKeyboard([
       Markup.callbackButton('Game change notification', 'game_change_notification'),
-    ]).extra())
+    ])
+
+    if (msg.message?.text) {
+      await msg.reply('This is list of bot settings', getInlineKeyboard().extra())
+    } else if (msg.isAction) {
+      msg.editMessageReplyMarkup(getInlineKeyboard())
+    } else {
+      return getInlineKeyboard()
+    }
   }
 
   @telegramAction('game_change_notification')
   async gameChangeNotificationAction(msg: Context) {
-    await msg.reply('true')
+    await msg.editMessageReplyMarkup(Markup.inlineKeyboard([
+      Markup.urlButton('Test', 'http://vk.com'),
+      Markup.callbackButton('Settings', 'get_settings'),
+    ]))
   }
 
   async sendMessage(opts: SendMessageOpts) {
