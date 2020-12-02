@@ -6,24 +6,32 @@ import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
 import { followCommand } from '../commands/follow'
 import { chunk } from 'lodash'
+import { Languages } from '../entities/ChatSettings'
+import { HearManager } from '@vk-io/hear'
 
 class VK extends ServiceInterface {
   service = Services.VK
   bot: VKIO = null
+  hearManager: HearManager<MessageContext> = null
 
   async init() {
     const token = process.env.VK_GROUP_TOKEN
     if (!token) {
-      warning('VK: group token not setuped, telegram library will not works.')
+      warning('VK: group token not setuped, library will not works.')
       return
     }
 
     try {
       this.bot = new VKIO({ token })
+      this.hearManager = new HearManager<MessageContext>()
 
-      this.bot.updates.on('message_new', async (msg, next) => {
-        await this.ensureUser(msg)
-        await this.listener(msg)
+      this.bot.updates.on('message_new', this.hearManager.middleware)
+      this.bot.updates.on('message', async (ctx, next) => {
+        await this.ensureUser(ctx)
+        await this.listener(ctx)
+        next()
+      })
+      this.hearManager.hear('/qwe', async (context, next) => {
         next()
       })
       await this.bot.updates.start()
@@ -36,10 +44,11 @@ class VK extends ServiceInterface {
 
   async ensureUser(ctx: MessageContext) {
     const repository = getConnection().getRepository(Chat)
-    const data = { id: String(ctx.chatId), service: Services.VK }
-    const user = await repository.findOne(data) || await repository.create(data).save()
+    const data = { chatId: String(ctx.chatId || ctx.senderId), service: Services.VK }
+    const chat = await repository.findOne(data) || repository.create({ ...data, settings: { language: Languages.RUSSIAN } })
+    chat.save()
 
-    ctx.ChatEntity = user
+    ctx.ChatEntity = chat
   }
 
   async listener(msg: MessageContext) {
