@@ -33,7 +33,7 @@ const glob = promisify(gl)
 
 export class I18n {
   private translations = {}
-  lang = Languages.ENGLISH
+  private lang = Languages.ENGLISH
 
   constructor(lang?: Languages, translations?: any) {
     if (lang) this.lang = lang
@@ -54,7 +54,6 @@ export class I18n {
         error(e.stack)
       }
     }
-    console.log(this.translations)
   }
 
   clone(lang: Languages) {
