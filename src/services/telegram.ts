@@ -85,7 +85,7 @@ class Telegram extends ServiceInterface {
   async unfollow(ctx: Context, args: string[], arg: string) {
     this.sendMessage({
       target: String(ctx.chat.id),
-      message: await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg }),
+      message: await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
     })
   }
 
@@ -98,7 +98,7 @@ class Telegram extends ServiceInterface {
   async follows(ctx: Context) {
     this.sendMessage({
       target: String(ctx.chat.id),
-      message: await followsCommand({ chat: ctx.ChatEntity }),
+      message: await followsCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
     })
   }
 
@@ -106,7 +106,7 @@ class Telegram extends ServiceInterface {
   async live(ctx: Context) {
     this.sendMessage({
       target: String(ctx.chat.id),
-      message: await liveCommand({ chat: ctx.ChatEntity }),
+      message: await liveCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
     })
   }
 
