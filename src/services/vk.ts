@@ -28,11 +28,9 @@ class VK extends ServiceInterface {
 
       this.bot.updates.on('message_new', this.hearManager.middleware)
       this.bot.updates.on('message', async (ctx, next) => {
+        if (!ctx.isUser) return
         await this.ensureUser(ctx)
         await this.listener(ctx)
-        next()
-      })
-      this.hearManager.hear('/qwe', async (context, next) => {
         next()
       })
       await this.bot.updates.start()
@@ -45,7 +43,7 @@ class VK extends ServiceInterface {
 
   async ensureUser(ctx: MessageContext) {
     const repository = getConnection().getRepository(Chat)
-    const data = { chatId: String(ctx.chatId || ctx.senderId), service: Services.VK }
+    const data = { chatId: String(ctx.chatId || ctx.peerId || ctx.senderId), service: Services.VK }
     const chat = await repository.findOne(data) || repository.create({ ...data, settings: { language: Languages.RUSSIAN } })
     chat.save()
 
