@@ -10,7 +10,7 @@ const followRepository = getConnection().getRepository(Follow)
 
 export async function followCommand({ chat, channelName }: { chat: Chat, channelName: string }) {
   channelName = channelName.replace(/\s/g, '')
-  if (/[^a-zA-Z0-9_]/gmu.test(channelName)) {
+  if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
     return 'Username can cointain only "a-z", "0-9" and "_" symbols.'
   }
 
@@ -27,6 +27,6 @@ export async function followCommand({ chat, channelName }: { chat: Chat, channel
     const follow = await followRepository.create({ chat, channel }).save()
     chat.follows.push(follow)
     await chat.save()
-    return 'Success'
+    return `You successfuly followed to ${streamer.displayName}`
   }
 }

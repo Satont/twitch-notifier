@@ -9,6 +9,7 @@ import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
 import { ChatSettings } from '../entities/ChatSettings'
+import { unFollowCommand } from '../commands/unfollow'
 
 class Telegram extends ServiceInterface {
   readonly service = Services.TELEGRAM
@@ -68,11 +69,19 @@ class Telegram extends ServiceInterface {
   }
 
   @command('follow', { description: 'Follow to some user.' })
-  async follow(msg: Context, args?: string[], arg?: string) {
+  async follow(msg: Context, args: string[], arg: string) {
     if (!arg) return msg.reply('arg is empty')
     this.sendMessage({
       target: String(msg.chat.id),
       message: await followCommand({ chat: msg.ChatEntity, channelName: arg }),
+    })
+  }
+
+  @command('unfollow', { description: 'Unfollow from some user.' })
+  async unfollow(msg: Context, args: string[], arg: string) {
+    this.sendMessage({
+      target: String(msg.chat.id),
+      message: await unFollowCommand({ chat: msg.ChatEntity, channelName: arg }),
     })
   }
 
@@ -91,8 +100,6 @@ class Telegram extends ServiceInterface {
       message: await liveCommand({ chat: msg.ChatEntity }),
     })
   }
-
-
 
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')

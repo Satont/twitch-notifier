@@ -61,29 +61,30 @@ class TwitchWatcherClass {
         image: stream.thumbnail_url.replace('{width}', '1920').replace('{height}', '1080'),
         target: channel.followers.map(f => f.chat.id),
       }
-      if (!channel.online) {
-        for (const service of services) {
-          service.makeAnnounce({
-            message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
-            ...messageOpts,
-          })
-        }
-      } else if (channel.category !== category) {
-        for (const service of services) {
-          service.makeAnnounce({
-            message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
-            ...messageOpts,
-          })
-        }
-      }
-
-      channel.category = category
-      channel.title = stream.title
-      channel.username = stream.user_name
-
       if (stream.type === 'live') {
+        if (!channel.online) {
+          for (const service of services) {
+            service.makeAnnounce({
+              message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
+              ...messageOpts,
+            })
+          }
+        }
+
+        if (channel.online && channel.category !== category) {
+          for (const service of services) {
+            service.makeAnnounce({
+              message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
+              ...messageOpts,
+            })
+          }
+        }
+
+        channel.category = category
+        channel.title = stream.title
+        channel.username = stream.user_name
         channel.online = true
-      } else {
+      } else if (stream.type === 'offline') {
         channel.online = false
       }
 
