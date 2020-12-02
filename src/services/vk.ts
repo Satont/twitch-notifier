@@ -1,5 +1,5 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
-import { VK as VKIO, MessageContext  } from 'vk-io'
+import { VK as VKIO, MessageContext, Keyboard  } from 'vk-io'
 import { error, info, warning } from '../libs/logger'
 import { Chat, Services } from '../entities/Chat'
 import { getConnection } from 'typeorm'
@@ -8,6 +8,7 @@ import { followCommand } from '../commands/follow'
 import { chunk } from 'lodash'
 import { Languages } from '../entities/ChatSettings'
 import { HearManager } from '@vk-io/hear'
+import { cpuUsage } from 'process'
 
 class VK extends ServiceInterface {
   service = Services.VK
@@ -64,9 +65,41 @@ class VK extends ServiceInterface {
     return true
   }
 
-  @command('follow', { description: 'qwe' })
-  async follow(msg: MessageContext, args?: string[], arg?: string) {
-    msg.reply(await followCommand({ chat: msg.ChatEntity, channelName: arg, i18n: null as any }))
+  @command('start', { description: 'Start command' })
+  async startCommand(ctx: MessageContext, args?: string[], arg?: string) {
+    ctx.reply({
+      message: 'menu',
+      keyboard: Keyboard.builder()
+        .textButton({
+          label: 'The help',
+          payload: {
+            command: 'help',
+          },
+        })
+        .row()
+        .textButton({
+          label: 'The current date',
+          payload: {
+            command: 'time',
+          },
+        })
+        .row()
+        .textButton({
+          label: 'Cat photo',
+          payload: {
+            command: 'cat',
+          },
+          color: Keyboard.PRIMARY_COLOR,
+        })
+        .textButton({
+          label: 'Cat purring',
+          payload: {
+            command: 'purr',
+          },
+          color: Keyboard.PRIMARY_COLOR,
+        }),
+    })
+    return true
   }
 
   async sendMessage(opts: SendMessageOpts) {
