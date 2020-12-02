@@ -1,5 +1,5 @@
 import { Follow } from './Follow'
-import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, PrimaryGeneratedColumn, OneToOne } from 'typeorm'
+import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm'
 import { ChatSettings } from './ChatSettings'
 
 export enum Services {
@@ -28,6 +28,7 @@ export class Chat extends BaseEntity {
   @OneToMany(() => Follow, category => category.chat)
   follows: Follow[]
 
-  @OneToOne(() => ChatSettings, settings => settings.chat)
+  @OneToOne(() => ChatSettings, settings => settings.chat, { cascade: true, eager: true })
+  @JoinColumn()
   settings: ChatSettings
 }

@@ -8,6 +8,7 @@ import { followCommand } from '../commands/follow'
 import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
+import { ChatSettings } from '../entities/ChatSettings'
 
 class Telegram extends ServiceInterface {
   readonly service = Services.TELEGRAM
@@ -44,9 +45,9 @@ class Telegram extends ServiceInterface {
   }
 
   async ensureUser(ctx: Context) {
-    const data = { id: String(ctx.chat.id), service: Services.TELEGRAM }
-    const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] }) || this.chatRepository.create(data)
-    chat.id = String(ctx.chat.id)
+    const data = { chatId: String(ctx.chat.id), service: Services.TELEGRAM }
+    const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] })
+      ?? this.chatRepository.create({ ...data, settings: new ChatSettings() })
     chat.save()
 
     ctx.ChatEntity = chat

@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class initial1606888184525 implements MigrationInterface {
-    name = 'initial1606888184525'
+export class initial1606889510106 implements MigrationInterface {
+    name = 'initial1606889510106'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -18,7 +18,9 @@ export class initial1606888184525 implements MigrationInterface {
                 "service" character varying NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "settingsId" integer,
                 CONSTRAINT "UQ_5b05db8be015cde8647963d41a3" UNIQUE ("chatId", "service"),
+                CONSTRAINT "REL_db425de4c28fc6c50cc9c919c2" UNIQUE ("settingsId"),
                 CONSTRAINT "PK_0117647b3c4a4e5ff198aeb6206" PRIMARY KEY ("id")
             )
         `);
@@ -45,6 +47,10 @@ export class initial1606888184525 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
+            ALTER TABLE "chats"
+            ADD CONSTRAINT "FK_db425de4c28fc6c50cc9c919c20" FOREIGN KEY ("settingsId") REFERENCES "chats_settings"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+        `);
+        await queryRunner.query(`
             ALTER TABLE "follows"
             ADD CONSTRAINT "FK_dc1c79f16fa7bf1ef500a0305fb" FOREIGN KEY ("chatId") REFERENCES "chats"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
         `);
@@ -60,6 +66,9 @@ export class initial1606888184525 implements MigrationInterface {
         `);
         await queryRunner.query(`
             ALTER TABLE "follows" DROP CONSTRAINT "FK_dc1c79f16fa7bf1ef500a0305fb"
+        `);
+        await queryRunner.query(`
+            ALTER TABLE "chats" DROP CONSTRAINT "FK_db425de4c28fc6c50cc9c919c20"
         `);
         await queryRunner.query(`
             DROP TABLE "channels"
