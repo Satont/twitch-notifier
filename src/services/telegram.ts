@@ -10,14 +10,12 @@ import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
 import { ChatSettings, Languages } from '../entities/ChatSettings'
 import { unFollowCommand } from '../commands/unfollow'
-import TelegrafI18n from 'telegraf-i18n'
-import { resolve } from 'path'
+import { i18n } from '../libs/i18n'
 
 class Telegram extends ServiceInterface {
   readonly service = Services.TELEGRAM
   bot: Telegraf<any> = null
   private readonly chatRepository = getConnection().getRepository(Chat)
-  i18n: TelegrafI18n
 
   constructor() {
     super()
@@ -28,14 +26,6 @@ class Telegram extends ServiceInterface {
       return
     }
     this.bot = new Telegraf(accessToken)
-
-    this.i18n = new TelegrafI18n({
-      defaultLanguage: 'english',
-      useSession: true,
-      defaultLanguageOnMissing: true,
-      directory: resolve(process.cwd(), 'locales'),
-    })
-    this.bot.use(this.i18n.middleware())
   }
 
   async init() {
@@ -47,7 +37,8 @@ class Telegram extends ServiceInterface {
         if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
 
         ctx = await this.ensureUser(ctx)
-        ctx.i18n.locale(ctx.ChatEntity.settings.language)
+
+        ctx.i18n = i18n.cloneInstance({ lng: ctx.ChatEntity.settings.language })
         next()
       })
       this.bot.on('message', (msg) => this.listener(msg))
@@ -101,7 +92,7 @@ class Telegram extends ServiceInterface {
 
   @command('test', { description: 'test' })
   async test(ctx: Context, args: string[], arg: string) {
-    ctx.reply(ctx.i18n.t('test', { test: ctx.from.username }))
+    ctx.reply(ctx.i18n.t('test', { t: ctx.from.username }))
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
@@ -158,6 +149,7 @@ class Telegram extends ServiceInterface {
   @telegramAction('language_setting_set_english')
   async languageSetEnglish(ctx: Context) {
     ctx.ChatEntity.settings.language = Languages.ENGLISH
+    ctx.i18n.language = ctx.ChatEntity.settings.language
     await ctx.ChatEntity.save()
     ctx.reply('Language setted to english.')
   }
@@ -165,6 +157,7 @@ class Telegram extends ServiceInterface {
   @telegramAction('language_setting_set_russian')
   async languageSetRussian(ctx: Context) {
     ctx.ChatEntity.settings.language = Languages.RUSSIAN
+    ctx.i18n.language = ctx.ChatEntity.settings.language
     await ctx.ChatEntity.save()
     ctx.reply('Язык установлен на русский.')
   }

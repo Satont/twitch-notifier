@@ -1,5 +1,5 @@
 import { Chat } from '../entities/Chat'
-import i18n from 'telegraf-i18n'
+import { i18n } from 'i18next'
 
 declare module 'telegraf' {
   interface Context {
