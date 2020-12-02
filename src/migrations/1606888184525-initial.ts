@@ -1,16 +1,24 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class initial1606827892399 implements MigrationInterface {
-    name = 'initial1606827892399'
+export class initial1606888184525 implements MigrationInterface {
+    name = 'initial1606888184525'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
+            CREATE TABLE "chats_settings" (
+                "id" SERIAL NOT NULL,
+                "game_change_notification" boolean NOT NULL DEFAULT false,
+                CONSTRAINT "PK_cafeab5c755e94c547405cea61d" PRIMARY KEY ("id")
+            )
+        `);
+        await queryRunner.query(`
             CREATE TABLE "chats" (
-                "id" character varying NOT NULL,
+                "id" SERIAL NOT NULL,
+                "chatId" character varying NOT NULL,
                 "service" character varying NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                CONSTRAINT "UQ_a8783fe5751bf0744cfc23348ab" UNIQUE ("id", "service"),
+                CONSTRAINT "UQ_5b05db8be015cde8647963d41a3" UNIQUE ("chatId", "service"),
                 CONSTRAINT "PK_0117647b3c4a4e5ff198aeb6206" PRIMARY KEY ("id")
             )
         `);
@@ -18,7 +26,7 @@ export class initial1606827892399 implements MigrationInterface {
             CREATE TABLE "follows" (
                 "id" SERIAL NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "chatId" character varying,
+                "chatId" integer,
                 "channelId" character varying,
                 CONSTRAINT "UQ_d63caec7a6eee9b38484e88dfef" UNIQUE ("chatId", "channelId"),
                 CONSTRAINT "PK_8988f607744e16ff79da3b8a627" PRIMARY KEY ("id")
@@ -61,6 +69,9 @@ export class initial1606827892399 implements MigrationInterface {
         `);
         await queryRunner.query(`
             DROP TABLE "chats"
+        `);
+        await queryRunner.query(`
+            DROP TABLE "chats_settings"
         `);
     }
 

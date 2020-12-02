@@ -1,5 +1,6 @@
 import { Follow } from './Follow'
-import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique } from 'typeorm'
+import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, PrimaryGeneratedColumn, OneToOne } from 'typeorm'
+import { ChatSettings } from './ChatSettings'
 
 export enum Services {
   VK = 'vk',
@@ -7,10 +8,13 @@ export enum Services {
 }
 
 @Entity('chats')
-@Unique(['id', 'service'])
+@Unique(['chatId', 'service'])
 export class Chat extends BaseEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: string
+
+  @Column()
+  chatId: string
 
   @Column({ enum: Services })
   service: Services
@@ -23,4 +27,7 @@ export class Chat extends BaseEntity {
 
   @OneToMany(() => Follow, category => category.chat)
   follows: Follow[]
+
+  @OneToOne(() => ChatSettings, settings => settings.chat)
+  settings: ChatSettings
 }

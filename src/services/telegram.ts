@@ -112,7 +112,7 @@ class Telegram extends ServiceInterface {
   async gameChangeNotificationAction(msg: Context) {
     await msg.editMessageReplyMarkup(Markup.inlineKeyboard([
       Markup.urlButton('Test', 'http://vk.com'),
-      Markup.callbackButton('Settings', 'get_settings'),
+      Markup.callbackButton('«', 'get_settings'),
     ]))
   }
 
