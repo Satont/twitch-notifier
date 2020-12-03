@@ -1,25 +1,25 @@
 {
   "language": {
-    "name": "English",
-    "changed": "Language is set to english.",
-    "emoji": "🇬🇧"
+    "name": "Русский",
+    "changed": "Язык установлен на русский.",
+    "emoji": "🇷🇺"
   },
   "bot": {
-    "description": "Hello! I will notify you when Twitch broadcasts start."
+    "description": "Здравствуйте! Я буду уведомлять вас о начале трансляций Twitch."
   },
   "settings": {
     "game_change_notification_setting": {
-      "button": "Game change notification"
+      "button": "Уведомления о смене игры"
     },
     "language": {
-      "button": "🌍 Language"
+      "button": "🌍 Язык"
     }
   },
   "errors": {
-    "translateNotFound": "Translate for {{ string }} not found."
+    "translateNotFound": "Перевод для {{ string }} не найден."
   },
-  "enable": "Enable",
-  "disable": "Disable",
-  "enabled": "Enabled",
-  "disabled": "Disabled"
+  "enable": "Включить",
+  "disable": "Выключить",
+  "enabled": "Включено",
+  "disabled": "Выключено"
 }
