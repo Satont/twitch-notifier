@@ -1,7 +1,7 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "views"],
   "exec": "npm run build; NODE_ENV=development npm run start",
-  "ext": "ts",
+  "ext": "ts,hbs",
   "ignore": [
     "src/migrations/**"
   ]

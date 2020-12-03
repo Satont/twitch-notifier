@@ -12,6 +12,6 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
   },
-  "include": ["src"],
+  "include": ["src", "src/views"],
   "exclude": ["node_modules"]
 }
