@@ -156,7 +156,7 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
-  async languageSetEnglish(ctx: Context) {
+  async languageSet(ctx: Context) {
     const lang = ctx.callbackQuery.data.split('_')[2] as Languages
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
