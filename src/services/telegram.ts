@@ -160,6 +160,7 @@ class Telegram extends ServiceInterface {
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()
+    await this.settings(ctx)
   }
 
   async sendMessage(opts: SendMessageOpts) {
