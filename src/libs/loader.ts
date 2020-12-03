@@ -16,8 +16,8 @@ async function* getFiles(dir: string) {
 
 const loader = async () => {
   const folders = {
-    services: 'Service',
     libs: 'Lib',
+    services: 'Service',
     watchers: 'Watcher',
   }
   for (const folder of Object.keys(folders)) {
@@ -28,7 +28,7 @@ const loader = async () => {
 
         const loadedFile = (await import(resolve(__dirname, '..', folder, file))).default
         if (!loadedFile) continue
-        if (typeof loadedFile.init !== 'undefined') loadedFile.init()
+        if (typeof loadedFile.init !== 'undefined') await loadedFile.init()
 
         info(`${folders[folder]} ${loadedFile.constructor.name.toUpperCase()} loaded`)
       }

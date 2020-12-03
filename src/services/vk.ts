@@ -5,7 +5,6 @@ import { Chat, Services } from '../entities/Chat'
 import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
 import { chunk } from 'lodash'
-import { Languages } from '../entities/ChatSettings'
 import { HearManager } from '@vk-io/hear'
 import { i18n } from '../libs/i18n'
 import { followCommand } from '../commands/follow'
@@ -15,9 +14,14 @@ import { unFollowCommand } from '../commands/unfollow'
 import { vkAction } from '../decorators/vkAction'
 
 class VK extends ServiceInterface {
-  service = Services.VK
   bot: VKIO = null
   hearManager: HearManager<MessageContext> = null
+
+  constructor() {
+    super({
+      service: Services.VK,
+    })
+  }
 
   async init() {
     const token = process.env.VK_GROUP_TOKEN
@@ -51,7 +55,7 @@ class VK extends ServiceInterface {
     const repository = getConnection().getRepository(Chat)
     const data = { chatId: String(ctx.chatId || ctx.peerId || ctx.senderId), service: Services.VK }
     const chat = await repository.findOne(data, { relations: ['follows', 'follows.channel'] })
-      || repository.create({ ...data, settings: { language: Languages.RUSSIAN } })
+      || repository.create({ ...data, settings: { language: 'ru' } })
 
     chat.save()
 
@@ -104,10 +108,10 @@ class VK extends ServiceInterface {
   @vkAction('language_setting')
   async languageMenu(ctx: MessageContext) {
     const keyboard = Keyboard.builder().oneTime().inline()
-    Object.values(Languages).forEach(v => {
-      const name = v.charAt(0).toUpperCase() + v.slice(1)
-      const emoji = ctx.i18n.getFlag(v)
-      keyboard.textButton({ label: `${emoji} ${name}`, payload: { command: `language_set_${v}_setting` } })
+    Object.keys(i18n.translations).forEach(key => {
+      const name = i18n.translations[key].language.name
+      const emoji = i18n.translations[key].language.emoji
+      keyboard.textButton({ label: `${emoji} ${name}`, payload: { command: `language_set_${key}_setting` } })
     })
 
     await ctx.send({
@@ -116,9 +120,9 @@ class VK extends ServiceInterface {
     })
   }
 
-  @vkAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
+  @vkAction(Object.keys(i18n.translations).map(key => `language_set_${key}_setting`))
   async setLang(ctx: MessageContext) {
-    const lang = ctx.messagePayload.command.split('_')[2] as Languages
+    const lang = ctx.messagePayload.command.split('_')[2] as string
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()

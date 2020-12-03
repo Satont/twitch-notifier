@@ -1,11 +1,6 @@
 import { Entity, BaseEntity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm'
 import { Chat } from './Chat'
 
-export enum Languages {
-  RUSSIAN = 'russian',
-  ENGLISH = 'english',
-}
-
 @Entity('chats_settings')
 export class ChatSettings extends BaseEntity {
   @PrimaryGeneratedColumn()
@@ -17,6 +12,6 @@ export class ChatSettings extends BaseEntity {
   @Column({ default: false, nullable: false })
   game_change_notification: boolean = false
 
-  @Column({ enum: Languages, default: Languages.ENGLISH })
-  language: Languages = Languages.ENGLISH
+  @Column({ default: 'en' })
+  language!: string
 }

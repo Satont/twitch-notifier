@@ -8,17 +8,18 @@ import { followCommand } from '../commands/follow'
 import { followsCommand } from '../commands/follows'
 import { liveCommand } from '../commands/live'
 import { telegramAction } from '../decorators/telegramAction'
-import { ChatSettings, Languages } from '../entities/ChatSettings'
+import { ChatSettings } from '../entities/ChatSettings'
 import { unFollowCommand } from '../commands/unfollow'
 import { i18n } from '../libs/i18n'
 
 class Telegram extends ServiceInterface {
-  readonly service = Services.TELEGRAM
   bot: Telegraf<any> = null
   private readonly chatRepository = getConnection().getRepository(Chat)
 
   constructor() {
-    super()
+    super({
+      service: Services.TELEGRAM,
+    })
 
     const accessToken = process.env.TELEGRAM_BOT_TOKEN
     if (!accessToken) {
@@ -93,11 +94,6 @@ class Telegram extends ServiceInterface {
     })
   }
 
-  @command('test', { description: 'test', isVisible: false })
-  async test(ctx: Context) {
-    ctx.reply(ctx.i18n.translate(ctx.message.text.replace('/test ', ''), { t: ctx.from.username }))
-  }
-
   @command('follows', { description: 'Shows list of your follows.' })
   async follows(ctx: Context) {
     this.sendMessage({
@@ -144,10 +140,10 @@ class Telegram extends ServiceInterface {
 
   @telegramAction('language_setting')
   async language(ctx: Context) {
-    const buttons = Object.values(Languages).map(v => {
-      const name = v.charAt(0).toUpperCase() + v.slice(1)
-      const emoji = ctx.i18n.getFlag(v)
-      return Markup.callbackButton(`${name} ${emoji}`, `language_set_${v}_setting`)
+    const buttons = Object.keys(i18n.translations).map(key => {
+      const name = i18n.translations[key].language.name
+      const emoji = i18n.translations[key].language.emoji
+      return Markup.callbackButton(`${name} ${emoji}`, `language_set_${key}_setting`)
     })
 
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
@@ -156,9 +152,9 @@ class Telegram extends ServiceInterface {
     ], { columns: 1 }))
   }
 
-  @telegramAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
+  @telegramAction(Object.keys(i18n.translations).map(key => `language_set_${key}_setting`))
   async languageSet(ctx: Context) {
-    const lang = ctx.callbackQuery.data.split('_')[2] as Languages
+    const lang = ctx.callbackQuery.data.split('_')[2] as string
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()

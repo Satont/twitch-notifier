@@ -15,8 +15,9 @@ export class ServiceInterface {
   service!: Services
   commands: Array<{ name: string, fnc: string } & CommandDecoratorOptions>
 
-  constructor() {
+  constructor({ service }: { service: Services }) {
     services.push(this)
+    this.service = service
   }
 
   protected init(): void {
