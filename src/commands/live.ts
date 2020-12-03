@@ -6,6 +6,10 @@ import { I18n } from '../libs/i18n'
 const followRepository = getConnection().getRepository(Follow)
 
 export async function liveCommand({ chat, i18n }: { chat: Chat, i18n: I18n }) {
+  if (!chat.follows.length) {
+    return i18n.translate('commands.follows.emptyList')
+  }
+
   const streams = (await followRepository.find({
     where: { chat },
     relations: ['channel'],
