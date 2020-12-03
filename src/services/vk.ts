@@ -103,7 +103,8 @@ class VK extends ServiceInterface {
     const keyboard = Keyboard.builder().oneTime().inline()
     Object.values(Languages).forEach(v => {
       const name = v.charAt(0).toUpperCase() + v.slice(1)
-      keyboard.textButton({ label: name, payload: { command: `language_set_${v}_setting` } })
+      const emoji = ctx.i18n.translate('language.emoji')
+      keyboard.textButton({ label: `${emoji} ${name}`, payload: { command: `language_set_${v}_setting` } })
     })
 
     await ctx.send({

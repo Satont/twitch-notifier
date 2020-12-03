@@ -146,7 +146,8 @@ class Telegram extends ServiceInterface {
   async language(ctx: Context) {
     const buttons = Object.values(Languages).map(v => {
       const name = v.charAt(0).toUpperCase() + v.slice(1)
-      return Markup.callbackButton(name, `language_set_${v}_setting`)
+      const emoji = ctx.i18n.translate('language.emoji')
+      return Markup.callbackButton(`${name} ${emoji}`, `language_set_${v}_setting`)
     })
 
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
