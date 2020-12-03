@@ -151,7 +151,7 @@ class Telegram extends ServiceInterface {
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
       ...buttons,
       Markup.callbackButton('«', 'get_settings'),
-    ]))
+    ], { columns: 1 }))
   }
 
   @telegramAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
