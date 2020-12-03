@@ -1,0 +1,7 @@
+commit_message: '[skip-tests]'
+
+files:
+  - source: /locales/english.json
+    translation: /locales/%language%.json
+  - source: /locales/english/**/**/*
+    translation: /locales/%language%/**/**/%original_file_name%
