@@ -49,7 +49,7 @@ class TwitchWatcherClass {
           for (const service of services) {
             service.makeAnnounce({
               message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
-              target: channel.followers.map(f => f.chat.chatId),
+              target: channel.followers?.map(f => f.chat.chatId),
               ...messageOpts,
             })
           }
@@ -59,7 +59,7 @@ class TwitchWatcherClass {
           for (const service of services) {
             service.makeAnnounce({
               message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
-              target: channel.followers.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
+              target: channel.followers?.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
               ...messageOpts,
             })
           }
