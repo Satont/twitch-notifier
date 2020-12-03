@@ -6,8 +6,8 @@ on:
       - master
 
 jobs:
-  build:
-  if: "! contains(toJSON(github.event.commits.*.message), '[skip-heroku]')"
+  heroku:
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip-heroku]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
