@@ -128,10 +128,10 @@ class VK extends ServiceInterface {
 
   @vkAction('game_change_notification_setting')
   async setGameChangeNotification(ctx: MessageContext) {
-    const current = ctx.ChatEntity.settings.game_change_notification
-    ctx.ChatEntity.settings.game_change_notification = !current
+    const currentState = ctx.ChatEntity.settings.game_change_notification
+    ctx.ChatEntity.settings.game_change_notification = !currentState
     await ctx.ChatEntity.save()
-    ctx.send(ctx.i18n.translate('language.changed'))
+    ctx.send(ctx.i18n.translate(`settings.game_change_notification_setting.${!currentState ? 'enabled' : 'disabled'}`))
   }
 
   @command('follow', { description: 'Follow to some user.' })
