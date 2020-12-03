@@ -1,4 +1,4 @@
 {
-  "list": "Currently online:\n{{ list }}",
-  "empty": "No one is streaming from your list at the moment."
+  "list": "Сейчас онлайн:\n{{ list }}",
+  "empty": "На данный момент из вашего списка никто не стримит."
 }
