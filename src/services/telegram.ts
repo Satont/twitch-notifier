@@ -28,7 +28,7 @@ class Telegram extends ServiceInterface {
 
     this.bot = new Telegraf(accessToken)
     this.bot.use(async (ctx: Context, next) => {
-      if (ctx.message?.text) chatIn(`TG [${ctx.from.username}]: ${ctx.message?.text}`)
+      if (ctx.message?.text) chatIn(`TG [${ctx.from?.username || ctx.from.id}]: ${ctx.message?.text}`)
 
       ctx.ChatEntity = await this.ensureUser(ctx)
       ctx.i18n = i18n.clone(ctx.ChatEntity.settings.language)

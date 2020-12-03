@@ -1,6 +1,6 @@
 import { SendMessageOpts, ServiceInterface } from './_interface'
 import { VK as VKIO, MessageContext, Keyboard  } from 'vk-io'
-import { error, info, warning } from '../libs/logger'
+import { chatIn, error, info, warning } from '../libs/logger'
 import { Chat, Services } from '../entities/Chat'
 import { getConnection } from 'typeorm'
 import { command } from '../decorators/command'
@@ -32,6 +32,7 @@ class VK extends ServiceInterface {
 
       this.bot.updates.on('message', async (ctx, next) => {
         if (!ctx.isUser) return
+        if (ctx.text) chatIn(`VK [${ctx.peerId}]: ${ctx.text}`)
         await this.ensureUser(ctx)
         ctx.i18n = i18n.clone(ctx.ChatEntity.settings.language)
         await this.listener(ctx)
