@@ -169,7 +169,7 @@ class VK extends ServiceInterface {
   async sendMessage(opts: SendMessageOpts) {
     const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
     const chunks = chunk(targets.map(t => Number(t)), 100)
-    const attachment = opts.image ? this.uploadPhoto(opts.image) : undefined
+    const attachment = opts.image ? await this.uploadPhoto(opts.image) : undefined
     for (const chunk of chunks) {
       await this.bot.api.messages.send({
         random_id: Math.random() * (1000000000 - 9) + 10,

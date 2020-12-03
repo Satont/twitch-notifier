@@ -7,12 +7,10 @@
   },
   "settings": {
     "game_change_notification_setting": {
-      "button": "Game change notification",
-      "enabled": "Game change notification enabled",
-      "disabled": "Game change notification disabled"
+      "button": "Game change notification"
     },
     "language": {
-      "button": "Language"
+      "button": "🌍 Language"
     }
   },
   "errors": {

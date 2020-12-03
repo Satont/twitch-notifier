@@ -118,10 +118,11 @@ class Telegram extends ServiceInterface {
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')
   async settings(ctx: Context) {
+    const emojiForGame = !ctx.ChatEntity.settings.game_change_notification ? '◻︎' : '☑︎'
     const getInlineKeyboard = () => Markup.inlineKeyboard([
-      Markup.callbackButton(ctx.i18n.translate('settings.game_change_notification_setting.button'), 'game_change_notification_setting'),
+      Markup.callbackButton(`${emojiForGame} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`, 'game_change_notification_setting'),
       Markup.callbackButton(ctx.i18n.translate('settings.language.button'), 'language_setting'),
-    ])
+    ], { columns: 1 })
 
     if (ctx.message?.text) {
       await ctx.reply(ctx.i18n.translate('bot.description'), getInlineKeyboard().extra())
@@ -133,36 +134,27 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction('game_change_notification_setting')
-  @telegramAction('set_game_change_notification_setting')
   async gameChangeNotificationAction(ctx: Context) {
     const currentState = ctx.ChatEntity.settings.game_change_notification
-    const match = ctx.match.toString()
-    if (match === 'game_change_notification_setting') {
-      const buttonText = ctx.i18n.translate(currentState ? 'disable' : 'enable')
-      await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
-        Markup.callbackButton(buttonText, 'set_game_change_notification_setting'),
-        Markup.callbackButton('«', 'get_settings'),
-      ]))
-    } else if (match === 'set_game_change_notification_setting') {
-      ctx.ChatEntity.settings.game_change_notification = !currentState
-      const text = ctx.i18n.translate(`settings.game_change_notification_setting.${!currentState ? 'enabled' : 'disabled'}`)
-      await ctx.reply(text)
-      await this.settings(ctx)
-    }
+    ctx.ChatEntity.settings.game_change_notification = !currentState
+    await ctx.ChatEntity.save()
+    await this.settings(ctx)
   }
 
 
   @telegramAction('language_setting')
   async language(ctx: Context) {
+    const buttons = Object.values(Languages).map(v => {
+      const name = v.charAt(0).toUpperCase() + v.slice(1)
+      return Markup.callbackButton(name, `language_set_${v}_setting`)
+    })
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
-      Markup.callbackButton('English', 'language_set_english_setting'),
-      Markup.callbackButton('Russian', 'language_set_russian_setting'),
+      ...buttons,
       Markup.callbackButton('«', 'get_settings'),
     ]))
   }
 
-  @telegramAction('language_set_english_setting')
-  @telegramAction('language_set_russian_setting')
+  @telegramAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
   async languageSetEnglish(ctx: Context) {
     const lang = ctx.callbackQuery.data.split('_')[2] as Languages
     ctx.ChatEntity.settings.language = lang
