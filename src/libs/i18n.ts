@@ -56,6 +56,10 @@ export class I18n {
     }
   }
 
+  getFlag(lang: string) {
+    return this.translations[lang].language.emoji
+  }
+
   clone(lang: Languages) {
     return new I18n(lang, this.translations)
   }
