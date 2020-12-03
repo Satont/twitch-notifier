@@ -127,7 +127,7 @@ class Telegram extends ServiceInterface {
     if (ctx.message?.text) {
       await ctx.reply(ctx.i18n.translate('bot.description'), getInlineKeyboard().extra())
     } else if (ctx.isAction) {
-      await ctx.editMessageReplyMarkup(getInlineKeyboard())
+      await ctx.editMessageText(ctx.i18n.translate('bot.description'), getInlineKeyboard().extra())
     } else {
       return getInlineKeyboard()
     }
@@ -148,6 +148,7 @@ class Telegram extends ServiceInterface {
       const name = v.charAt(0).toUpperCase() + v.slice(1)
       return Markup.callbackButton(name, `language_set_${v}_setting`)
     })
+
     await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
       ...buttons,
       Markup.callbackButton('«', 'get_settings'),
