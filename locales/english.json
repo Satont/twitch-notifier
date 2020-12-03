@@ -7,10 +7,19 @@
   },
   "settings": {
     "game_change_notification_setting": {
-      "button": "Уведомления о смене игры"
+      "button": "Game change notification",
+      "enabled": "Game change notification enabled",
+      "disabled": "Game change notification disabled"
     },
     "language": {
-      "button": "Язык"
+      "button": "Language"
     }
-  }
+  },
+  "errors": {
+    "translateNotFound": "Translate for {{ string }} not found."
+  },
+  "enable": "Enable",
+  "disable": "Disable",
+  "enabled": "Enabled",
+  "disabled": "Disabled"
 }

@@ -61,7 +61,8 @@ export class I18n {
   }
 
   translate(path: string, data?: Record<string, any>) {
-    const result = template(get(this.translations, `${this.lang}.${path}`), { interpolate: /{{([\s\S]+?)}}/g })
+    const str = get(this.translations, `${this.lang}.${path}`, `${this.lang}.errors.translateNotFound`)
+    const result = template(str, { interpolate: /{{([\s\S]+?)}}/g })
     return result(data)
   }
 }

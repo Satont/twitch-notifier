@@ -40,7 +40,11 @@ class Telegram extends ServiceInterface {
   async init() {
     try {
       await this.bot.launch()
-      await this.bot.telegram.setMyCommands(this.commands.map(c => ({ command: c.name, description: c.description })))
+      const commands = this.commands
+        .filter(c => c.isVisible ?? true)
+        .map(c => ({ command: c.name, description: c.description }))
+
+      await this.bot.telegram.setMyCommands(commands)
 
       this.bot.on('message', (msg) => this.listener(msg))
 
@@ -89,7 +93,7 @@ class Telegram extends ServiceInterface {
     })
   }
 
-  @command('test', { description: 'test' })
+  @command('test', { description: 'test', isVisible: false })
   async test(ctx: Context) {
     ctx.reply(ctx.i18n.translate(ctx.message.text.replace('/test ', ''), { t: ctx.from.username }))
   }
@@ -115,26 +119,38 @@ class Telegram extends ServiceInterface {
   @telegramAction('get_settings')
   async settings(ctx: Context) {
     const getInlineKeyboard = () => Markup.inlineKeyboard([
-      Markup.callbackButton(ctx.i18n.translate('telegram.settings.game_change_notification_setting.button'), 'game_change_notification_setting'),
-      Markup.callbackButton(ctx.i18n.translate('telegram.settings.language.button'), 'language_setting'),
+      Markup.callbackButton(ctx.i18n.translate('settings.game_change_notification_setting.button'), 'game_change_notification_setting'),
+      Markup.callbackButton(ctx.i18n.translate('settings.language.button'), 'language_setting'),
     ])
 
     if (ctx.message?.text) {
       await ctx.reply(ctx.i18n.translate('bot.description'), getInlineKeyboard().extra())
     } else if (ctx.isAction) {
-      ctx.editMessageReplyMarkup(getInlineKeyboard())
+      await ctx.editMessageReplyMarkup(getInlineKeyboard())
     } else {
       return getInlineKeyboard()
     }
   }
 
   @telegramAction('game_change_notification_setting')
+  @telegramAction('set_game_change_notification_setting')
   async gameChangeNotificationAction(ctx: Context) {
-    await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
-      Markup.callbackButton('Test', 'http://vk.com'),
-      Markup.callbackButton('«', 'get_settings'),
-    ]))
+    const currentState = ctx.ChatEntity.settings.game_change_notification
+    const match = ctx.match.toString()
+    if (match === 'game_change_notification_setting') {
+      const buttonText = ctx.i18n.translate(currentState ? 'disable' : 'enable')
+      await ctx.editMessageReplyMarkup(Markup.inlineKeyboard([
+        Markup.callbackButton(buttonText, 'set_game_change_notification_setting'),
+        Markup.callbackButton('«', 'get_settings'),
+      ]))
+    } else if (match === 'set_game_change_notification_setting') {
+      ctx.ChatEntity.settings.game_change_notification = !currentState
+      const text = ctx.i18n.translate(`settings.game_change_notification_setting.${!currentState ? 'enabled' : 'disabled'}`)
+      await ctx.reply(text)
+      await this.settings(ctx)
+    }
   }
+
 
   @telegramAction('language_setting')
   async language(ctx: Context) {

@@ -1,4 +1,5 @@
 import { getConnection, In } from 'typeorm'
+import { CommandDecoratorOptions } from '../decorators/command'
 import { Chat, Services } from '../entities/Chat'
 
 export interface SendMessageOpts {
@@ -12,7 +13,7 @@ export const services: ServiceInterface[] = []
 export class ServiceInterface {
   inited = false
   service!: Services
-  commands: Array<{ name: string, fnc: string, description?: string }>
+  commands: Array<{ name: string, fnc: string } & CommandDecoratorOptions>
 
   constructor() {
     services.push(this)
