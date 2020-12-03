@@ -1,22 +1,24 @@
-import Twitch from '../libs/twitch'
-import { User } from '../models/User'
-import { Channel } from '../models/Channel'
-import { Op } from 'sequelize'
+import { getConnection } from 'typeorm'
+import { Chat } from '../entities/Chat'
+import { Follow } from '../entities/Follow'
+import { I18n } from '../libs/i18n'
 
-export default async ({ userId, service}: { userId: number, service: 'vk' | 'telegram'}): Promise<boolean | string[]> => {
-  const user = await User.findOne({ where: { id: userId, service } })
-  if (!user.follows.length) {
-    return false
+const followRepository = getConnection().getRepository(Follow)
+
+export async function liveCommand({ chat, i18n }: { chat: Chat, i18n: I18n }) {
+  if (!chat.follows?.length) {
+    return i18n.translate('commands.follows.emptyList')
+  }
+
+  const streams = (await followRepository.find({
+    where: { chat },
+    relations: ['channel'],
+  })).filter(f => f.channel.online).map(f => f.channel)
+
+  if (!streams.length) {
+    return i18n.translate('commands.live.empty')
   } else {
-    const liveChannels = await Channel.findAll({
-      where: {
-        id: { [Op.in]: user.follows },
-        online: true,
-      },
-      raw: true,
-    })
-
-    const channels = await Twitch.getChannelsById(liveChannels.map((o) => o.id))
-    return channels.map(o => o.login)
+    const names = streams.map(s => `https://twitch.tv/${s.username} | Title: ${s.title} | Category: ${s.category}`)
+    return i18n.translate('commands.live.list', { list: names.join('\n') })
   }
 }

@@ -1,6 +1,0 @@
-const { resolve } = require('path')
-
-module.exports = {
-  'config': resolve('.', 'database.js'),
-  'migrations-path': resolve('src', 'migrations')
-}

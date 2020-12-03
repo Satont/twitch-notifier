@@ -1,20 +1,31 @@
-import Twitch from '../libs/twitch'
-import { User } from '../models/User'
-import { Channel } from '../models/Channel'
-import { remove } from 'lodash'
+import { getConnection } from 'typeorm'
+import { Chat } from '../entities/Chat'
+import { Follow } from '../entities/Follow'
+import { I18n } from '../libs/i18n'
+import { Twitch } from '../libs/twitch'
 
-export default async ({ service, userId, channel }: { service: 'telegram' | 'vk', userId: number, channel: string }): Promise<boolean> => {
-  if (/[^a-zA-Z0-9_]/gmu.test(channel)) {
-    throw new Error('Username can cointain only "a-z", "0-9" and "_" symbols.')
+const followRepository = getConnection().getRepository(Follow)
+
+export async function unFollowCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: I18n }) {
+  channelName = channelName.replace(/\s/g, '')
+  if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
+    return i18n.translate('commands.follow.errors.badUsername')
   }
-  const streamer = await Twitch.getChannel(channel)
-  const [user] = await User.findOrCreate({ where: { id: userId, service }, defaults: { follows: [], service } })
-  await Channel.findOrCreate({ where: { id: streamer.id }, defaults: { username: streamer.login, online: false } })
-  if (!user.follows.includes(streamer.id)) {
-    return false
+
+  const streamer = await Twitch.getUser({ name: channelName.toLowerCase() })
+  if (!streamer) {
+    return i18n.translate('commands.follow.errors.streamerNotFound', { streamer: streamer.displayName })
+  }
+
+  const follow = await followRepository.findOne({
+    chat,
+    channel: { id: streamer.id },
+  })
+
+  if (!follow) {
+    return i18n.translate('commands.unfollow.notFollowed', { streamer: streamer.name })
   } else {
-    remove(user.follows, (o: number) => o === streamer.id)
-    await user.update({ follows: user.follows })
-    return true
+    await follow.remove()
+    return i18n.translate('commands.unfollow.success', { streamer: streamer.name })
   }
 }
