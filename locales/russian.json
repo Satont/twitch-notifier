@@ -4,5 +4,13 @@
   },
   "bot": {
     "description": "Здравствуйте! Я буду уведомлять вас о начале трансляций Twitch."
+  },
+  "settings": {
+    "game_change_notification_setting": {
+      "button": "Game change notification"
+    },
+    "language": {
+      "button": "Language"
+    }
   }
 }

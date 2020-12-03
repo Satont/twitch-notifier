@@ -4,5 +4,13 @@
   },
   "bot": {
     "description": "Hello! I will notify you when Twitch broadcasts start."
+  },
+  "settings": {
+    "game_change_notification_setting": {
+      "button": "Уведомления о смене игры"
+    },
+    "language": {
+      "button": "Язык"
+    }
   }
 }

@@ -79,8 +79,15 @@ class VK extends ServiceInterface {
     ctx.send({
       message: ctx.i18n.translate('bot.description'),
       keyboard: Keyboard.builder()
+        .oneTime()
         .textButton({
-          label: 'Language',
+          label: ctx.i18n.translate('settings.game_change_notification_setting.button'),
+          payload: {
+            command: 'game_change_notification_setting',
+          },
+        })
+        .textButton({
+          label: ctx.i18n.translate('settings.language.button'),
           payload: {
             command: 'language_setting',
           },
@@ -93,6 +100,7 @@ class VK extends ServiceInterface {
     ctx.send({
       message: ctx.i18n.translate('bot.description'),
       keyboard: Keyboard.builder()
+        .oneTime()
         .textButton({
           label: 'English',
           payload: {
@@ -114,6 +122,14 @@ class VK extends ServiceInterface {
     const lang = ctx.messagePayload.command.split('_')[2] as Languages
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
+    await ctx.ChatEntity.save()
+    ctx.send(ctx.i18n.translate('language.changed'))
+  }
+
+  @vkAction('game_change_notification_setting')
+  async setGameChangeNotification(ctx: MessageContext) {
+    const current = ctx.ChatEntity.settings.game_change_notification
+    ctx.ChatEntity.settings.game_change_notification = !current
     await ctx.ChatEntity.save()
     ctx.send(ctx.i18n.translate('language.changed'))
   }
