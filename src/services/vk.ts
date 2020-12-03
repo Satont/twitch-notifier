@@ -74,56 +74,51 @@ class VK extends ServiceInterface {
     ctx.send(`${description}\n\n${this.commands.map(c => `/${c.name}`).join('\n')}`)
   }
 
+  private getInlineKeyboard = (ctx: MessageContext) => Keyboard.builder()
+    .oneTime()
+    .inline()
+    .textButton({
+      label: `${!ctx.ChatEntity.settings.game_change_notification ? '◻︎' : '☑︎'} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`,
+      payload: {
+        command: 'game_change_notification_setting',
+      },
+    })
+    .textButton({
+      label: ctx.i18n.translate('settings.language.button'),
+      payload: {
+        command: 'language_setting',
+      },
+    })
+
   @command('settings', { description: 'Settings command' })
   async settings(ctx: MessageContext) {
     ctx.send({
       message: ctx.i18n.translate('bot.description'),
-      keyboard: Keyboard.builder()
-        .oneTime()
-        .textButton({
-          label: ctx.i18n.translate('settings.game_change_notification_setting.button'),
-          payload: {
-            command: 'game_change_notification_setting',
-          },
-        })
-        .textButton({
-          label: ctx.i18n.translate('settings.language.button'),
-          payload: {
-            command: 'language_setting',
-          },
-        }),
+      keyboard: this.getInlineKeyboard(ctx),
     })
   }
 
   @vkAction('language_setting')
   async languageMenu(ctx: MessageContext) {
-    ctx.send({
-      message: ctx.i18n.translate('bot.description'),
-      keyboard: Keyboard.builder()
-        .oneTime()
-        .textButton({
-          label: 'English',
-          payload: {
-            command: 'language_set_english_setting',
-          },
-        })
-        .textButton({
-          label: 'Russian',
-          payload: {
-            command: 'language_set_russian_setting',
-          },
-        }),
+    const keyboard = Keyboard.builder().oneTime().inline()
+    Object.values(Languages).forEach(v => {
+      const name = v.charAt(0).toUpperCase() + v.slice(1)
+      keyboard.textButton({ label: name, payload: { command: `language_set_${v}_setting` } })
+    })
+
+    await ctx.send({
+      message: '🌍',
+      keyboard,
     })
   }
 
-  @vkAction('language_set_english_setting')
-  @vkAction('language_set_russian_setting')
+  @vkAction(Object.values(Languages).map(v => `language_set_${v}_setting`))
   async setLang(ctx: MessageContext) {
     const lang = ctx.messagePayload.command.split('_')[2] as Languages
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()
-    ctx.send(ctx.i18n.translate('language.changed'))
+    await this.settings(ctx)
   }
 
   @vkAction('game_change_notification_setting')
@@ -131,7 +126,7 @@ class VK extends ServiceInterface {
     const currentState = ctx.ChatEntity.settings.game_change_notification
     ctx.ChatEntity.settings.game_change_notification = !currentState
     await ctx.ChatEntity.save()
-    ctx.send(ctx.i18n.translate(`settings.game_change_notification_setting.${!currentState ? 'enabled' : 'disabled'}`))
+    await this.settings(ctx)
   }
 
   @command('follow', { description: 'Follow to some user.' })

@@ -160,7 +160,6 @@ class Telegram extends ServiceInterface {
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)
     await ctx.ChatEntity.save()
-    ctx.reply(ctx.i18n.translate('language.changed'))
   }
 
   async sendMessage(opts: SendMessageOpts) {

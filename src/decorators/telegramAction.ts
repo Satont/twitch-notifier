@@ -3,7 +3,7 @@ import { ServiceInterface } from '../services/_interface'
 
 export function telegramAction(name: string | string[]): MethodDecorator {
   const names = Array.isArray(name) ? name : [name]
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   return (_service: ServiceInterface & { bot: Telegraf<any> }, methodName: string): void => {
     import('../services/telegram').then((v) => {
       names.forEach(n => {
