@@ -1,4 +1,4 @@
 {
-  "list": "You are followed to:\n{{ list }}",
-  "emptyList": "You don't follow anyone."
+  "list": "Ви підписані на:\n{{ list }}",
+  "emptyList": "Ви ні на кого не підписані."
 }
