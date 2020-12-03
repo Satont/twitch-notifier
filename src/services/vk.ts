@@ -111,9 +111,11 @@ class VK extends ServiceInterface {
   @vkAction('language_set_english_setting')
   @vkAction('language_set_russian_setting')
   async setLang(ctx: MessageContext) {
-    console.log(ctx)
     const lang = ctx.messagePayload.command.split('_')[2] as Languages
-    ctx.reply('message setted to ' + lang)
+    ctx.ChatEntity.settings.language = lang
+    ctx.i18n = ctx.i18n.clone(lang)
+    await ctx.ChatEntity.save()
+    ctx.send(ctx.i18n.translate('language.changed'))
   }
 
   @command('follow', { description: 'Follow to some user.' })
