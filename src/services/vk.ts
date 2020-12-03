@@ -49,7 +49,9 @@ class VK extends ServiceInterface {
   async ensureUser(ctx: MessageContext) {
     const repository = getConnection().getRepository(Chat)
     const data = { chatId: String(ctx.chatId || ctx.peerId || ctx.senderId), service: Services.VK }
-    const chat = await repository.findOne(data) || repository.create({ ...data, settings: { language: Languages.RUSSIAN } })
+    const chat = await repository.findOne(data, { relations: ['follows', 'follows.channel'] })
+      || repository.create({ ...data, settings: { language: Languages.RUSSIAN } })
+
     chat.save()
 
     ctx.ChatEntity = chat
@@ -132,34 +134,22 @@ class VK extends ServiceInterface {
 
   @command('follow', { description: 'Follow to some user.' })
   async follow(ctx: MessageContext, _args: string[], arg: string) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await followCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
-    })
+    ctx.send(await followCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }))
   }
 
   @command('unfollow', { description: 'Unfollow from some user.' })
   async unfollow(ctx: MessageContext, _args: string[], arg: string) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
-    })
+    ctx.send(await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }))
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
   async follows(ctx: MessageContext) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await followsCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
-    })
+    ctx.send(await followsCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }))
   }
 
   @command('live', { description: 'Check currently live streams from your follow list.' })
   async live(ctx: MessageContext) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await liveCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
-    })
+    ctx.send(await liveCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }))
   }
 
   async sendMessage(opts: SendMessageOpts) {

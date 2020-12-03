@@ -26,7 +26,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
   }).save()
   TwitchWatcher.addChannelToWebhooks(channel.id)
 
-  if (chat.follows.find(f => f.channel.id === streamer.id)) {
+  if (chat.follows?.find(f => f.channel.id === streamer.id)) {
     return i18n.translate('commands.follow.alreadyFollowed', { streamer: streamer.displayName })
   } else {
     const follow = await followRepository.create({ chat, channel }).save()
