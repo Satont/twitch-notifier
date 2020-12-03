@@ -96,6 +96,10 @@ class VK extends ServiceInterface {
         command: 'language_setting',
       },
     })
+    .urlButton({
+      label: 'GitHub',
+      url: 'https://github.com/Satont/twitch-notifier',
+    })
 
   @command('settings', { description: 'Settings command' })
   async settings(ctx: MessageContext) {

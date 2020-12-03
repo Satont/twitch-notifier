@@ -118,6 +118,7 @@ class Telegram extends ServiceInterface {
     const getInlineKeyboard = () => Markup.inlineKeyboard([
       Markup.callbackButton(`${emojiForGame} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`, 'game_change_notification_setting'),
       Markup.callbackButton(ctx.i18n.translate('settings.language.button'), 'language_setting'),
+      Markup.urlButton('GitHub', 'https://github.com/Satont/twitch-notifier'),
     ], { columns: 1 })
 
     if (ctx.message?.text) {
