@@ -1,0 +1,8 @@
+{
+  "errors": {
+    "badUsername": "Username can only contain \"a-z\", \"0-9\" and \"_\" symbols.",
+    "streamerNotFound": "User {{ streamer }} not found."
+  },
+  "alreadyFollowed": "You are already followed to {{ streamer }}.",
+  "success": "You have now followed to {{ streamer }}."
+}
