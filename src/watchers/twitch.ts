@@ -42,8 +42,9 @@ class TwitchWatcherClass {
         })
 
       const messageOpts = {
-        image: stream.thumbnail_url?.replace('{width}', '1920').replace('{height}', '1080'),
+        image: `${stream.thumbnail_url?.replace('{width}', '1920').replace('{height}', '1080')}?timestamp=${Date.now()}`,
       }
+
       if (stream.type === 'live') {
         if (!channel.online) {
           for (const service of services) {
