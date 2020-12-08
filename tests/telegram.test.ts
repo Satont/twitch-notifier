@@ -8,11 +8,13 @@ describe('telegram', function() {
 
   before(async () => {
     await createDbConnection()
-  })
-
-  beforeEach(async () => {
     client = new TestTelegramClient()
     await client.init()
+  })
+
+  it('class command should exists and not equals 0 length', async () => {
+    expect(client.client.commands).to.be.an('array')
+    expect(client.client.commands).to.be.not.empty
   })
 
   it('/start should reply marukup inline keyboard', async () => {
@@ -26,6 +28,7 @@ describe('telegram', function() {
 
   after(() => {
     getConnection().close()
-    client.bot.stop()
+    client.client.bot.stop()
   })
+
 })

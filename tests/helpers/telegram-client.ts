@@ -6,20 +6,19 @@ import createTelegramNock from './createTelegramNock'
 const getRandomId = () => Math.floor(Math.random() * Math.floor(Math.pow(10, 10)))
 
 export class TestTelegramClient {
-  bot: Telegraf<any>
   received: any[]
   clientId: any
   updateId: number
+  client: import('../../src/services/telegram').Telegram
 
   async init() {
     const ee = new EventEmitter()
     await createTelegramNock(ee)
 
     const { Telegram } = await import('../../src/services/telegram')
-    const tg = new Telegram('123456')
-    await tg.init()
+    this.client = new Telegram('123456')
+    await this.client.init()
 
-    this.bot = tg.bot
     this.received = []
     this.clientId = getRandomId()
     this.updateId = 0
@@ -56,7 +55,7 @@ export class TestTelegramClient {
       }
     }
 
-    await this.bot.handleUpdate(update, response)
+    await this.client.bot.handleUpdate(update, response)
 
     this.received.push({
       data: response._getJSONData(),
