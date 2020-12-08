@@ -114,9 +114,16 @@ class Telegram extends ServiceInterface {
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')
   async settings(ctx: Context) {
-    const emojiForGame = !ctx.ChatEntity.settings.game_change_notification ? '◻︎' : '☑︎'
+    const getMarkEmoji = (state: boolean) => !state ? '◻︎' : '☑︎'
+
     const getInlineKeyboard = () => Markup.inlineKeyboard([
-      Markup.callbackButton(`${emojiForGame} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`, 'game_change_notification_setting'),
+      Markup.callbackButton(
+        `${getMarkEmoji(ctx.ChatEntity.settings.game_change_notification)} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`, 'game_change_notification_setting'
+      ),
+      Markup.callbackButton(
+        `${getMarkEmoji(ctx.ChatEntity.settings.offline_notification)} ${ctx.i18n.translate('settings.offline_notification.button')}`,
+        'offline_notification_setting'
+      ),
       Markup.callbackButton(ctx.i18n.translate('settings.language.button'), 'language_setting'),
       Markup.urlButton('GitHub', 'https://github.com/Satont/twitch-notifier'),
     ], { columns: 1 })
@@ -138,6 +145,13 @@ class Telegram extends ServiceInterface {
     await this.settings(ctx)
   }
 
+  @telegramAction('offline_notification_setting')
+  async offLineNotificationAction(ctx: Context) {
+    const currentState = ctx.ChatEntity.settings.offline_notification
+    ctx.ChatEntity.settings.offline_notification = !currentState
+    await ctx.ChatEntity.save()
+    await this.settings(ctx)
+  }
 
   @telegramAction('language_setting')
   async language(ctx: Context) {

@@ -12,6 +12,9 @@ export class ChatSettings extends BaseEntity {
   @Column({ default: false, nullable: false })
   game_change_notification: boolean = false
 
+  @Column({ default: false, nullable: false })
+  offline_notification: boolean = false
+
   @Column({ default: 'en' })
   language!: string
 }

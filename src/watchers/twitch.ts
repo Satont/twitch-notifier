@@ -72,6 +72,14 @@ class TwitchWatcherClass {
         channel.online = true
       } else if (stream.type === 'offline') {
         channel.online = false
+
+        for (const service of services) {
+          service.makeAnnounce({
+            message: `${channel.username} now offline`,
+            target: channel.followers?.filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
+            ...messageOpts,
+          })
+        }
       }
 
       await channel.save()

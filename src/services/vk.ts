@@ -81,11 +81,19 @@ class VK extends ServiceInterface {
     ctx.send(`${description}\n\n${this.commands.map(c => `/${c.name}`).join('\n')}`)
   }
 
+  private getMarkEmoji = (state: boolean) => !state ? '◻︎' : '☑︎'
+
   private getInlineKeyboard = (ctx: MessageContext) => Keyboard.builder()
     .oneTime()
     .inline()
     .textButton({
-      label: `${!ctx.ChatEntity.settings.game_change_notification ? '◻︎' : '☑︎'} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`,
+      label: `${this.getMarkEmoji(ctx.ChatEntity.settings.offline_notification)} ${ctx.i18n.translate('settings.offline_notification.button')}`,
+      payload: {
+        command: 'offline_notification_setting',
+      },
+    })
+    .textButton({
+      label: `${this.getMarkEmoji(ctx.ChatEntity.settings.game_change_notification)} ${ctx.i18n.translate('settings.game_change_notification_setting.button')}`,
       payload: {
         command: 'game_change_notification_setting',
       },
@@ -134,9 +142,17 @@ class VK extends ServiceInterface {
   }
 
   @vkAction('game_change_notification_setting')
-  async setGameChangeNotification(ctx: MessageContext) {
+  async gameChangeNotification(ctx: MessageContext) {
     const currentState = ctx.ChatEntity.settings.game_change_notification
     ctx.ChatEntity.settings.game_change_notification = !currentState
+    await ctx.ChatEntity.save()
+    await this.settings(ctx)
+  }
+
+  @vkAction('offline_notification_setting')
+  async offlineNotification(ctx: MessageContext) {
+    const currentState = ctx.ChatEntity.settings.offline_notification
+    ctx.ChatEntity.settings.offline_notification = !currentState
     await ctx.ChatEntity.save()
     await this.settings(ctx)
   }

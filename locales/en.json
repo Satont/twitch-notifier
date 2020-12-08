@@ -13,6 +13,9 @@
     },
     "language": {
       "button": "🌍 Language"
+    },
+    "offline_notification": {
+      "button": "Offline notification"
     }
   },
   "errors": {
