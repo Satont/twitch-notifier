@@ -15,7 +15,7 @@
       "button": "🌍 Язык"
     },
     "offline_notification": {
-      "button": "Уведомления о оффлайне"
+      "button": "Offline notification"
     }
   },
   "errors": {
