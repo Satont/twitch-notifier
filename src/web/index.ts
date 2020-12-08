@@ -7,7 +7,7 @@ import hbs from 'hbs'
 
 const PORT = process.env.PORT || 3000
 
-async function bootstrap() {
+export async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log'],
   })
@@ -23,6 +23,7 @@ async function bootstrap() {
   hbs.registerPartials(resolve(process.cwd(), 'views', 'partials'))
 
   await app.listen(PORT, '0.0.0.0')
+
+  return app
 }
 
-bootstrap()

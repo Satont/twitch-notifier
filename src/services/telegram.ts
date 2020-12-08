@@ -16,12 +16,12 @@ class Telegram extends ServiceInterface {
   bot: Telegraf<any> = null
   private readonly chatRepository = getConnection().getRepository(Chat)
 
-  constructor() {
+  constructor(token?: string) {
     super({
       service: Services.TELEGRAM,
     })
 
-    const accessToken = process.env.TELEGRAM_BOT_TOKEN
+    const accessToken = token || process.env.TELEGRAM_BOT_TOKEN
     if (!accessToken) {
       warning('TELEGRAM: bot token not setuped, telegram library will not works.')
       return
@@ -29,7 +29,7 @@ class Telegram extends ServiceInterface {
 
     this.bot = new Telegraf(accessToken)
     this.bot.use(async (ctx: Context, next) => {
-      if (ctx.message?.text) chatIn(`TG [${ctx.from?.username || ctx.from.id}]: ${ctx.message?.text}`)
+      if (ctx.message?.text) chatIn(`TG [${ctx.from?.username || ctx.from?.id}]: ${ctx.message?.text}`)
 
       ctx.ChatEntity = await this.ensureUser(ctx)
       ctx.i18n = i18n.clone(ctx.ChatEntity.settings.language)
@@ -41,6 +41,7 @@ class Telegram extends ServiceInterface {
   async init() {
     try {
       await this.bot.launch()
+      this.bot.telegram.getMe()
       const commands = this.commands
         .filter(c => c.isVisible ?? true)
         .map(c => ({ command: c.name, description: c.description }))
@@ -200,3 +201,6 @@ class Telegram extends ServiceInterface {
 }
 
 export default new Telegram()
+export {
+  Telegram,
+}
