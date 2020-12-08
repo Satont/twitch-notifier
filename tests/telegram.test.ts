@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { getConnection } from 'typeorm'
 import createDbConnection from './helpers/createDbConnection'
-import { TestTelegramClient } from './helpers/telegram-client'
+import { TestTelegramClient } from './helpers/telegramСlient'
 
 describe('telegram', function() {
   let instance: TestTelegramClient
