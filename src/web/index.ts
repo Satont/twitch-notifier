@@ -11,8 +11,8 @@ let app: NestExpressApplication
 export let listened = false
 
 export async function bootstrap() {
-  app = await NestFactory.create<NestExpressApplication>(AppModule, { 
-    logger: false,
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'log'],
   })
 
   app.useLogger(app.get(Logger))
