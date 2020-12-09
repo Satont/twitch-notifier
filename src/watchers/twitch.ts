@@ -77,7 +77,6 @@ class TwitchWatcherClass {
           service.makeAnnounce({
             message: `${channel.username} now offline`,
             target: channel.followers?.filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
-            ...messageOpts,
           })
         }
       }
