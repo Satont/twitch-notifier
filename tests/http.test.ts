@@ -10,7 +10,7 @@ describe('http server should be runned at port 3000', function() {
   before(async () => {
     await createDbConnection()
 
-    web = await import('../src/web')
+    web = await import('../src/web/index')
   })
 
   it('bootstrap web', async () => {
