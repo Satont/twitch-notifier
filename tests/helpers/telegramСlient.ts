@@ -1,4 +1,3 @@
-import { Telegraf } from 'telegraf'
 import httpMocks from 'node-mocks-http'
 import { EventEmitter } from 'events'
 import createTelegramNock from './createTelegramNock'
@@ -12,7 +11,7 @@ export class TestTelegramClient {
   client: import('../../src/services/telegram').Telegram
 
   async init() {
-    const ee = new EventEmitter()
+    const ee = new EventEmitter() 
     await createTelegramNock(ee)
 
     const { Telegram } = await import('../../src/services/telegram')

@@ -26,9 +26,7 @@ describe('telegram', function() {
     expect(recieved.data.reply_markup.inline_keyboard).to.be.not.empty
   })
 
-  it('/start should reply marukup inline keyboard', async () => {
-    await instance.sendCommand('/start')
-
+  it('decorator should add command to commands array', async () => {
     const recieved = instance.received[0]
     expect(recieved).to.be.exist
     expect(recieved).to.have.nested.property('data.reply_markup.inline_keyboard')

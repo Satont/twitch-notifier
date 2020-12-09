@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import { getConnection } from 'typeorm'
 import i18n from '../src/libs/i18n'
 
 describe('i18n', function() {
