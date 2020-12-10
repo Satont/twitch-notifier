@@ -13,6 +13,9 @@
     },
     "language": {
       "button": "🌍 Мова"
+    },
+    "offline_notification": {
+      "button": "Offline notification"
     }
   },
   "errors": {
