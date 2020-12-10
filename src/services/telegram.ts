@@ -83,8 +83,6 @@ class Telegram extends ServiceInterface {
     const command = this.commands.find(c => c.name === commandName)
     if (!command) return
 
-    if (!(await ctx.getChatAdministrators()).find(m => m.user?.id === ctx.from?.id)) return
-
     await this[command.fnc](ctx, args, arg)
     return true
   }
