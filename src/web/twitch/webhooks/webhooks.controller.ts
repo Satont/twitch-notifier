@@ -5,6 +5,13 @@ import TwitchWatcher from '../../../watchers/twitch'
 
 @Controller('twitch/webhooks/callback')
 export class WebhooksController {
+  cache = new Set()
+
+  constructor() {
+    // clear cache every 2 hours
+    setInterval(() => this.cache.clear(), 2 * 60 * 60 * 1000)
+  }
+
   @Get()
   async getRequest(@Query() query: any) {
     return query['hub.challenge']
@@ -12,6 +19,14 @@ export class WebhooksController {
 
   @Post()
   async postRequest(@Body() body: ITwitchStreamChangedPayload, @Res() res: Response, @Req() req: Request) {
+    res.sendStatus(200)
+
+    if (this.cache.has(req.headers['Twitch-Notification-Id'])) {
+      return
+    }
+
+    this.cache.add(req.headers['Twitch-Notification-Id'])
+
     // We need to manually set some params if data length is 0. Data length can be 0 because twitch sending empty array if stream goes offline
     if (!body.data.length) {
       const regexp = /(\buser_id=\b)([0-9]+)/gm
@@ -20,6 +35,5 @@ export class WebhooksController {
     }
 
     TwitchWatcher.processPayload(body.data)
-    res.sendStatus(200)
   }
 }
