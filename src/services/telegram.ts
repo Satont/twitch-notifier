@@ -36,6 +36,10 @@ class Telegram extends ServiceInterface {
       next()
     })
     this.bot.on('message', (msg) => this.listener(msg))
+    this.bot.catch((err, ctx) => {
+      error(err)
+      error(ctx)
+    })
   }
 
   async init() {
@@ -47,8 +51,6 @@ class Telegram extends ServiceInterface {
 
       await this.bot.telegram.setMyCommands(commands)
 
-      this.bot.on('message', (msg) => this.listener(msg))
-
       info('Telegram Service initialized.')
       this.inited = true
     } catch (e) {
@@ -57,7 +59,9 @@ class Telegram extends ServiceInterface {
   }
 
   async ensureUser(ctx: Context) {
-    const data = { chatId: String(ctx.chat.id), service: Services.TELEGRAM }
+    if (!ctx.chat?.id) return null
+
+    const data = { chatId: String(ctx.chat?.id), service: Services.TELEGRAM }
     const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] })
       ?? this.chatRepository.create({ ...data, settings: new ChatSettings() })
     chat.save()
@@ -73,6 +77,8 @@ class Telegram extends ServiceInterface {
 
     const command = this.commands.find(c => c.name === commandName)
     if (!command) return
+
+    if (!(await ctx.getChatAdministrators()).find(m => m.user?.id === ctx.from?.id)) return
 
     await this[command.fnc](ctx, args, arg)
     return true
