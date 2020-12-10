@@ -35,12 +35,14 @@ class TwitchWatcherClass {
 
   async processPayload(data: ITwitchStreamChangedPayload['data']) {
     for (const stream of data) {
+      const user = await Twitch.getUser({ id: stream.user_id })
       const category = stream.game_name
       const channel = await this.channelsRepository.findOne(stream.user_id, { relations: ['followers', 'followers.chat' ] })
         || this.channelsRepository.create({
           id: stream.user_id,
         })
 
+      channel.username = user.name
       const messageOpts = {
         image: `${stream.thumbnail_url?.replace('{width}', '1920').replace('{height}', '1080')}?timestamp=${Date.now()}`,
       }
@@ -49,7 +51,7 @@ class TwitchWatcherClass {
         if (!channel.online) {
           for (const service of services) {
             service.makeAnnounce({
-              message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${stream.user_name}`,
+              message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${user.name}`,
               target: channel.followers?.map(f => f.chat.chatId),
               ...messageOpts,
             })
@@ -59,7 +61,7 @@ class TwitchWatcherClass {
         if (channel.online && channel.category !== category) {
           for (const service of services) {
             service.makeAnnounce({
-              message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${stream.user_name}`,
+              message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${user.name}`,
               target: channel.followers?.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
               ...messageOpts,
             })
@@ -68,7 +70,6 @@ class TwitchWatcherClass {
 
         channel.category = category
         channel.title = stream.title
-        channel.username = stream.user_name
         channel.online = true
       } else if (stream.type === 'offline') {
         channel.online = false
