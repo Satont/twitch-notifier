@@ -18,7 +18,7 @@ class TwitchWatcherClass {
     }
 
     info(`TWITCH: webhook subscribed to ${channels.length} channels`)
-    setTimeout((() => this.init()), 7200 * 1000)
+    setTimeout((() => this.init()), 1450 * 1000)
   }
 
   async addChannelToWebhooks(channelId: string) {
@@ -26,7 +26,7 @@ class TwitchWatcherClass {
     if (!siteUrl) return
     const options = {
       callbackUrl: `${siteUrl}/twitch/webhooks/callback`,
-      validityInSeconds: 7200,
+      validityInSeconds: 1440,
     }
 
     await Twitch.apiClient.helix.webHooks.unsubscribeFromStreamChanges(channelId, options)
