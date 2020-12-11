@@ -21,11 +21,11 @@ export class WebhooksController {
   async postRequest(@Body() body: ITwitchStreamChangedPayload, @Res() res: Response, @Req() req: Request) {
     res.sendStatus(200)
 
-    if (this.cache.has(req.headers['Twitch-Notification-Id'])) {
+    if (this.cache.has(req.headers['twitch-notification-id'])) {
       return
     }
 
-    this.cache.add(req.headers['Twitch-Notification-Id'])
+    this.cache.add(req.headers['twitch-notification-id'])
 
     // We need to manually set some params if data length is 0. Data length can be 0 because twitch sending empty array if stream goes offline
     if (!body.data.length) {
