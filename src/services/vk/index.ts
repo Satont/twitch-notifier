@@ -1,17 +1,17 @@
-import { SendMessageOpts, ServiceInterface } from './_interface'
+import { SendMessageOpts, ServiceInterface } from '../_interface'
 import { VK as VKIO, MessageContext, Keyboard  } from 'vk-io'
-import { chatIn, error, info, warning } from '../libs/logger'
-import { Chat, Services } from '../entities/Chat'
+import { chatIn, error, info, warning } from '../../libs/logger'
+import { Chat, Services } from '../../entities/Chat'
 import { getConnection } from 'typeorm'
-import { command } from '../decorators/command'
+import { command } from '../../decorators/command'
 import { chunk } from 'lodash'
 import { HearManager } from '@vk-io/hear'
-import { i18n } from '../libs/i18n'
-import { followCommand } from '../commands/follow'
-import { followsCommand } from '../commands/follows'
-import { liveCommand } from '../commands/live'
-import { unFollowCommand } from '../commands/unfollow'
-import { vkAction } from '../decorators/vkAction'
+import { i18n } from '../../libs/i18n'
+import { followCommand } from '../../commands/follow'
+import { followsCommand } from '../../commands/follows'
+import { liveCommand } from '../../commands/live'
+import { unFollowCommand } from '../../commands/unfollow'
+import { vkAction } from '../../decorators/vkAction'
 
 class VK extends ServiceInterface {
   bot: VKIO = null
@@ -43,6 +43,7 @@ class VK extends ServiceInterface {
         next()
       })
       this.bot.updates.on('message_new', this.hearManager.middleware)
+
       await this.bot.updates.start()
       info('VK Service initialized.')
       this.inited = true
