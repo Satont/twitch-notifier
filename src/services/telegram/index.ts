@@ -1,19 +1,28 @@
-import { SendMessageOpts, ServiceInterface } from './_interface'
-import Telegraf, { Context, Markup } from 'telegraf'
-import { chatIn, chatOut, error, info, warning } from '../libs/logger'
-import { Chat, Services } from '../entities/Chat'
+import { SendMessageOpts, ServiceInterface } from '../_interface'
+import Telegraf, {  Markup, session, Stage } from 'telegraf'
+import { chatIn, chatOut, error, info, warning } from '../../libs/logger'
+import { Chat, Services } from '../../entities/Chat'
 import { getConnection } from 'typeorm'
-import { command } from '../decorators/command'
-import { followCommand } from '../commands/follow'
-import { followsCommand } from '../commands/follows'
-import { liveCommand } from '../commands/live'
-import { telegramAction } from '../decorators/telegramAction'
-import { ChatSettings } from '../entities/ChatSettings'
-import { unFollowCommand } from '../commands/unfollow'
-import { i18n } from '../libs/i18n'
+import { command } from '../../decorators/command'
+import { followCommand } from '../../commands/follow'
+import { followsCommand } from '../../commands/follows'
+import { liveCommand } from '../../commands/live'
+import { telegramAction } from '../../decorators/telegramAction'
+import { ChatSettings } from '../../entities/ChatSettings'
+import { unFollowCommand } from '../../commands/unfollow'
+import { i18n } from '../../libs/i18n'
+import { followScene } from './scenes/follow'
+import { SceneContextMessageUpdate } from 'telegraf/typings/stage'
+import { unFollowScene } from './scenes/unfollow'
 
 class Telegram extends ServiceInterface {
   bot: Telegraf<any> = null
+  stage = new Stage([
+    followScene,
+    unFollowScene,
+  ], {
+    ttl: 30,
+  })
   private readonly chatRepository = getConnection().getRepository(Chat)
 
   constructor() {
@@ -28,10 +37,12 @@ class Telegram extends ServiceInterface {
     }
 
     this.bot = new Telegraf(accessToken)
-    this.bot.use(async (ctx: Context, next) => {
+    this.stage.command('cancel', Stage.leave())
+
+    this.bot.use(async (ctx: SceneContextMessageUpdate, next) => {
       try {
         if (ctx.message?.text) chatIn(`TG [${ctx.from?.username || ctx.from.id}]: ${ctx.message?.text}`)
-  
+
         ctx.ChatEntity = await this.ensureUser(ctx)
         ctx.i18n = i18n.clone(ctx.ChatEntity.settings.language)
       } catch (e) {
@@ -40,6 +51,8 @@ class Telegram extends ServiceInterface {
         next()
       }
     })
+    this.bot.use(session())
+    this.bot.use(this.stage.middleware())
     this.bot.on('message', (msg) => this.listener(msg))
     this.bot.catch((err, ctx) => {
       error(err)
@@ -63,7 +76,7 @@ class Telegram extends ServiceInterface {
     }
   }
 
-  async ensureUser(ctx: Context) {
+  async ensureUser(ctx: SceneContextMessageUpdate) {
     if (!ctx.chat?.id) return null
 
     const data = { chatId: String(ctx.chat?.id), service: Services.TELEGRAM }
@@ -74,7 +87,7 @@ class Telegram extends ServiceInterface {
     return chat
   }
 
-  async listener(ctx: Context) {
+  async listener(ctx: SceneContextMessageUpdate) {
     if (!ctx.chat?.id || !ctx.message?.text) return
     const commandName = ctx.message.text.substring(1).split(' ')[0]
     const args = ctx.message.text.split(' ').slice(1)
@@ -88,23 +101,33 @@ class Telegram extends ServiceInterface {
   }
 
   @command('follow', { description: 'Follow to some user.' })
-  async follow(ctx: Context, args: string[], arg: string) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await followCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
-    })
+  async follow(ctx: SceneContextMessageUpdate, args: string[], arg: string) {
+    if (!arg.length) {
+      ctx.scene.enter('followScene')
+    } else {
+      const { message } = await followCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n })
+      this.sendMessage({
+        target: String(ctx.chat.id),
+        message,
+      })
+    }
   }
 
   @command('unfollow', { description: 'Unfollow from some user.' })
-  async unfollow(ctx: Context, args: string[], arg: string) {
-    this.sendMessage({
-      target: String(ctx.chat.id),
-      message: await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n }),
-    })
+  async unfollow(ctx: SceneContextMessageUpdate, args: string[], arg: string) {
+    if (!arg.length) {
+      ctx.scene.enter('followScene')
+    } else {
+      const { message } = await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n })
+      this.sendMessage({
+        target: String(ctx.chat.id),
+        message,
+      })
+    }
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
-  async follows(ctx: Context) {
+  async follows(ctx: SceneContextMessageUpdate) {
     this.sendMessage({
       target: String(ctx.chat.id),
       message: await followsCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
@@ -112,7 +135,7 @@ class Telegram extends ServiceInterface {
   }
 
   @command('live', { description: 'Check currently live streams from your follow list.' })
-  async live(ctx: Context) {
+  async live(ctx: SceneContextMessageUpdate) {
     this.sendMessage({
       target: String(ctx.chat.id),
       message: await liveCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n }),
@@ -122,7 +145,7 @@ class Telegram extends ServiceInterface {
   @command('start', { description: 'Start command' })
   @command('settings', { description: 'Settings menu.' })
   @telegramAction('get_settings')
-  async settings(ctx: Context) {
+  async settings(ctx: SceneContextMessageUpdate) {
     const getMarkEmoji = (state: boolean) => !state ? '◻︎' : '☑︎'
 
     const getInlineKeyboard = () => Markup.inlineKeyboard([
@@ -147,7 +170,7 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction('game_change_notification_setting')
-  async gameChangeNotificationAction(ctx: Context) {
+  async gameChangeNotificationAction(ctx: SceneContextMessageUpdate) {
     const currentState = ctx.ChatEntity.settings.game_change_notification
     ctx.ChatEntity.settings.game_change_notification = !currentState
     await ctx.ChatEntity.save()
@@ -155,7 +178,7 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction('offline_notification_setting')
-  async offLineNotificationAction(ctx: Context) {
+  async offLineNotificationAction(ctx: SceneContextMessageUpdate) {
     const currentState = ctx.ChatEntity.settings.offline_notification
     ctx.ChatEntity.settings.offline_notification = !currentState
     await ctx.ChatEntity.save()
@@ -163,7 +186,7 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction('language_setting')
-  async language(ctx: Context) {
+  async language(ctx: SceneContextMessageUpdate) {
     const buttons = Object.keys(i18n.translations).map(key => {
       const name = i18n.translations[key].language.name
       const emoji = i18n.translations[key].language.emoji
@@ -177,7 +200,7 @@ class Telegram extends ServiceInterface {
   }
 
   @telegramAction(Object.keys(i18n.translations).map(key => `language_set_${key}_setting`))
-  async languageSet(ctx: Context) {
+  async languageSet(ctx: SceneContextMessageUpdate) {
     const lang = ctx.callbackQuery.data.split('_')[2] as string
     ctx.ChatEntity.settings.language = lang
     ctx.i18n = ctx.i18n.clone(lang)

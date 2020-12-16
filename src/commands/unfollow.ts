@@ -9,12 +9,18 @@ const followRepository = getConnection().getRepository(Follow)
 export async function unFollowCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: I18n }) {
   channelName = channelName.replace(/\s/g, '')
   if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
-    return i18n.translate('commands.follow.errors.badUsername')
+    return {
+      success: false,
+      message: i18n.translate('commands.follow.errors.badUsername'),
+    }
   }
 
   const streamer = await Twitch.getUser({ name: channelName.toLowerCase() })
   if (!streamer) {
-    return i18n.translate('commands.follow.errors.streamerNotFound', { streamer: streamer.displayName })
+    return {
+      success: false,
+      message: i18n.translate('commands.follow.errors.streamerNotFound', { streamer: streamer.displayName }),
+    }
   }
 
   const follow = await followRepository.findOne({
@@ -23,9 +29,15 @@ export async function unFollowCommand({ chat, channelName, i18n }: { chat: Chat,
   })
 
   if (!follow) {
-    return i18n.translate('commands.unfollow.notFollowed', { streamer: streamer.name })
+    return {
+      success: true,
+      message: i18n.translate('commands.unfollow.notFollowed', { streamer: streamer.name }),
+    }
   } else {
     await follow.remove()
-    return i18n.translate('commands.unfollow.success', { streamer: streamer.name })
+    return {
+      success: true,
+      message: i18n.translate('commands.unfollow.success', { streamer: streamer.name }),
+    }
   }
 }
