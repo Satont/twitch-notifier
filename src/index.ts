@@ -2,6 +2,13 @@ import 'reflect-metadata'
 import 'source-map-support/register'
 import { createConnection, getConnection } from 'typeorm'
 import { error } from './libs/logger'
+import Sentry from '@sentry/node'
+
+if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+  })
+}
 
 const start = async () => {
   await createConnection()
