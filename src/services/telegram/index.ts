@@ -158,6 +158,7 @@ class Telegram extends ServiceInterface {
       ),
       Markup.callbackButton(ctx.i18n.translate('settings.language.button'), 'language_setting'),
       Markup.urlButton('GitHub', 'https://github.com/Satont/twitch-notifier'),
+      Markup.urlButton('Patreon', 'https://www.patreon.com/satont'),
     ], { columns: 1 })
 
     if (ctx.message?.text) {

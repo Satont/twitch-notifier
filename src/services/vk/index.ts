@@ -109,6 +109,10 @@ class VK extends ServiceInterface {
       label: 'GitHub',
       url: 'https://github.com/Satont/twitch-notifier',
     })
+    .urlButton({
+      label: 'Patreon',
+      url: 'https://www.patreon.com/satont',
+    })
 
   @command('settings', { description: 'Settings command' })
   async settings(ctx: MessageContext) {
