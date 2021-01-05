@@ -2,7 +2,7 @@ import { BaseScene } from 'telegraf'
 import telegram from '..'
 import { unFollowCommand } from '../../../commands/unfollow'
 
-export const unFollowScene = new BaseScene('unFollowScene')
+export const unFollowScene = new BaseScene('unfollowScene')
 
 unFollowScene.enter((ctx) => ctx.reply(ctx.i18n.translate('scenes.unfollow.enter')))
 unFollowScene.on('message', async (ctx) => {
