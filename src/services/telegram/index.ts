@@ -116,7 +116,7 @@ class Telegram extends ServiceInterface {
   @command('unfollow', { description: 'Unfollow from some user.' })
   async unfollow(ctx: SceneContextMessageUpdate, args: string[], arg: string) {
     if (!arg.length) {
-      ctx.scene.enter('followScene')
+      ctx.scene.enter('unfollowScene')
     } else {
       const { message } = await unFollowCommand({ chat: ctx.ChatEntity, channelName: arg, i18n: ctx.i18n })
       this.sendMessage({
