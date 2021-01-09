@@ -4,13 +4,17 @@ import { NestExpressApplication } from '@nestjs/platform-express'
 import { resolve } from 'path'
 import { AppModule } from './app.module'
 import hbs from 'hbs'
+import { Logger } from 'nestjs-pino'
 
 const PORT = process.env.PORT || 3000
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger: ['error', 'warn', 'log'],
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { 
+    logger: false,
   })
+
+  app.useLogger(app.get(Logger))
+
   app.useGlobalPipes(new ValidationPipe())
   app.useStaticAssets(resolve(process.cwd(), 'public'))
 

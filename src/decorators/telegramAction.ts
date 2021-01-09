@@ -7,7 +7,7 @@ export function telegramAction(name: string | string[]): MethodDecorator {
   return (_service: ServiceInterface & { bot: Telegraf<any> }, methodName: string): void => {
     import('../services/telegram').then((v) => {
       names.forEach(n => {
-        v.default.bot.action(n, async (ctx: Context, next) => {
+        v.default.bot?.action(n, async (ctx: Context, next) => {
           ctx.isAction = true
           await v.default[methodName](ctx, next)
           ctx.answerCbQuery()

@@ -62,6 +62,7 @@ class Telegram extends ServiceInterface {
 
   async init() {
     try {
+      if (!this.bot) return
       await this.bot.launch()
       const commands = this.commands
         .filter(c => c.isVisible ?? true)
