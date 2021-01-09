@@ -7,9 +7,14 @@ import { ITwitchStreamChangedPayload } from '../typings/twitch'
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
-
+  subscriptions = new Set()
 
   async init() {
+    const subscriptions = await (await Twitch.apiClient.helix.webHooks.getSubscriptions()).getAll()
+    for (const subsciption of subscriptions) {
+      await subsciption.unsubscribe()
+    }
+
     const channelsRepository = getConnection().getRepository(Channel)
     const channels = await channelsRepository.find()
 
@@ -17,8 +22,8 @@ class TwitchWatcherClass {
       await this.addChannelToWebhooks(channel.id)
     }
 
-    info(`TWITCH: webhook subscribed to ${channels.length} channels`)
-    setTimeout((() => this.init()), 1450 * 1000)
+    info(`TWITCH: webhooks subscribed to ${channels.length} channels`)
+    setTimeout(() => this.init(), 864000)
   }
 
   async addChannelToWebhooks(channelId: string) {
@@ -26,11 +31,13 @@ class TwitchWatcherClass {
     if (!siteUrl) return
     const options = {
       callbackUrl: `${siteUrl}/twitch/webhooks/callback`,
-      validityInSeconds: 1440,
+      validityInSeconds: 864000,
     }
 
-    await Twitch.apiClient.helix.webHooks.unsubscribeFromStreamChanges(channelId, options)
+    if (this.subscriptions.has(channelId)) return
+
     await Twitch.apiClient.helix.webHooks.subscribeToStreamChanges(channelId, options)
+    this.subscriptions.add(channelId)
   }
 
   async processPayload(data: ITwitchStreamChangedPayload['data']) {
