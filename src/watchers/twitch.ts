@@ -23,7 +23,7 @@ class TwitchWatcherClass {
     }
 
     info(`TWITCH: webhooks subscribed to ${channels.length} channels`)
-    setTimeout(() => this.init(), 864000)
+    setTimeout(() => this.init(), 1000 * 864000)
   }
 
   async addChannelToWebhooks(channelId: string) {
