@@ -10,6 +10,7 @@ class TwitchWatcherClass {
   subscriptions = new Set()
 
   async init() {
+    this.subscriptions.clear()
     const subscriptions = await (await Twitch.apiClient.helix.webHooks.getSubscriptions()).getAll()
     for (const subsciption of subscriptions) {
       await subsciption.unsubscribe()
