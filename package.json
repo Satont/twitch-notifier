@@ -13,7 +13,8 @@
     "migration:create": "npx typeorm migration:generate -p -n",
     "migration:up": "typeorm migration:run",
     "dev": "nodemon",
-    "start": "node dist/index.js"
+    "debug": "node --inspect=0.0.0.0:9229 --nolazy ./dist/index.js",
+    "start": "NODE_ENV=production node dist/index.js"
   },
   "repository": {
     "type": "git",
