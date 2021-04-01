@@ -8,8 +8,10 @@ import { Logger } from 'nestjs-pino'
 
 const PORT = process.env.PORT || 3000
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { 
+let app: NestExpressApplication
+
+export async function bootstrap() {
+  app = await NestFactory.create<NestExpressApplication>(AppModule, { 
     logger: false,
   })
 
@@ -17,7 +19,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe())
   app.useStaticAssets(resolve(process.cwd(), 'public'))
-
   app.set('view engine', 'hbs')
   app.set('views', resolve(process.cwd(), 'views'))
   app.set('view options', {
@@ -29,4 +30,4 @@ async function bootstrap() {
   await app.listen(PORT, '0.0.0.0')
 }
 
-bootstrap()
+export const getAppLication = () => app

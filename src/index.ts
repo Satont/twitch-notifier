@@ -15,8 +15,8 @@ const start = async () => {
   if (!getConnection().isConnected) {
     return setTimeout(() => start(), 1000)
   }
+  await (await import('./web')).bootstrap()
   import('./libs/loader')
-  import('./web')
 }
 start()
 

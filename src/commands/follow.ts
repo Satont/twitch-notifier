@@ -30,7 +30,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
     id: streamer.id,
     username: streamer.name,
   }).save()
-  TwitchWatcher.addChannelToWebhooks(channel.id)
+  TwitchWatcher.addChannelToWatch(channel.id)
 
   if (chat.follows?.find(f => f.channel.id === streamer.id)) {
     return {
