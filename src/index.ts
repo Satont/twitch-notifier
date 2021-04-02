@@ -4,7 +4,6 @@ import { createConnection, getConnection } from 'typeorm'
 import { error } from './libs/logger'
 import * as Sentry from '@sentry/node'
 import loader from './libs/loader'
-import { getAppLication } from './web'
 
 if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
   Sentry.init({
@@ -18,10 +17,11 @@ const start = async () => {
     return setTimeout(() => start(), 1000)
   }
 
-  const { bootstrap: webBootstrap, getAppLication } = await import('./web')
-  await webBootstrap()
+  const web = await import('./web')
+
+  await web.bootstrap()
   await loader()
-  await getAppLication().listen(process.env.PORT || 3000, '0.0.0.0')
+  await web.getAppLication().listen(process.env.PORT || 3000, '0.0.0.0').then(() => web.listened = true)
 }
 start()
 

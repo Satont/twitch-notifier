@@ -7,6 +7,8 @@ import hbs from 'hbs'
 import { Logger } from 'nestjs-pino'
 
 let app: NestExpressApplication
+// eslint-disable-next-line prefer-const
+export let listened = false
 
 export async function bootstrap() {
   app = await NestFactory.create<NestExpressApplication>(AppModule, { 

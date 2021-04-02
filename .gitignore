@@ -7,3 +7,5 @@ test.ts
 config.js
 .env
 logs
+.env*
+!!.env.example

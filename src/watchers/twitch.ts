@@ -4,7 +4,7 @@ import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
 import { services } from '../services/_interface'
 import * as TwitchEventSub from 'twitch-eventsub'
-import { getAppLication } from '../web'
+import { getAppLication, listened } from '../web'
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
@@ -30,13 +30,22 @@ class TwitchWatcherClass {
 
     // We need delete all subscriptions because our app URL can be changed.
     await Twitch.apiClient.helix.eventSub.deleteAllSubscriptions()
-
-    // Add channel to watcher on start
-    for (const channel of await getConnection().getRepository(Channel).find()) {
-      await this.addChannelToWatch(channel.id)
-    }
     
+    // Add channels to watcher on start
+    this.initChannels()
+
     info(`TWITCH: EventSub watcher started`)
+  }
+
+  async initChannels() {
+    if (!listened) {
+      return setTimeout(() => this.initChannels(), 1000)
+    }
+
+    for (const channel of await getConnection().getRepository(Channel).find()) {
+      info(`Adding channel ${channel.username}[${channel.id}] to watcher`)
+      this.addChannelToWatch(channel.id)
+    }
   }
   
   async addChannelToWatch(channelId: string) {
