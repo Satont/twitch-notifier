@@ -14,7 +14,7 @@ async function* getFiles(dir: string) {
   }
 }
 
-const loader = async () => {
+export default async () => {
   const folders = {
     libs: 'Lib',
     services: 'Service',
@@ -37,6 +37,7 @@ const loader = async () => {
       continue
     }
   }
+
+  return true
 }
 
-loader()

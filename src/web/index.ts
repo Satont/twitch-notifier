@@ -6,8 +6,6 @@ import { AppModule } from './app.module'
 import hbs from 'hbs'
 import { Logger } from 'nestjs-pino'
 
-const PORT = process.env.PORT || 3000
-
 let app: NestExpressApplication
 
 export async function bootstrap() {
@@ -26,8 +24,6 @@ export async function bootstrap() {
     templates: resolve(process.cwd(), 'views'),
   })
   hbs.registerPartials(resolve(process.cwd(), 'views', 'partials'))
-
-  await app.listen(PORT, '0.0.0.0')
 }
 
 export const getAppLication = () => app
