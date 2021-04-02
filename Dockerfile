@@ -1,4 +1,4 @@
-FROM node:12.11.1-alpine
+FROM node:15.13.0-alpine3.10
 
 RUN apk add --no-cache bash
 
