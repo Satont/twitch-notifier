@@ -1,6 +1,6 @@
 {
   "name": "twitch-notifier",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Notify users about some streamer wen't online",
   "main": "index.js",
   "scripts": {
