@@ -32,10 +32,12 @@ export class AppService {
 
     const twitchChannels = await Twitch.getUsers({ ids: channels.map(c => c.channels_id) })
 
-    return twitchChannels.map(channel => ({
-      ...(channel as any)._data,
-      count: channels.find(c => c.channels_id === channel.id).count,
-    }))
+    return twitchChannels
+      .map(channel => ({
+        ...(channel as any)._data,
+        count: channels.find(c => c.channels_id === channel.id).count,
+      }))
+      .sort((a, b) => b.count - a.count)
   }
 
 }
