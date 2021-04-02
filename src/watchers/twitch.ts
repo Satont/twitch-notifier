@@ -3,95 +3,126 @@ import { Channel } from '../entities/Channel'
 import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
 import { services } from '../services/_interface'
-import { ITwitchStreamChangedPayload } from '../typings/twitch'
+import * as TwitchEventSub from 'twitch-eventsub'
+import { getAppLication } from '../web'
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
-  subscriptions = new Set()
+  private adapter: TwitchEventSub.MiddlewareAdapter
+  private listener: TwitchEventSub.EventSubListener
+  private listenedChannels: Map<string, {
+    [x: string]: boolean
+  }> = new Map()
 
   async init() {
-    this.subscriptions.clear()
-    const subscriptions = await (await Twitch.apiClient.helix.webHooks.getSubscriptions()).getAll()
-    for (const subsciption of subscriptions) {
-      await subsciption.unsubscribe()
+    if (!Twitch.apiClient) {
+      return setTimeout(() => this.init(), 1000)
     }
+    this.listenedChannels.clear()
 
-    const channelsRepository = getConnection().getRepository(Channel)
-    const channels = await channelsRepository.find()
+    this.adapter = new TwitchEventSub.MiddlewareAdapter({
+      hostName: await this.getAdapterHostname(),
+      pathPrefix: 'twitch/eventsub',
+    })
 
-    for (const channel of channels) {
-      await this.addChannelToWebhooks(channel.id)
+    this.listener = new TwitchEventSub.EventSubListener(Twitch.apiClient, this.adapter, process.env.TWITCH_EVENTSUB_SECRET || '0123456789')
+    await this.listener.applyMiddleware(getAppLication())
+
+    // We need delete all subscriptions because our app URL can be changed.
+    await Twitch.apiClient.helix.eventSub.deleteAllSubscriptions()
+
+    // Add channel to watcher on start
+    for (const channel of await getConnection().getRepository(Channel).find()) {
+      await this.addChannelToWatch(channel.id)
     }
-
-    info(`TWITCH: webhooks subscribed to ${channels.length} channels`)
-    setTimeout(() => this.init(), 1000 * 864000)
+    
+    info(`TWITCH: EventSub watcher started`)
   }
+  
+  async addChannelToWatch(channelId: string) {
+    const channel = await this.channelsRepository.findOne(channelId, { relations: ['followers', 'followers.chat' ] })
+    || this.channelsRepository.create({
+      id: channelId,
+    })
+    const listenedChannel = this.listenedChannels.get(channelId) || this.listenedChannels.set(channelId, {}).get(channelId)
 
-  async addChannelToWebhooks(channelId: string) {
-    const siteUrl = process.env.SITE_URL
-    if (!siteUrl) return
-    const options = {
-      callbackUrl: `${siteUrl}/twitch/webhooks/callback`,
-      validityInSeconds: 864000,
-    }
 
-    if (this.subscriptions.has(channelId)) return
-
-    await Twitch.apiClient.helix.webHooks.subscribeToStreamChanges(channelId, options)
-    this.subscriptions.add(channelId)
-  }
-
-  async processPayload(data: ITwitchStreamChangedPayload['data']) {
-    for (const stream of data) {
-      const user = await Twitch.getUser({ id: stream.user_id })
-      const category = stream.game_name
-      const channel = await this.channelsRepository.findOne(stream.user_id, { relations: ['followers', 'followers.chat' ] })
-        || this.channelsRepository.create({
-          id: stream.user_id,
-        })
-
-      channel.username = user.name
-      const messageOpts = {
-        image: `${stream.thumbnail_url?.replace('{width}', '1920').replace('{height}', '1080')}?timestamp=${Date.now()}`,
-      }
-
-      if (stream.type === 'live') {
-        if (!channel.online) {
-          for (const service of services) {
-            service.makeAnnounce({
-              message: `${stream.user_name} online!\nCategory: ${category}\nTitle: ${stream.title}\nhttps://twitch.tv/${user.name}`,
-              target: channel.followers?.map(f => f.chat.chatId),
-              ...messageOpts,
-            })
-          }
-        }
-
-        if (channel.online && channel.category !== category) {
-          for (const service of services) {
-            service.makeAnnounce({
-              message: `${stream.user_name} now streaming ${category}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${user.name}`,
-              target: channel.followers?.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
-              ...messageOpts,
-            })
-          }
-        }
-
-        channel.category = category
-        channel.title = stream.title
-        channel.online = true
-      } else if (stream.type === 'offline') {
-        channel.online = false
-
+    if (!listenedChannel['stream.online']) {
+      await this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => {
+        if (event.streamType !== 'live') return
+  
+        channel.username = event.broadcasterName
+        const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
+  
         for (const service of services) {
           service.makeAnnounce({
-            message: `${channel.username} now offline`,
+            message: `${event.broadcasterDisplayName} online!\nCategory: ${stream.gameName}\nTitle: ${stream.title}\nhttps://twitch.tv/${event.broadcasterName}`,
+            target: channel.followers?.map(f => f.chat.chatId),
+            image: this.getThumnailUrl(stream.thumbnailUrl),
+          })
+        }
+  
+        channel.title = stream.title
+        channel.online = true
+        channel.category = stream.gameName
+        channel.save()
+      })
+      listenedChannel['stream.online'] = true
+    }
+
+    if (!listenedChannel['stream.offline']) {
+      await this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => {
+        for (const service of services) {
+          service.makeAnnounce({
+            message: `${event.broadcasterDisplayName} now offline`,
             target: channel.followers?.filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
           })
         }
-      }
-
-      await channel.save()
+  
+        channel.online = false
+        channel.save()
+      })
+      listenedChannel['stream.offline'] = true
     }
+
+
+    if (!listenedChannel['channel.update']) {
+      await this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => {
+        const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
+        if (stream.type !== 'live') return
+  
+        if (channel.online && channel.category !== event.categoryName) {
+          for (const service of services) {
+            service.makeAnnounce({
+              message: `${event.broadcasterDisplayName} now streaming ${event.categoryName}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${event.broadcasterName}`,
+              target: channel.followers?.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
+              image: this.getThumnailUrl(stream.thumbnailUrl),
+            })
+          }
+        }
+  
+        channel.category = event.categoryName
+        channel.save()
+      })
+      listenedChannel['channel.update'] = true
+    }
+
+    return
+  }
+
+  private async getAdapterHostname() {
+    let hostname: string
+    if (process.env.NODE_ENV === 'production') hostname = process.env.SITE_URL
+    else {
+      hostname = await (await import('ngrok')).connect(Number(process.env.PORT))
+      info(`EventSub: working with ngrok. Current link is: ${hostname}`)
+    }
+
+    return hostname.replace('http://', '').replace('https://', '')
+  }
+
+  private getThumnailUrl(url: string) {
+    return `${url.replace('{width}', '1920').replace('{height}', '1080')}?timestamp=${Date.now()}`
   }
 }
 

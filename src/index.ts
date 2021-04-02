@@ -3,6 +3,8 @@ import 'source-map-support/register'
 import { createConnection, getConnection } from 'typeorm'
 import { error } from './libs/logger'
 import * as Sentry from '@sentry/node'
+import loader from './libs/loader'
+import { getAppLication } from './web'
 
 if (process.env.SENTRY_DSN && process.env.NODE_ENV === 'production') {
   Sentry.init({
@@ -15,8 +17,11 @@ const start = async () => {
   if (!getConnection().isConnected) {
     return setTimeout(() => start(), 1000)
   }
-  import('./libs/loader')
-  import('./web')
+
+  const { bootstrap: webBootstrap, getAppLication } = await import('./web')
+  await webBootstrap()
+  await loader()
+  await getAppLication().listen(process.env.PORT || 3000, '0.0.0.0')
 }
 start()
 
