@@ -22,7 +22,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
   if (!streamer) {
     return {
       success: false,
-      message: i18n.translate('commands.follow.errors.streamerNotFound', { streamer: streamer.displayName }),
+      message: i18n.translate('commands.follow.errors.streamerNotFound', { streamer: channelName }),
     }
   }
 
