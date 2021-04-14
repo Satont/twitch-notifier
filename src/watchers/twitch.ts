@@ -98,7 +98,7 @@ class TwitchWatcherClass {
     if (!listenedChannel['channel.update']) {
       await this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => {
         const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
-        if (stream.type !== 'live') return
+        if (stream?.type !== 'live') return
   
         if (channel.online && channel.category !== event.categoryName) {
           for (const service of services) {
