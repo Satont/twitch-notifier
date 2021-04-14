@@ -11,9 +11,9 @@ export class Follow extends BaseEntity {
   @CreateDateColumn()
   createdAt!: Date
 
-  @ManyToOne(() => Chat, category => category.follows)
+  @ManyToOne(() => Chat, category => category.follows, { nullable: false })
   chat!: Chat
 
-  @ManyToOne(() => Channel, category => category.followers)
+  @ManyToOne(() => Channel, category => category.followers, { nullable: false })
   channel!: Channel
 }
