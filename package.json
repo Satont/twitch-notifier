@@ -55,7 +55,7 @@
     "source-map-support": "^0.5.19",
     "telegraf": "^3.38.0",
     "twitch": "^4.3.8",
-    "twitch-eventsub": "^4.5.3",
+    "twitch-eventsub": "^4.5.5",
     "typeorm": "^0.2.29",
     "vk-io": "^4.1.2"
   },
@@ -70,7 +70,7 @@
     "@typescript-eslint/eslint-plugin": "^4.12.0",
     "@typescript-eslint/parser": "^4.12.0",
     "eslint": "^7.17.0",
-    "ngrok": "^4.0.0",
+    "ngrok": "^4.0.1",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "ts-node": "^9.1.1",

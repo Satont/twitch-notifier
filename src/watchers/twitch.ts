@@ -1,10 +1,11 @@
-import { getConnection } from 'typeorm'
+import { getConnection, getRepository } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
 import { services } from '../services/_interface'
 import * as TwitchEventSub from 'twitch-eventsub'
 import { getAppLication, listened } from '../web'
+import { Follow } from '../entities/Follow'
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
@@ -47,6 +48,10 @@ class TwitchWatcherClass {
       this.addChannelToWatch(channel.id)
     }
   }
+
+  getChannelFollowers(channelId: string) {
+    return getRepository(Follow).find({ channel: { id: channelId } })
+  }
   
   async addChannelToWatch(channelId: string) {
     const channel = await this.channelsRepository.findOne(channelId, { relations: ['followers', 'followers.chat' ] })
@@ -66,11 +71,11 @@ class TwitchWatcherClass {
         for (const service of services) {
           service.makeAnnounce({
             message: `${event.broadcasterDisplayName} online!\nCategory: ${stream.gameName}\nTitle: ${stream.title}\nhttps://twitch.tv/${event.broadcasterName}`,
-            target: channel.followers?.map(f => f.chat.chatId),
+            target: (await this.getChannelFollowers(channel.id)).map(f => f.chat.chatId),
             image: this.getThumnailUrl(stream.thumbnailUrl),
           })
         }
-  
+        channel
         channel.title = stream.title
         channel.online = true
         channel.category = stream.gameName
@@ -84,7 +89,7 @@ class TwitchWatcherClass {
         for (const service of services) {
           service.makeAnnounce({
             message: `${event.broadcasterDisplayName} now offline`,
-            target: channel.followers?.filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
+            target: (await this.getChannelFollowers(channel.id)).filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
           })
         }
   
@@ -104,7 +109,7 @@ class TwitchWatcherClass {
           for (const service of services) {
             service.makeAnnounce({
               message: `${event.broadcasterDisplayName} now streaming ${event.categoryName}\nPrevious category: ${channel.category}\nhttps://twitch.tv/${event.broadcasterName}`,
-              target: channel.followers?.filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
+              target: (await this.getChannelFollowers(channel.id)).filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
               image: this.getThumnailUrl(stream.thumbnailUrl),
             })
           }
