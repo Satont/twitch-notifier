@@ -49,17 +49,21 @@ class TwitchWatcherClass {
     }
   }
 
-  getChannelFollowers(channelId: string) {
-    return getRepository(Follow).find({ channel: { id: channelId } })
+  private getChannelFollowers(channelId: string) {
+    return getRepository(Follow).find({
+      where: {
+        channel: { id: channelId },
+      },
+      relations: ['chat'],
+    })
   }
   
   async addChannelToWatch(channelId: string) {
-    const channel = await this.channelsRepository.findOne(channelId, { relations: ['followers', 'followers.chat' ] })
-    || this.channelsRepository.create({
+    const channel = await this.channelsRepository.findOne(channelId)
+    || await this.channelsRepository.create({
       id: channelId,
-    })
+    }).save()
     const listenedChannel = this.listenedChannels.get(channelId) || this.listenedChannels.set(channelId, {}).get(channelId)
-
 
     if (!listenedChannel['stream.online']) {
       await this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => {
