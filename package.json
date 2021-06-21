@@ -14,7 +14,7 @@
     "migration:up": "typeorm migration:run",
     "dev": "nodemon",
     "debug": "node --inspect=0.0.0.0:9229 --nolazy ./dist/index.js",
-    "start": "NODE_ENV=production node dist/index.js"
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
     "axios": "^0.21.1",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
-    "dayjs": "^1.10.2",
+    "dayjs": "^1.10.5",
     "dotenv": "^8.2.0",
     "glob": "^7.1.6",
     "hbs": "^4.1.1",
