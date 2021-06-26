@@ -25,6 +25,14 @@ const start = async () => {
 }
 start()
 
+async function stopListen() {
+  await (await import('./web')).getAppLication()?.close()
+  await (await import('./services/telegram')).default?.bot?.stop()
+}
+
+process.on('SIGINT', () => stopListen())
+process.on('SIGTERM', () => stopListen())
+
 process.on('unhandledRejection', (reason) => {
   error(reason)
 })

@@ -29,13 +29,15 @@ class TwitchWatcherClass {
     this.listener = new TwitchEventSub.EventSubListener(Twitch.apiClient, this.adapter, process.env.TWITCH_EVENTSUB_SECRET || '0123456789')
     await this.listener.applyMiddleware(getAppLication())
 
+    info(`TWITCH: EventSub starting unsubscribe from all channels.`)
     // We need delete all subscriptions because our app URL can be changed.
     await Twitch.apiClient.helix.eventSub.deleteAllSubscriptions()
     
     // Add channels to watcher on start
-    this.initChannels()
-
-    info(`TWITCH: EventSub watcher started`)
+    this.initChannels().then(() => {
+      info(`TWITCH: EventSub watcher started.`)
+      info(`TWITCH: EventSub watcher: ${this.listenedChannels.size} channels.`)
+    })
   }
 
   async initChannels() {
