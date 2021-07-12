@@ -71,20 +71,23 @@ class TwitchWatcherClass {
       await this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => {
         if (event.streamType !== 'live') return
   
-        channel.username = event.broadcasterName
         const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
-  
-        for (const service of services) {
-          service.makeAnnounce({
-            message: `${event.broadcasterDisplayName} online!\nCategory: ${stream.gameName}\nTitle: ${stream.title}\nhttps://twitch.tv/${event.broadcasterName}`,
-            target: (await this.getChannelFollowers(channel.id)).map(f => f.chat.chatId),
-            image: this.getThumnailUrl(stream.thumbnailUrl),
-          })
+        
+        if (stream.id !== channel.latestStreamId) {
+          for (const service of services) {
+            service.makeAnnounce({
+              message: `${event.broadcasterDisplayName} online!\nCategory: ${stream.gameName}\nTitle: ${stream.title}\nhttps://twitch.tv/${event.broadcasterName}`,
+              target: (await this.getChannelFollowers(channel.id)).map(f => f.chat.chatId),
+              image: this.getThumnailUrl(stream.thumbnailUrl),
+            })
+          }
         }
-        channel
+        
+        channel.username = event.broadcasterName
         channel.title = stream.title
         channel.online = true
         channel.category = stream.gameName
+        channel.latestStreamId = stream.id
         channel.save()
       })
       listenedChannel['stream.online'] = true

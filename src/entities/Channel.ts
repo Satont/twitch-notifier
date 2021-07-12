@@ -18,6 +18,9 @@ export class Channel extends BaseEntity {
   @Column({ nullable: true })
   title?: string
 
+  @Column({ nullable: true })
+  latestStreamId: string
+
   @CreateDateColumn()
   createdAt!: Date
 
