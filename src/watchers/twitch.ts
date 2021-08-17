@@ -162,9 +162,10 @@ class TwitchWatcherClass {
         }
       }
 
-      const streamEntity = channel.streams.find(s => s.id === stream.id)
-      if (streamEntity) {
-        streamEntity.updatedAt = new Date()
+      const latestStream = await this.getLatestStream(channelId)
+      if (latestStream) {
+        latestStream.updatedAt = new Date()
+        await this.streamsRepository.save(latestStream)
       }
 
       channel.category = event.categoryName
