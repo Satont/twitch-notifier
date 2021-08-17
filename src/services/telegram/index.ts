@@ -68,7 +68,13 @@ class Telegram extends ServiceInterface {
         .filter(c => c.isVisible ?? true)
         .map(c => ({ command: c.name, description: c.description }))
 
-      await this.bot.telegram.setMyCommands(commands)
+      await this.bot.telegram.setMyCommands([
+        ...commands,
+        {
+          command: 'cancel',
+          description: 'Cancel current action.',
+        },
+      ])
 
       info('Telegram Service initialized.')
       this.inited = true
