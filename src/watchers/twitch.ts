@@ -85,7 +85,7 @@ class TwitchWatcherClass {
     }).save()
 
     const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId) 
-    if (stream?.id !== (await this.getLatestStream(channelId))?.id) {
+    if (stream && stream.id !== (await this.getLatestStream(channelId))?.id) {
       await this.streamsRepository.create({ 
         id: stream.id, 
         startedAt: stream.startDate, 
