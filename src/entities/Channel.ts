@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 import { Follow } from './Follow'
+import { Stream } from './Stream'
 
 @Entity('channels')
 export class Channel extends BaseEntity {
@@ -18,9 +19,6 @@ export class Channel extends BaseEntity {
   @Column({ nullable: true })
   title?: string
 
-  @Column({ nullable: true })
-  latestStreamId: string
-
   @CreateDateColumn()
   createdAt!: Date
 
@@ -29,4 +27,7 @@ export class Channel extends BaseEntity {
 
   @OneToMany(() => Follow, category => category.channel)
   followers: Follow[]
+
+  @OneToMany(() => Stream, stream => stream.channel)
+  streams: Stream[]
 }

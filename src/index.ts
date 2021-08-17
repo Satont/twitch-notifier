@@ -23,24 +23,25 @@ const start = async () => {
   await loader()
   await web.getAppLication().listen(process.env.PORT || 3000, '0.0.0.0').then(() => web.listened = true)
 }
-start()
+start().catch(console.error)
 
 async function stopListen() {
   await (await import('./web')).getAppLication()?.close()
   await (await import('./services/telegram')).default?.bot?.stop()
+  process.exit(0)
 }
 
-process.on('SIGINT', () => stopListen())
-process.on('SIGTERM', () => stopListen())
+process
+  .on('SIGINT', () => stopListen())
+  .on('SIGTERM', () => stopListen())
+  .on('unhandledRejection', (reason) => {
+    error(reason)
+  })
+  .on('uncaughtException', (err: Error) => {
+    const date = new Date().toISOString()
 
-process.on('unhandledRejection', (reason) => {
-  error(reason)
-})
-process.on('uncaughtException', (err: Error) => {
-  const date = new Date().toISOString()
+    process.report?.writeReport(`uncaughtException-${date}`, err)
+    error(err)
 
-  process.report?.writeReport(`uncaughtException-${date}`, err)
-  error(err)
-
-  process.exit(1)
-})
+    process.exit(1)
+  })
