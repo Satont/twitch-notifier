@@ -115,13 +115,13 @@ class TwitchWatcherClass {
       }
       
       channel.username = event.broadcasterName
-      channel.title = stream.title
       channel.online = true
-      channel.category = stream.gameName
       await this.streamsRepository.create({ 
         id: stream.id, 
         startedAt: stream.startDate, 
         channel,
+        title: stream.title,
+        category: stream.gameName,
       }).save()
       channel.save()
     })
@@ -147,13 +147,14 @@ class TwitchWatcherClass {
     await this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => {
       const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
       if (stream?.type !== 'live') return
+      const latestStream = await this.getLatestStream(channelId)
 
-      if (channel.online && channel.category !== event.categoryName) {
+      if (channel.online && latestStream?.category !== event.categoryName) {
         for (const service of services) {
           service.makeAnnounce({
             message: `
               ${event.broadcasterDisplayName} now streaming ${event.categoryName}
-              Previous category: ${channel.category}
+              Previous category: ${latestStream?.category}
               https://twitch.tv/${event.broadcasterName}
             `.replace(/  +/g, ''),
             target: (await this.getChannelFollowers(channel.id)).filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
@@ -162,13 +163,12 @@ class TwitchWatcherClass {
         }
       }
 
-      const latestStream = await this.getLatestStream(channelId)
       if (latestStream) {
         latestStream.updatedAt = new Date()
+        latestStream.category = event.categoryName
         await this.streamsRepository.save(latestStream)
       }
 
-      channel.category = event.categoryName
       channel.save()
     })
 

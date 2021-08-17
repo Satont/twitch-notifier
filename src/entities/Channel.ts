@@ -13,12 +13,6 @@ export class Channel extends BaseEntity {
   @Column()
   online: boolean = false
 
-  @Column({ nullable: true })
-  category?: string
-
-  @Column({ nullable: true })
-  title?: string
-
   @CreateDateColumn()
   createdAt!: Date
 
