@@ -14,6 +14,7 @@ import { i18n } from '../../libs/i18n'
 import { followScene } from './scenes/follow'
 import { SceneContextMessageUpdate } from 'telegraf/typings/stage'
 import { unFollowScene } from './scenes/unfollow'
+import { unFollowAllCommand } from '../../commands/unFollowAll'
 
 class Telegram extends ServiceInterface {
   bot: Telegraf<any> = null
@@ -131,6 +132,15 @@ class Telegram extends ServiceInterface {
         message,
       })
     }
+  }
+
+  @command('unfollow all', { description: 'Unfollow from all users.' })
+  async unfollowAll(ctx: SceneContextMessageUpdate) {
+    const { message } = await unFollowAllCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n })
+    this.sendMessage({
+      target: String(ctx.chat.id),
+      message,
+    })
   }
 
   @command('follows', { description: 'Shows list of your follows.' })
