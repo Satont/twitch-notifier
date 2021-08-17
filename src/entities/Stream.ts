@@ -12,6 +12,12 @@ export class Stream extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date
 
+  @Column({ nullable: true })
+  category?: string
+
+  @Column({ nullable: true })
+  title?: string
+
   @ManyToOne(() => Channel, channel => channel.streams)
   channel: Channel
 }
