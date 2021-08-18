@@ -90,6 +90,8 @@ class TwitchWatcherClass {
         id: stream.id, 
         startedAt: stream.startDate, 
         channel,
+        category: stream.gameName,
+        title: stream.title,
       }).save()
     }
     
