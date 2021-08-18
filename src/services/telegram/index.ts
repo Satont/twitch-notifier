@@ -132,7 +132,7 @@ class Telegram extends ServiceInterface {
     }
   }
 
-  @command('unfollow all', { description: 'Unfollow from all users.' })
+  @command('clearfollows', { description: 'Unfollow from all users.' })
   async unfollowAll(ctx: SceneContextMessageUpdate) {
     const { message } = await unFollowAllCommand({ chat: ctx.ChatEntity, i18n: ctx.i18n })
     this.sendMessage({
