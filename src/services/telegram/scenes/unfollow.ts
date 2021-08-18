@@ -43,7 +43,7 @@ const changePage = async (ctx: UnfollowScene) => {
   return keyboard
 }
 
-export const unFollowScene = new BaseScene<UnfollowScene>('unfollowScene')
+export const unFollowScene = new BaseScene<UnfollowScene>('unfollowScene', { ttl: 300 })
   .enter(async (ctx) => {
     const follows = (await getRepository(Follow).find({ where: { chat: { chatId: String(ctx.chat.id) } }, relations: ['chat', 'channel'] }))
       .sort((a, b) => Number(a.channel.id) + Number(b.channel.id))

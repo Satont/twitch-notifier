@@ -21,9 +21,7 @@ class Telegram extends ServiceInterface {
   stage = new Stage([
     followScene,
     unFollowScene,
-  ], {
-    ttl: 30,
-  })
+  ])
   private readonly chatRepository = getConnection().getRepository(Chat)
 
   constructor() {
