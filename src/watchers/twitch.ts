@@ -9,6 +9,7 @@ import { Follow } from '../entities/Follow'
 import { Stream } from '../entities/Stream'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+import localtunnel from 'localtunnel'
 
 dayjs.extend(relativeTime)
 
@@ -181,8 +182,8 @@ class TwitchWatcherClass {
     let hostname: string
     if (process.env.NODE_ENV === 'production') hostname = process.env.SITE_URL
     else {
-      hostname = await (await import('ngrok')).connect(Number(process.env.PORT))
-      info(`EventSub: working with ngrok. Current link is: ${hostname}`)
+      hostname = (await localtunnel(Number(process.env.PORT))).url
+      info(`EventSub: working with localtunnel. Current link is: ${hostname}`)
     }
 
     return hostname.replace('http://', '').replace('https://', '')
