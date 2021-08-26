@@ -20,3 +20,10 @@ jobs:
           REGISTRY: docker.pkg.github.com
           IMAGE_NAME: "satont/twitch-notifier"
           TAG_NAME: master:latest
+      - name: Deploy To CapRover
+        uses: floms/action-caprover@v1
+        with:
+          host: ${{ secrets.CAPPROVER_DOMAIN }}
+          password: ${{ secrets.CAPROVER_PASSWORD }}
+          app: notifier
+          image: satont/twitch-notifier
