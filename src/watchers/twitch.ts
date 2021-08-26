@@ -1,30 +1,25 @@
-import { getConnection, getRepository } from 'typeorm'
+import { getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
-import { services } from '../services/_interface'
 import * as TwitchEventSub from 'twitch-eventsub'
 import { getAppLication, listened } from '../web'
-import { Follow } from '../entities/Follow'
 import { Stream } from '../entities/Stream'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import localtunnel from 'localtunnel'
-
-dayjs.extend(relativeTime)
+import { listenedChannels } from '../cache/listenedChannels'
+import { Announcer } from '../libs/announcer'
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
   private readonly streamsRepository = getConnection().getRepository(Stream)
   private adapter: TwitchEventSub.MiddlewareAdapter
   private listener: TwitchEventSub.EventSubListener
-  private listenedChannels: string[] = []
 
   async init() {
     if (!Twitch.apiClient) {
       return setTimeout(() => this.init(), 1000)
     }
-    this.listenedChannels = []
+    listenedChannels.clear()
 
     this.adapter = new TwitchEventSub.MiddlewareAdapter({
       hostName: await this.getAdapterHostname(),
@@ -41,7 +36,7 @@ class TwitchWatcherClass {
     // Add channels to watcher on start
     this.initChannels().then(() => {
       info(`TWITCH: EventSub watcher started.`)
-      info(`TWITCH: EventSub watcher: ${this.listenedChannels.length} channels.`)
+      info(`TWITCH: EventSub watcher: ${listenedChannels.size} channels.`)
     })
   }
 
@@ -55,16 +50,7 @@ class TwitchWatcherClass {
       this.addChannelToWatch(channel.id)
     }
   }
-
-  private getChannelFollowers(channelId: string) {
-    return getRepository(Follow).find({
-      where: {
-        channel: { id: channelId },
-      },
-      relations: ['chat'],
-    })
-  }
-
+  
   private getLatestStream(channelId: string) {
     return this.streamsRepository.findOne({
       where: {
@@ -77,14 +63,16 @@ class TwitchWatcherClass {
       },
     })
   }
-  
+
   async addChannelToWatch(channelId: string) {
-    if (this.listenedChannels.includes(channelId)) return
+    if (listenedChannels.has(channelId)) return
+    const announcer = new Announcer(channelId)
+    await announcer.init()
     const channel = await this.channelsRepository.findOne(channelId)
     || await this.channelsRepository.create({
       id: channelId,
     }).save()
-
+    
     const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId) 
     if (stream && stream.id !== (await this.getLatestStream(channelId))?.id) {
       await this.streamsRepository.create({ 
@@ -96,86 +84,9 @@ class TwitchWatcherClass {
       }).save()
     }
     
-    await this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => {
-      if (event.streamType !== 'live') return
-      const latestStream = await this.getLatestStream(event.broadcasterId)
-
-      const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
-      
-      if (stream.id !== latestStream?.id) {
-        for (const service of services) {
-          service.makeAnnounce({
-            message: `
-              ${event.broadcasterDisplayName} online!
-              Category: ${stream.gameName}
-              Title: ${stream.title}
-              https://twitch.tv/${event.broadcasterName}
-            `.replace(/  +/g, ''),
-            target: (await this.getChannelFollowers(channel.id)).map(f => f.chat.chatId),
-            image: this.getThumnailUrl(stream.thumbnailUrl),
-          })
-        }
-      }
-      
-      channel.username = event.broadcasterName
-      channel.online = true
-      await this.streamsRepository.create({ 
-        id: stream.id, 
-        startedAt: stream.startDate, 
-        channel,
-        title: stream.title,
-        category: stream.gameName,
-      }).save()
-      channel.save()
-    })
-
-    await this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => {
-      const latestStream = await this.getLatestStream(event.broadcasterId)
-      const streamDuration = dayjs().from(dayjs(latestStream?.startedAt), true)
-
-      for (const service of services) {
-        service.makeAnnounce({
-          message: `
-            ${event.broadcasterDisplayName} now offline
-            ${latestStream ? 'Stream duration was: ' + streamDuration : ''}
-          `.replace(/  +/g, ''),
-          target: (await this.getChannelFollowers(channel.id)).filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
-        })
-      }
-
-      channel.online = false
-      channel.save()
-    })
-
-    await this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => {
-      const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId)
-      if (stream?.type !== 'live') return
-      const latestStream = await this.getLatestStream(channelId)
-
-      if (channel.online && latestStream?.category !== event.categoryName) {
-        for (const service of services) {
-          service.makeAnnounce({
-            message: `
-              ${event.broadcasterDisplayName} now streaming ${event.categoryName}
-              Previous category: ${latestStream?.category}
-              https://twitch.tv/${event.broadcasterName}
-            `.replace(/  +/g, ''),
-            target: (await this.getChannelFollowers(channel.id)).filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
-            image: this.getThumnailUrl(stream.thumbnailUrl),
-          })
-        }
-      }
-
-      if (latestStream) {
-        latestStream.updatedAt = new Date()
-        latestStream.category = event.categoryName
-        await this.streamsRepository.save(latestStream)
-      }
-
-      channel.save()
-    })
-
-    return
+    this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
+    this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
+    this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
   }
 
   private async getAdapterHostname() {
@@ -187,10 +98,6 @@ class TwitchWatcherClass {
     }
 
     return hostname.replace('http://', '').replace('https://', '')
-  }
-
-  private getThumnailUrl(url: string) {
-    return `${url.replace('{width}', '1920').replace('{height}', '1080')}?timestamp=${Date.now()}`
   }
 }
 
