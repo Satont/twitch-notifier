@@ -11,19 +11,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@master
-      - name: Build & Push to Docker Hub
-        uses: opspresso/action-docker@v0.2.1
-        env:
-          USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          REGISTRY: docker.pkg.github.com
-          IMAGE_NAME: "satont/twitch-notifier"
-          TAG_NAME: master:latest
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Quay Container Registry
+        uses: docker/login-action@v1.10.0
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            quay.io/satont/twitch-notifier:latest
+            quay.io/satont/twitch-notifier:${{ github.sha }}
       - name: Deploy To CapRover
         uses: floms/action-caprover@v1
         with:
           host: ${{ secrets.CAPPROVER_DOMAIN }}
           password: ${{ secrets.CAPROVER_PASSWORD }}
           app: notifier
-          image: docker.pkg.github.com/satont/twitch-notifier/master
+          image: quay.io/satont/twitch-notifier
