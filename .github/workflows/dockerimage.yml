@@ -26,4 +26,4 @@ jobs:
           host: ${{ secrets.CAPPROVER_DOMAIN }}
           password: ${{ secrets.CAPROVER_PASSWORD }}
           app: notifier
-          image: docker.pkg.github.com/satont/twitch-notifier
+          image: docker.pkg.github.com/satont/twitch-notifier/master
