@@ -87,6 +87,7 @@ class TwitchWatcherClass {
     this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
     this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
     this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
+    listenedChannels.add(channelId)
   }
 
   private async getAdapterHostname() {
