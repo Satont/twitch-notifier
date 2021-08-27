@@ -38,9 +38,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
       message: i18n.translate('commands.follow.alreadyFollowed', { streamer: streamer.displayName }),
     }
   } else {
-    const follow = await followRepository.create({ chat, channel }).save()
-    chat.follows.push(follow)
-    await chat.save()
+    await followRepository.save({ channel, chat })
     return {
       success: true,
       message: i18n.translate('commands.follow.success', { streamer: streamer.displayName }),
