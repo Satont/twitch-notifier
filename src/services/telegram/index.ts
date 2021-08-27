@@ -88,7 +88,7 @@ class Telegram extends ServiceInterface {
     const data = { chatId: String(ctx.chat?.id), service: Services.TELEGRAM }
     const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] })
       ?? this.chatRepository.create({ ...data, settings: new ChatSettings() })
-    chat.save()
+    await chat.save()
 
     return chat
   }

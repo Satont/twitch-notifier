@@ -23,7 +23,7 @@ export class Announcer {
   }
 
   async init() {
-    this.channel = await this.channelsRepository.findOne(this.channel)
+    this.channel = await this.channelsRepository.findOne(this.channelId)
   }
 
   private getChannelFollowers(channelId: string) {
@@ -54,7 +54,7 @@ export class Announcer {
 
     const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(event.broadcasterId)
     
-    if (stream.id !== latestStream?.id) {
+    if (stream?.id !== latestStream?.id) {
       this.announce({
         message: `
           ${event.broadcasterDisplayName} online!
@@ -100,7 +100,6 @@ export class Announcer {
     if (stream?.type !== 'live') return
 
     const latestStream = await this.getLatestStream(event.broadcasterId)
-
     if (this.channel.online && latestStream?.category !== event.categoryName) {
       this.announce({
         message: `

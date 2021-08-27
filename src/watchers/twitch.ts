@@ -66,14 +66,18 @@ class TwitchWatcherClass {
 
   async addChannelToWatch(channelId: string) {
     if (listenedChannels.has(channelId)) return
-    const announcer = new Announcer(channelId)
-    await announcer.init()
     const channel = await this.channelsRepository.findOne(channelId)
     || await this.channelsRepository.create({
       id: channelId,
     }).save()
     
     const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId) 
+
+    if (stream) {
+      channel.online = true
+      await channel.save()
+    }
+
     if (stream && stream.id !== (await this.getLatestStream(channelId))?.id) {
       await this.streamsRepository.create({ 
         id: stream.id, 
@@ -83,6 +87,9 @@ class TwitchWatcherClass {
         title: stream.title,
       }).save()
     }
+
+    const announcer = new Announcer(channelId)
+    await announcer.init()
     
     this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
     this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
