@@ -43,6 +43,8 @@
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "dayjs": "^1.10.5",
+    "discord.js": "^13.1.0",
+    "discordx": "^5.8.1",
     "dotenv": "^8.2.0",
     "glob": "^7.1.6",
     "hbs": "^4.1.1",

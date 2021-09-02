@@ -2,9 +2,13 @@ import { Follow } from './Follow'
 import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm'
 import { ChatSettings } from './ChatSettings'
 
+export type DiscordType = 'discord_user' | 'discord_server'
+
+
 export enum Services {
   VK = 'vk',
-  TELEGRAM = 'tg'
+  TELEGRAM = 'tg',
+  DISCORD_SERVER = 'discord_server'
 }
 
 @Entity('chats')
@@ -16,7 +20,7 @@ export class Chat extends BaseEntity {
   @Column()
   chatId: string
 
-  @Column({ enum: Services })
+  @Column()
   service: Services
 
   @CreateDateColumn()
