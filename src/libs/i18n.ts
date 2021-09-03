@@ -7,14 +7,14 @@ const glob = promisify(gl)
 
 export class I18n {
   translations = {}
-  private lang = 'en'
+  lang = 'en'
 
   constructor(lang?: string, translations?: any) {
     if (lang) this.lang = lang
     if (translations) this.translations = translations
   }
 
-  private async init() {
+  async init() {
     const files = await glob('./locales/**')
     for (const f of files) {
       if (!f.endsWith('.json')) {

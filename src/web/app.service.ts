@@ -1,18 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { HelixUser } from 'twitch/lib'
-import { getConnection } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { Chat } from '../entities/Chat'
-import { Follow } from '../entities/Follow'
 import Twitch from '../libs/twitch'
-
-const connection = getConnection()
 
 @Injectable()
 export class AppService {
-  private readonly chatsRepository = connection.getRepository(Chat)
-  private readonly channelsRepository = connection.getRepository(Channel)
-  private readonly followRepository = connection.getRepository(Follow)
+  private readonly chatsRepository = getRepository(Chat)
+  private readonly channelsRepository = getRepository(Channel)
 
   async counts() {
     const chats = await this.chatsRepository.count()

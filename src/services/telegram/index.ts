@@ -1,6 +1,6 @@
 import { SendMessageOpts, ServiceInterface } from '../_interface'
 import Telegraf, {  Markup, session, Stage } from 'telegraf'
-import { chatIn, chatOut, error, info, warning } from '../../libs/logger'
+import { chatIn, chatOut, error, info } from '../../libs/logger'
 import { Chat, Services } from '../../entities/Chat'
 import { getConnection } from 'typeorm'
 import { command } from '../../decorators/command'
@@ -22,20 +22,13 @@ class Telegram extends ServiceInterface {
     followScene,
     unFollowScene,
   ])
-  private readonly chatRepository = getConnection().getRepository(Chat)
 
-  constructor() {
+  constructor(telegraf?: Telegraf<any>) {
     super({
       service: Services.TELEGRAM,
     })
 
-    const accessToken = process.env.TELEGRAM_BOT_TOKEN
-    if (!accessToken) {
-      warning('TELEGRAM: bot token not setuped, telegram library will not works.')
-      return
-    }
-
-    this.bot = new Telegraf(accessToken)
+    this.bot = telegraf ?? new Telegraf(process.env.TELEGRAM_BOT_TOKEN)
     this.stage.command('cancel', Stage.leave())
 
     this.bot.use(async (ctx: SceneContextMessageUpdate, next) => {
@@ -52,7 +45,7 @@ class Telegram extends ServiceInterface {
     })
     this.bot.use(session())
     this.bot.use(this.stage.middleware())
-    this.bot.on('message', (msg) => this.listener(msg))
+    this.bot.on('message', (msg, next) => this.listener(msg, next))
     this.bot.catch((err, ctx) => {
       error(err)
       error(ctx)
@@ -85,25 +78,26 @@ class Telegram extends ServiceInterface {
   async ensureUser(ctx: SceneContextMessageUpdate) {
     if (!ctx.chat?.id) return null
 
+    const repository = getConnection().getRepository<Chat>('Chat')
     const data = { chatId: String(ctx.chat?.id), service: Services.TELEGRAM }
-    const chat = await this.chatRepository.findOne(data, { relations: ['follows', 'follows.channel'] })
-      ?? this.chatRepository.create({ ...data, settings: new ChatSettings() })
+    const chat = await repository.findOne(data, { relations: ['follows', 'follows.channel'] })
+      || repository.create({ ...data, settings: new ChatSettings() })
     await chat.save()
 
     return chat
   }
 
-  async listener(ctx: SceneContextMessageUpdate) {
-    if (!ctx.chat?.id || !ctx.message?.text) return
+  async listener(ctx: SceneContextMessageUpdate, next: () => any) {
+    if (!ctx.chat?.id || !ctx.message?.text) return next()
     const commandName = ctx.message.text.substring(1).split(' ')[0]
     const args = ctx.message.text.split(' ').slice(1)
     const arg = ctx.message.text.substring(1).replace(commandName, '')
 
     const command = this.commands.find(c => c.name === commandName)
-    if (!command) return
+    if (!command) return next()
 
     await this[command.fnc](ctx, args, arg)
-    return true
+    return next()
   }
 
   @command('follow', { description: 'Follow to some user.' })
@@ -248,3 +242,6 @@ class Telegram extends ServiceInterface {
 }
 
 export default new Telegram()
+export { 
+  Telegram,
+}

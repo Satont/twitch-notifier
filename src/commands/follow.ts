@@ -6,10 +6,10 @@ import { I18n } from '../libs/i18n'
 import { Twitch } from '../libs/twitch'
 import TwitchWatcher from '../watchers/twitch'
 
-const channelRepository = getConnection().getRepository(Channel)
-const followRepository = getConnection().getRepository(Follow)
 
 export async function followCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: I18n }) {
+  const channelRepository = getConnection().getRepository(Channel)
+  const followRepository = getConnection().getRepository(Follow)
   channelName = channelName.replace(/\s/g, '')
   if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
     return {

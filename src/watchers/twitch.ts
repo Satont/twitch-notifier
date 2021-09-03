@@ -1,4 +1,4 @@
-import { getConnection } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
@@ -10,8 +10,6 @@ import { listenedChannels } from '../cache/listenedChannels'
 import { Announcer } from '../libs/announcer'
 
 class TwitchWatcherClass {
-  private readonly channelsRepository = getConnection().getRepository(Channel)
-  private readonly streamsRepository = getConnection().getRepository(Stream)
   private adapter: TwitchEventSub.MiddlewareAdapter
   private listener: TwitchEventSub.EventSubListener
 
@@ -45,14 +43,14 @@ class TwitchWatcherClass {
       return setTimeout(() => this.initChannels(), 1000)
     }
 
-    for (const channel of await getConnection().getRepository(Channel).find()) {
+    for (const channel of await getRepository(Channel).find()) {
       info(`Adding channel ${channel.username}[${channel.id}] to watcher`)
       this.addChannelToWatch(channel.id)
     }
   }
   
   private getLatestStream(channelId: string) {
-    return this.streamsRepository.findOne({
+    return getRepository(Stream).findOne({
       where: {
         channel: {
           id: channelId,
@@ -66,8 +64,8 @@ class TwitchWatcherClass {
 
   async addChannelToWatch(channelId: string) {
     if (listenedChannels.has(channelId)) return
-    const channel = await this.channelsRepository.findOne(channelId)
-    || await this.channelsRepository.create({
+    const channel = await getRepository(Channel).findOne(channelId)
+    || await getRepository(Channel).create({
       id: channelId,
     }).save()
     
@@ -79,7 +77,7 @@ class TwitchWatcherClass {
     }
 
     if (stream && stream.id !== (await this.getLatestStream(channelId))?.id) {
-      await this.streamsRepository.create({ 
+      await getRepository(Stream).create({ 
         id: stream.id, 
         startedAt: stream.startDate, 
         channel,

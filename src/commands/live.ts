@@ -9,9 +9,8 @@ import { HelixStream } from 'twitch/lib'
 
 dayjs.extend(relativeTime)
 
-const followRepository = getConnection().getRepository(Follow)
-
 export async function liveCommand({ chat, i18n }: { chat: Chat, i18n: I18n }) {
+  const followRepository = getConnection().getRepository(Follow)
   if (!chat.follows?.length) {
     return i18n.translate('commands.follows.emptyList')
   }

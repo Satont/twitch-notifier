@@ -7,7 +7,7 @@ export enum Services {
   TELEGRAM = 'tg'
 }
 
-@Entity('chats')
+@Entity({ name: 'chats' })
 @Unique(['chatId', 'service'])
 export class Chat extends BaseEntity {
   @PrimaryGeneratedColumn()

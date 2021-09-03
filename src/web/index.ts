@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { resolve } from 'path'
-import { AppModule } from './app.module'
 import hbs from 'hbs'
 import { Logger } from 'nestjs-pino'
 
@@ -11,7 +10,7 @@ let app: NestExpressApplication
 export let listened = false
 
 export async function bootstrap() {
-  app = await NestFactory.create<NestExpressApplication>(AppModule, { 
+  app = await NestFactory.create<NestExpressApplication>((await import('./app.module')).AppModule, { 
     logger: false,
   })
 

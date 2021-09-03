@@ -4,9 +4,9 @@ import { Follow } from '../entities/Follow'
 import { I18n } from '../libs/i18n'
 import { Twitch } from '../libs/twitch'
 
-const followRepository = getConnection().getRepository(Follow)
 
 export async function unFollowCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: I18n }) {
+  const followRepository = getConnection().getRepository(Follow)
   channelName = channelName.replace(/\s/g, '')
   if (/[^a-zA-Z0-9_]/gmu.test(channelName) || !channelName.length) {
     return {

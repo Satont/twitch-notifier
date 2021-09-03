@@ -3,9 +3,9 @@ import { Chat } from '../entities/Chat'
 import { Follow } from '../entities/Follow'
 import { I18n } from '../libs/i18n'
 
-const followRepository = getConnection().getRepository(Follow)
 
 export async function unFollowAllCommand({ chat, i18n }: { chat: Chat, i18n: I18n }) {
+  const followRepository = getConnection().getRepository(Follow)
   const follows = await followRepository.find({
     chat,
   })
