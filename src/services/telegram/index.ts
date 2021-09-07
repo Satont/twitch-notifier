@@ -78,7 +78,7 @@ class Telegram extends ServiceInterface {
   async ensureUser(ctx: SceneContextMessageUpdate) {
     if (!ctx.chat?.id) return null
 
-    const repository = getConnection().getRepository<Chat>('Chat')
+    const repository = getConnection().getRepository(Chat)
     const data = { chatId: String(ctx.chat?.id), service: Services.TELEGRAM }
     const chat = await repository.findOne(data, { relations: ['follows', 'follows.channel'] })
       || repository.create({ ...data, settings: new ChatSettings() })
