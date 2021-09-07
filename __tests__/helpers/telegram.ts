@@ -1,5 +1,5 @@
 import { Telegraf, Context, Telegram as TG } from 'telegraf'
-import {  Update } from 'telegraf/typings/telegram-types'
+import { Update } from 'telegraf/typings/telegram-types'
 import { Telegram } from '../../src/services/telegram'
 
 const createRandomNumber = () => Math.floor(Math.random() * (123456789 - 1) + 1);

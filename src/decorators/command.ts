@@ -6,7 +6,7 @@ export interface CommandDecoratorOptions {
 }
 
 export function command(name: string, opts: CommandDecoratorOptions): MethodDecorator {
-  return (instance: ServiceInterface, methodName: string): void => {
+  return (instance: Partial<ServiceInterface>, methodName: string): void => {
     if (!instance.commands) instance.commands = []
     const data = { name, fnc: methodName, ...opts }
 

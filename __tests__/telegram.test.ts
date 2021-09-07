@@ -4,7 +4,6 @@ beforeAll(async () => {
   await createDbConnection()
 })
 
-import { getConnection } from 'typeorm'
 import { Telegram } from '../src/services/telegram'
 import { createTelegramClient, createUpdate } from './helpers/telegram'
 import { Context } from 'telegraf'
@@ -24,16 +23,11 @@ describe('telegram', function() {
   it('chat entity should be created', async () => {
     const update = createUpdate({ text: '/start'})
     
-    instance.bot.use((ctx: Context, next) => {
+    instance.bot.use((ctx: Context) => {
       expect(ctx.ChatEntity).not.toBeFalsy()
       expect(ctx.ChatEntity.settings.language).toEqual('en')
     })
 
     await instance.bot.handleUpdate({ message: update } as any)
-  })
-
-  afterAll(() => {
-    getConnection().close()
-    instance.bot.stop()
   })
 })
