@@ -1,5 +1,8 @@
+const watcherObject = {
+  addChannelToWatch: jest.fn().mockImplementation(() => true),
+}
+
 jest.mock('../../src/watchers/twitch', () => ({
-  TwitchWatcher: {
-    addChannelToWatch: jest.fn().mockImplementation(() => true)
-  },
+  ...watcherObject,
+  TwitchWatcher: watcherObject,
 }))
