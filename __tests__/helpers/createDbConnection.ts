@@ -1,4 +1,3 @@
-import { join } from 'path'
 import { createConnection } from 'typeorm'
 
 export default async () => {
@@ -6,7 +5,7 @@ export default async () => {
     name: 'default',
     type: 'better-sqlite3',
     database: ':memory:',
-    entities: [join(process.cwd(), 'dist', 'entities', '*.js')],
+    entities: ['src/entities/*.ts'],
     synchronize: true,
   })
 }

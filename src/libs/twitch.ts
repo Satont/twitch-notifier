@@ -1,19 +1,16 @@
 import { ApiClient, ClientCredentialsAuthProvider, HelixUser, HelixStream } from 'twitch'
 import { chunk } from 'lodash'
-import { info, warning } from './logger'
+import { info } from './logger'
 
 class TwitchClient {
-  authProvider: ClientCredentialsAuthProvider = null
-  apiClient: ApiClient = null
+  authProvider: ClientCredentialsAuthProvider
+  apiClient: ApiClient
 
-  async init() {
+  async init(authProvider?: ClientCredentialsAuthProvider, apiClient?: ApiClient) {
     const [client_id, client_secret] = [process.env.TWITCH_CLIENT_ID, process.env.TWITCH_CLIENT_SECRET]
-    if (!client_id || !client_secret) {
-      warning('TWITCH: client_id or client_secret not setuped, twitch library will not works.')
-      return
-    }
-    this.authProvider = new ClientCredentialsAuthProvider(client_id, client_secret)
-    this.apiClient = new ApiClient({ authProvider: this.authProvider })
+
+    this.authProvider = authProvider ?? new ClientCredentialsAuthProvider(client_id, client_secret)
+    this.apiClient = apiClient ?? new ApiClient({ authProvider: this.authProvider })
 
     info('Twitch library initialized.')
   }

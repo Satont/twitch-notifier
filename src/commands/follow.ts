@@ -4,8 +4,7 @@ import { Chat } from '../entities/Chat'
 import { Follow } from '../entities/Follow'
 import { I18n } from '../libs/i18n'
 import { Twitch } from '../libs/twitch'
-import TwitchWatcher from '../watchers/twitch'
-
+import { TwitchWatcher } from '../watchers/twitch'
 
 export async function followCommand({ chat, channelName, i18n }: { chat: Chat, channelName: string, i18n: I18n }) {
   const channelRepository = getConnection().getRepository(Channel)
@@ -19,6 +18,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
   }
 
   const streamer = await Twitch.getUser({ name: channelName.toLowerCase() })
+
   if (!streamer) {
     return {
       success: false,
@@ -38,6 +38,7 @@ export async function followCommand({ chat, channelName, i18n }: { chat: Chat, c
       message: i18n.translate('commands.follow.alreadyFollowed', { streamer: streamer.displayName }),
     }
   } else {
+
     await followRepository.save({ channel, chat })
     return {
       success: true,

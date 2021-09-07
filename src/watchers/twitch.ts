@@ -107,5 +107,5 @@ class TwitchWatcherClass {
   }
 }
 
-const TwitchWatcher = new TwitchWatcherClass()
+export const TwitchWatcher = new TwitchWatcherClass()
 export default TwitchWatcher
