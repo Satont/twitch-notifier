@@ -8,3 +8,4 @@ config.js
 logs
 .env*
 !!.env.example
+.pnpm-debug.log

@@ -34,5 +34,5 @@
     "project": ["./tsconfig.json"],
     "tsconfigRootDir": "./"
   },
-  "ignorePatterns": ["src/migrations", "tests.ts"]
+  "ignorePatterns": ["src/migrations", "tests.ts", "tools"]
 }
