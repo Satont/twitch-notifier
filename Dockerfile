@@ -1,15 +1,18 @@
-FROM node:15.13.0-alpine3.10
+FROM node:16-alpine
 
 RUN apk add --no-cache bash
+
 
 EXPOSE 3000
 EXPOSE 9229
 
-COPY . /app
 WORKDIR /app
 
-RUN npm i
-RUN npm run build
+COPY package.json pnpm-lock.yaml ./
+RUN npm i -g pnpm && pnpm install
+
+COPY . /app
+RUN pnpm run build
 
 COPY docker.sh /
 RUN chmod +x /docker.sh

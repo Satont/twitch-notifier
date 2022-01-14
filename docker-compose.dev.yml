@@ -1,0 +1,11 @@
+version: "3.2"
+
+services:
+  twitch-notifier:
+    build:
+      context: .
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env
