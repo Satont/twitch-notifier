@@ -6,7 +6,7 @@ export class ChatSettings extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: string
 
-  @OneToOne(() => Chat, chat => chat.settings)
+  @OneToOne(() => Chat, chat => chat.settings, { onDelete: 'CASCADE' })
   chat: Chat
 
   @Column({ default: false, nullable: false })

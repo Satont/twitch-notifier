@@ -22,7 +22,6 @@
     "url": "git+https://github.com/Satont/twitch-notifier.git"
   },
   "keywords": [
-    "vk",
     "telegram",
     "twitch",
     "notify"
@@ -42,7 +41,6 @@
     "@twurple/api": "^5.0.13",
     "@twurple/auth": "^5.0.13",
     "@twurple/eventsub": "^5.0.13",
-    "@vk-io/hear": "^1.1.0",
     "axios": "^0.21.4",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
@@ -59,8 +57,7 @@
     "source-map-support": "^0.5.21",
     "strip-ansi": "^6.0.0",
     "telegraf": "^3.39.0",
-    "typeorm": "^0.2.41",
-    "vk-io": "^4.4.0"
+    "typeorm": "^0.2.41"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.6.0",
