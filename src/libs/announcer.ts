@@ -1,5 +1,4 @@
-import { EventSubStreamOfflineEvent } from 'twitch-eventsub/lib/Events/EventSubStreamOfflineEvent'
-import { EventSubStreamOnlineEvent } from 'twitch-eventsub/lib/Events/EventSubStreamOnlineEvent'
+import { EventSubStreamOfflineEvent, EventSubStreamOnlineEvent, EventSubChannelUpdateEvent } from '@twurple/eventsub'
 import { getRepository, getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { Follow } from '../entities/Follow'
@@ -8,7 +7,7 @@ import { SendMessageOpts, services } from '../services/_interface'
 import Twitch from './twitch'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { EventSubChannelUpdateEvent } from 'twitch-eventsub/lib/Events/EventSubChannelUpdateEvent'
+import { info } from 'console'
 
 dayjs.extend(relativeTime)
 
@@ -65,6 +64,8 @@ export class Announcer {
         target: (await this.getChannelFollowers(this.channel.id)).map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
       })
+    } else {
+      info(`EventSub: Stream ${stream?.id} of ${event.broadcasterName}[${event.broadcasterId}] already in database, skipping announce.`)
     }
     
     this.channel.username = event.broadcasterName

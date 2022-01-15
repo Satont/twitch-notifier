@@ -1,10 +1,10 @@
 import dayjs from 'dayjs'
 import fs from 'fs'
-import stripAnsi from 'strip-ansi'
 import { inspect } from 'util'
 import os from 'os'
 import { createStream } from 'rotating-file-stream'
 import { getFunctionNameFromStackTrace } from '../commons/stacktrace'
+import stripAnsi = require('strip-ansi');
 
 const levelFormat = {
   error: '!!! ERROR !!!',

@@ -13,7 +13,6 @@ class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
   private readonly streamsRepository = getConnection().getRepository(Stream)
   private adapter: TwitchEventSub.EventSubMiddleware
-  private listener: TwitchEventSub.EventSubListener
 
   async init() {
     if (!Twitch.apiClient) {
@@ -26,6 +25,9 @@ class TwitchWatcherClass {
       secret: process.env.TWITCH_CLIENT_ID,
       hostName: await this.getAdapterHostname(),
       pathPrefix: 'twitch/eventsub',
+      logger: {
+        minLevel: 'debug',
+      },
     })
 
     await this.adapter.apply(getAppLication().getHttpAdapter() as unknown as Express)
@@ -41,6 +43,8 @@ class TwitchWatcherClass {
       return setTimeout(() => this.initChannels(), 1000)
     }
 
+    await this.adapter.markAsReady()
+
     const channels = await getConnection().getRepository(Channel).find()
     const currentSubscriptions = await Twitch.apiClient.eventSub.getSubscriptionsPaginated().getAll()
 
@@ -55,7 +59,7 @@ class TwitchWatcherClass {
     }
 
     const forCreate = channels
-      .filter(channel => !currentSubscriptions.find(sub => sub.condition.broadcaster_user_id == channel.id))
+      .filter(channel => currentSubscriptions.find(sub => sub.condition.broadcaster_user_id == channel.id))
 
     for (const channel of forCreate) {
       await this.addChannelToWatch(channel.id)
@@ -82,7 +86,7 @@ class TwitchWatcherClass {
       id: channelId,
     }).save()
     
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId) 
+    const stream = await Twitch.apiClient.streams.getStreamByUserId(channelId) 
 
     if (stream) {
       channel.online = true
@@ -102,9 +106,9 @@ class TwitchWatcherClass {
     const announcer = new Announcer(channelId)
     await announcer.init()
     
-    this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
-    this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
-    this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
+    this.adapter.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
+    this.adapter.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
+    this.adapter.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
     listenedChannels.add(channelId)
   }
 

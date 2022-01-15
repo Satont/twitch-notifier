@@ -20,7 +20,7 @@ const command = [
   'trigger',
   eventName,
   '-F',
-  `https://${process.env.SITE_URL}/twitch/eventsub/event/${eventNamesMapping[eventName]}`,
+  `https://${process.env.SITE_URL.replace('http://', '').replace('https://', '')}/twitch/eventsub/event/${eventNamesMapping[eventName]}`,
   '-f',
   channelId,
   '-t',
@@ -28,7 +28,7 @@ const command = [
   '-s',
   `${eventNamesMapping[eventName]}.${process.env.TWITCH_CLIENT_ID}`,
 ];
-execFile('./twitch-cli_1.1.5_Linux_x86_64', command, (error, stdout, stderr) => {
+execFile(resolve(__dirname, 'twitch-cli_1.1.5_Linux_x86_64'), command, (error, stdout, stderr) => {
   console.log('Executing: ' + command.join(' '));
 
   if (error) console.error('Error:', error);

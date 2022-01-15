@@ -57,7 +57,7 @@
     "reflect-metadata": "^0.1.13",
     "rotating-file-stream": "^2.1.6",
     "source-map-support": "^0.5.21",
-    "strip-ansi": "^7.0.1",
+    "strip-ansi": "^6.0.0",
     "telegraf": "^3.39.0",
     "typeorm": "^0.2.41",
     "vk-io": "^4.4.0"

@@ -1,7 +1,10 @@
 {
-  "watch": ["src", "views"],
-  "exec": "ts-node src/index.ts",
-  "ext": "ts,hbs",
+  "watch": ["src"],
+  "exec": "rm -rf dist; pnpm build; pnpm run prestart; NODE_ENV=development pnpm debug",
+  "ext": "ts",
+  "signal": "SIGTERM",
+  "legacyWatch": true,
+  "delay": 300,
   "ignore": [
     "src/migrations/**"
   ]
