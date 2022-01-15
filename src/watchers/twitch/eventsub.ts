@@ -1,15 +1,15 @@
 import { getConnection } from 'typeorm'
-import { Channel } from '../entities/Channel'
-import { info } from '../libs/logger'
-import Twitch from '../libs/twitch'
+import { Channel } from '../../entities/Channel'
+import { info } from '../../libs/logger'
+import Twitch from '../../libs/twitch'
 import * as TwitchEventSub from '@twurple/eventsub'
-import { getAppLication, listened } from '../web'
-import { Stream } from '../entities/Stream'
-import { listenedChannels } from '../cache/listenedChannels'
-import { Announcer } from '../libs/announcer'
+import { getAppLication, listened } from '../../web'
+import { Stream } from '../../entities/Stream'
+import { listenedChannels } from '../../cache/listenedChannels'
+import { Announcer } from '../../libs/announcer'
 import { Express } from 'express' 
 
-class TwitchWatcherClass {
+class TwitchWatcherEventSub {
   private readonly channelsRepository = getConnection().getRepository(Channel)
   private readonly streamsRepository = getConnection().getRepository(Stream)
   private adapter: TwitchEventSub.EventSubMiddleware
@@ -33,8 +33,6 @@ class TwitchWatcherClass {
     await this.adapter.apply(getAppLication().getHttpAdapter() as unknown as Express)
     
     await this.initChannels()
-
-    // Add channels to watcher on start
     info(`TWITCH: EventSub watcher started.`)
   }
 
@@ -106,9 +104,18 @@ class TwitchWatcherClass {
     const announcer = new Announcer(channelId)
     await announcer.init()
     
-    this.adapter.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
-    this.adapter.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
-    this.adapter.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
+    this.adapter.subscribeToStreamOnlineEvents(channelId, (event) => {
+      announcer.announceLive({ userId: event.broadcasterId, displayName: event.broadcasterDisplayName })
+    })
+
+    this.adapter.subscribeToStreamOfflineEvents(channelId, (event) => {
+      announcer.announceOffline({ userId: event.broadcasterId, displayName: event.broadcasterDisplayName })
+    })
+
+    this.adapter.subscribeToChannelUpdateEvents(channelId, (event) => {
+      announcer.announceUpdate({ userId: event.broadcasterId, displayName: event.broadcasterDisplayName, newCategory: event.categoryName })
+    })
+
     listenedChannels.add(channelId)
   }
 
@@ -119,5 +126,5 @@ class TwitchWatcherClass {
   }
 }
 
-const TwitchWatcher = new TwitchWatcherClass()
+const TwitchWatcher = new TwitchWatcherEventSub()
 export default TwitchWatcher

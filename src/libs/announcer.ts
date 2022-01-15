@@ -1,4 +1,3 @@
-import { EventSubStreamOfflineEvent, EventSubStreamOnlineEvent, EventSubChannelUpdateEvent } from '@twurple/eventsub'
 import { getRepository, getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { Follow } from '../entities/Follow'
@@ -8,6 +7,8 @@ import Twitch from './twitch'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { info } from 'console'
+import { HelixStream } from '@twurple/api'
+import { getLatestStream } from '../helpers/getLatestStream'
 
 dayjs.extend(relativeTime)
 
@@ -34,41 +35,28 @@ export class Announcer {
     })
   }
 
-  private getLatestStream(channelId: string) {
-    return this.streamsRepository.findOne({
-      where: {
-        channel: {
-          id: channelId,
-        },
-      },
-      order: {
-        startedAt: 'DESC',
-      },
-    })
-  }
+  async announceLive(data: { displayName: string, userId: string, stream?: HelixStream }) {
+    const latestStream = await getLatestStream(data.userId)
 
-  async announceLive(event: EventSubStreamOnlineEvent) {
-    if (event.streamType !== 'live') return
-    const latestStream = await this.getLatestStream(event.broadcasterId)
+    const stream = data.stream ?? await Twitch.apiClient.streams.getStreamByUserId(data.userId)
+    if (stream.type !== 'live') return
 
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(event.broadcasterId)
-    
     if (stream?.id !== latestStream?.id) {
       this.announce({
         message: `
-          ${event.broadcasterDisplayName} online!
+          ${data.displayName} online!
           Category: ${stream.gameName}
           Title: ${stream.title}
-          https://twitch.tv/${event.broadcasterName}
+          https://twitch.tv/${stream.userName}
         `,
         target: (await this.getChannelFollowers(this.channel.id)).map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
       })
     } else {
-      info(`EventSub: Stream ${stream?.id} of ${event.broadcasterName}[${event.broadcasterId}] already in database, skipping announce.`)
+      info(`EventSub: Stream ${stream?.id} of ${data.displayName}[${data.userId}] already in database, skipping announce.`)
     }
     
-    this.channel.username = event.broadcasterName
+    this.channel.username = stream.userName
     this.channel.online = true
     await this.streamsRepository.create({ 
       id: stream.id, 
@@ -80,13 +68,13 @@ export class Announcer {
     this.channel.save()
   }
 
-  async announceOffline(event: EventSubStreamOfflineEvent) {
-    const latestStream = await this.getLatestStream(event.broadcasterId)
+  async announceOffline(data: { displayName: string, userId: string }) {
+    const latestStream = await getLatestStream(data.userId)
     const streamDuration = dayjs().from(dayjs(latestStream?.startedAt), true)
 
     this.announce({
       message: `
-        ${event.broadcasterDisplayName} now offline
+        ${data.displayName} now offline
         ${latestStream ? 'Stream duration was: ' + streamDuration : ''}
       `,
       target: (await this.getChannelFollowers(this.channel.id)).filter(f => f.chat.settings.offline_notification).map(f => f.chat.chatId),
@@ -96,17 +84,17 @@ export class Announcer {
     this.channel.save()
   }
 
-  async announceUpdate(event: EventSubChannelUpdateEvent) {
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(event.broadcasterId)
+  async announceUpdate(data: { displayName: string, userId: string, newCategory: string }) {
+    const stream = await Twitch.apiClient.streams.getStreamByUserId(data.userId)
     if (stream?.type !== 'live') return
 
-    const latestStream = await this.getLatestStream(event.broadcasterId)
-    if (this.channel.online && latestStream?.category !== event.categoryName) {
+    const latestStream = await getLatestStream(data.userId)
+    if (this.channel.online && latestStream?.category !== data.newCategory) {
       this.announce({
         message: `
-          ${event.broadcasterDisplayName} now streaming ${event.categoryName}
+          ${data.displayName} now streaming ${data.newCategory}
           Previous category: ${latestStream?.category}
-          https://twitch.tv/${event.broadcasterName}
+          https://twitch.tv/${stream.userName}
         `,
         target: (await this.getChannelFollowers(this.channel.id)).filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
@@ -115,7 +103,7 @@ export class Announcer {
 
     if (latestStream) {
       latestStream.updatedAt = new Date()
-      latestStream.category = event.categoryName
+      latestStream.category = data.newCategory
       await this.streamsRepository.save(latestStream)
     }
 

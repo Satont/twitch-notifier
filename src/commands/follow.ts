@@ -4,7 +4,7 @@ import { Chat } from '../entities/Chat'
 import { Follow } from '../entities/Follow'
 import { I18n } from '../libs/i18n'
 import { Twitch } from '../libs/twitch'
-import TwitchWatcher from '../watchers/twitch'
+import TwitchWatcher from '../watchers/twitch/eventsub'
 
 const channelRepository = getConnection().getRepository(Channel)
 const followRepository = getConnection().getRepository(Follow)
