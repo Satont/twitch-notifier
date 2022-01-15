@@ -22,7 +22,6 @@
     "url": "git+https://github.com/Satont/twitch-notifier.git"
   },
   "keywords": [
-    "vk",
     "telegram",
     "twitch",
     "notify"

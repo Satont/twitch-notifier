@@ -8,7 +8,6 @@ Bot for track twitch channels going live and notify followed users about that!
 
 1. Messengers
     + Telegram
-    + VK
 2. Stream preview
 3. Game and title in golive message
 4. Online streamers list

@@ -3,7 +3,6 @@ import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColu
 import { ChatSettings } from './ChatSettings'
 
 export enum Services {
-  VK = 'vk',
   TELEGRAM = 'tg'
 }
 
@@ -25,10 +24,10 @@ export class Chat extends BaseEntity {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  @OneToMany(() => Follow, category => category.chat)
+  @OneToMany(() => Follow, category => category.chat, { onDelete: 'CASCADE' })
   follows: Follow[]
 
-  @OneToOne(() => ChatSettings, settings => settings.chat, { cascade: true, eager: true })
+  @OneToOne(() => ChatSettings, settings => settings.chat, { cascade: true, eager: true, onDelete: 'CASCADE' })
   @JoinColumn()
   settings: ChatSettings
 }
