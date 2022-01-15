@@ -5,7 +5,7 @@ import { I18n } from '../libs/i18n'
 import Twitch from '../libs/twitch'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { HelixStream } from 'twitch/lib'
+import { HelixStream } from '@twurple/api'
 
 dayjs.extend(relativeTime)
 

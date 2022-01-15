@@ -1,4 +1,5 @@
-import { ApiClient, ClientCredentialsAuthProvider, HelixUser, HelixStream } from 'twitch'
+import { ApiClient, HelixUser, HelixStream } from '@twurple/api'
+import { ClientCredentialsAuthProvider } from '@twurple/auth'
 import { chunk } from 'lodash'
 import { info, warning } from './logger'
 

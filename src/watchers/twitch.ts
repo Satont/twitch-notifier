@@ -2,18 +2,17 @@ import { getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { info } from '../libs/logger'
 import Twitch from '../libs/twitch'
-import * as TwitchEventSub from 'twitch-eventsub'
+import * as TwitchEventSub from '@twurple/eventsub'
 import { getAppLication, listened } from '../web'
 import { Stream } from '../entities/Stream'
-import localtunnel from 'localtunnel'
 import { listenedChannels } from '../cache/listenedChannels'
 import { Announcer } from '../libs/announcer'
+import { Express } from 'express' 
 
 class TwitchWatcherClass {
   private readonly channelsRepository = getConnection().getRepository(Channel)
   private readonly streamsRepository = getConnection().getRepository(Stream)
-  private adapter: TwitchEventSub.MiddlewareAdapter
-  private listener: TwitchEventSub.EventSubListener
+  private adapter: TwitchEventSub.EventSubMiddleware
 
   async init() {
     if (!Twitch.apiClient) {
@@ -21,33 +20,49 @@ class TwitchWatcherClass {
     }
     listenedChannels.clear()
 
-    this.adapter = new TwitchEventSub.MiddlewareAdapter({
+    this.adapter = new TwitchEventSub.EventSubMiddleware({
+      apiClient: Twitch.apiClient,
+      secret: process.env.TWITCH_CLIENT_ID,
       hostName: await this.getAdapterHostname(),
       pathPrefix: 'twitch/eventsub',
+      logger: {
+        minLevel: 'debug',
+      },
     })
 
-    this.listener = new TwitchEventSub.EventSubListener(Twitch.apiClient, this.adapter, process.env.TWITCH_EVENTSUB_SECRET || '0123456789')
-    await this.listener.applyMiddleware(getAppLication())
-
-    info(`TWITCH: EventSub starting unsubscribe from all channels.`)
-    // We need delete all subscriptions because our app URL can be changed.
-    await Twitch.apiClient.helix.eventSub.deleteAllSubscriptions()
+    await this.adapter.apply(getAppLication().getHttpAdapter() as unknown as Express)
     
+    await this.initChannels()
+
     // Add channels to watcher on start
-    this.initChannels().then(() => {
-      info(`TWITCH: EventSub watcher started.`)
-      info(`TWITCH: EventSub watcher: ${listenedChannels.size} channels.`)
-    })
+    info(`TWITCH: EventSub watcher started.`)
   }
 
-  async initChannels() {
+  private async initChannels() {
     if (!listened) {
       return setTimeout(() => this.initChannels(), 1000)
     }
 
-    for (const channel of await getConnection().getRepository(Channel).find()) {
-      info(`Adding channel ${channel.username}[${channel.id}] to watcher`)
-      this.addChannelToWatch(channel.id)
+    await this.adapter.markAsReady()
+
+    const channels = await getConnection().getRepository(Channel).find()
+    const currentSubscriptions = await Twitch.apiClient.eventSub.getSubscriptionsPaginated().getAll()
+
+    const hostname = await this.getAdapterHostname()
+    const forDelete = currentSubscriptions.filter((sub) => !sub._transport.callback.includes(hostname))
+
+    for (const sub of forDelete) {
+      const callback = sub._transport.callback
+      await sub.unsubscribe()
+      const message = `Deleting redutant subscription ${sub.type}${sub.condition.broadcaster_user_id}, domain: ${callback}`
+      info(`TWITCH: EventSub ${message}.`)
+    }
+
+    const forCreate = channels
+      .filter(channel => currentSubscriptions.find(sub => sub.condition.broadcaster_user_id == channel.id))
+
+    for (const channel of forCreate) {
+      await this.addChannelToWatch(channel.id)
     }
   }
   
@@ -71,7 +86,7 @@ class TwitchWatcherClass {
       id: channelId,
     }).save()
     
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(channelId) 
+    const stream = await Twitch.apiClient.streams.getStreamByUserId(channelId) 
 
     if (stream) {
       channel.online = true
@@ -91,19 +106,14 @@ class TwitchWatcherClass {
     const announcer = new Announcer(channelId)
     await announcer.init()
     
-    this.listener.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
-    this.listener.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
-    this.listener.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
+    this.adapter.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
+    this.adapter.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
+    this.adapter.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
     listenedChannels.add(channelId)
   }
 
   private async getAdapterHostname() {
-    let hostname: string
-    if (process.env.NODE_ENV === 'production') hostname = process.env.SITE_URL
-    else {
-      hostname = (await localtunnel(Number(process.env.PORT))).url
-      info(`EventSub: working with localtunnel. Current link is: ${hostname}`)
-    }
+    const hostname = process.env.SITE_URL
 
     return hostname.replace('http://', '').replace('https://', '')
   }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { HelixUser } from 'twitch/lib'
+import { HelixUser } from '@twurple/api'
 import { getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { Chat } from '../entities/Chat'
