@@ -53,7 +53,7 @@ export class Announcer {
     const latestStream = await this.getLatestStream(event.broadcasterId)
 
     const stream = await Twitch.apiClient.streams.getStreamByUserId(event.broadcasterId)
-    console.log(stream?.id !== latestStream?.id)
+
     if (stream?.id !== latestStream?.id) {
       this.announce({
         message: `

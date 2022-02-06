@@ -1,14 +1,10 @@
-import { Composer, InlineKeyboard } from 'grammy'
-import { followCommand } from '../../../commands/follow'
+import { Composer } from 'grammy'
 import { TelegramMessageSender } from '../MessageSender'
 import { Context } from '../types'
-import { Chat } from '../../../entities/Chat'
-import { I18n } from '../../../libs/i18n'
 import { Menu } from '@grammyjs/menu'
 import { getRepository } from 'typeorm'
 import { Follow } from '../../../entities/Follow'
 import Twitch from '../../../libs/twitch'
-import { InlineQueryResultArticle } from 'grammy/out/platform.node'
 import { unFollowCommand } from '../../../commands/unfollow'
 
 export const composer = new Composer<Context>()
@@ -81,35 +77,6 @@ composer.command('unfollow', async (ctx) => {
   ctx.session.menus.unfollow.totalPages = Math.ceil(follows / KEYBOARD_ITEMS_MAX_SIZE)
 
   ctx.reply(ctx.session.i18n.translate('scenes.unfollow.enter'), { 
-    /* reply_markup: new InlineKeyboard().switchInlineCurrent('Choose', '/unf'), */
     reply_markup: menu,
   })
 })
-
-composer.inlineQuery('/unf', async (ctx) => {
-  const follows = (await getRepository(Follow).find({ where: { chat: { chatId: String(ctx.from.id) } }, relations: ['chat', 'channel'] }))
-  const users = await Twitch.getUsers({ ids: follows.map(f => f.channel.id) })
-
-  const queryResult: InlineQueryResultArticle[] = users
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .map((u) => ({
-      type: 'article',
-      id: u.id,
-      title: u.displayName.toLowerCase() === u.name ? u.displayName : `${u.displayName} (${u.name})`,
-      input_message_content: {
-        message_text: u.id,
-      },
-      thumb_url: u.profilePictureUrl ?? u.offlinePlaceholderUrl,
-    }))
-
-  ctx.answerInlineQuery(queryResult)
-})
-
-async function followHelper(chat: Chat, channelName: string, i18n: I18n) {
-  const { message } = await followCommand({ chat, channelName, i18n })
-  
-  await TelegramMessageSender.sendMessage({
-    target: chat.chatId,
-    message,
-  })
-}
