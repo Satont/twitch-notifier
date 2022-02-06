@@ -1,9 +1,8 @@
 import { getConnection, In } from 'typeorm'
-import { CommandDecoratorOptions } from '../decorators/command'
 import { Chat, Services } from '../entities/Chat'
 
 export interface SendMessageOpts {
-  target: string | string[]
+  target: string | string[] | number | number[]
   message: string
   image?: string
 }
@@ -13,7 +12,6 @@ export const services: ServiceInterface[] = []
 export class ServiceInterface {
   inited = false
   service!: Services
-  commands: Array<{ name: string, fnc: string } & CommandDecoratorOptions>
 
   constructor({ service }: { service: Services }) {
     services.push(this)
@@ -33,7 +31,7 @@ export class ServiceInterface {
     if (!this.inited) return
     const targets = Array.isArray(opts.target) ? opts.target : [opts.target]
     const repository = getConnection().getRepository(Chat)
-    const chats = (await repository.find({ service: this.service, id: In(targets) })).map(c => c.id)
+    const chats = (await repository.find({ service: this.service, id: In(targets.map(t => t.toString())) })).map(c => c.id)
     this.sendMessage({ target: chats, ...opts })
   }
 }

@@ -25,9 +25,9 @@ const start = async () => {
 }
 start().catch(console.error)
 
-async function stopListen() {
-  (await import('./web')).getAppLication()?.close();
-  (await import('./services/telegram')).default?.bot?.stop()
+function stopListen() {
+  import('./web').then(web => web.getAppLication()?.close())
+  import('./services/telegram').then(service => service.default.bot.stop())
   process.exit(0)
 }
 

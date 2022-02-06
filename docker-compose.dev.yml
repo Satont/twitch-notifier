@@ -32,4 +32,4 @@ services:
   adminer:
     image: adminer
     ports:
-      - 3001:8080
+      - 30002:8080

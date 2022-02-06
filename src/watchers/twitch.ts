@@ -106,9 +106,9 @@ class TwitchWatcherClass {
     const announcer = new Announcer(channelId)
     await announcer.init()
     
-    this.adapter.subscribeToStreamOnlineEvents(channelId, async (event) => announcer.announceLive(event))
-    this.adapter.subscribeToStreamOfflineEvents(channelId, async (event) => announcer.announceOffline(event))
-    this.adapter.subscribeToChannelUpdateEvents(channelId, async (event) => announcer.announceUpdate(event))
+    this.adapter.subscribeToStreamOnlineEvents(channelId, (event) => announcer.announceLive(event))
+    this.adapter.subscribeToStreamOfflineEvents(channelId, (event) => announcer.announceOffline(event))
+    this.adapter.subscribeToChannelUpdateEvents(channelId, (event) => announcer.announceUpdate(event))
     listenedChannels.add(channelId)
   }
 

@@ -1,6 +1,8 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@grammyjs/menu': ^1.0.4
+  '@grammyjs/stateless-question': ^3.0.1
   '@nestjs/cli': ^7.6.0
   '@nestjs/common': ^7.6.18
   '@nestjs/core': ^7.6.18
@@ -26,6 +28,7 @@ specifiers:
   dotenv: ^8.6.0
   eslint: ^7.32.0
   glob: ^7.2.0
+  grammy: ^1.7.0
   hbs: ^4.2.0
   lodash: ^4.17.21
   nestjs-pino: ^1.4.0
@@ -37,12 +40,13 @@ specifiers:
   rotating-file-stream: ^2.1.6
   source-map-support: ^0.5.21
   strip-ansi: ^6.0.0
-  telegraf: ^3.39.0
   ts-node: ^9.1.1
   typeorm: ^0.2.41
   typescript: ^4.5.4
 
 dependencies:
+  '@grammyjs/menu': 1.0.4_grammy@1.7.0
+  '@grammyjs/stateless-question': 3.0.1_grammy@1.7.0
   '@nestjs/common': 7.6.18_7b9b9b3e05c083467f6ea6ec9c67c476
   '@nestjs/core': 7.6.18_2905b7d4f1c4c2da2611f40b55858b14
   '@nestjs/platform-express': 7.6.18_2664420588e0901c7943acb4693cbaf4
@@ -57,6 +61,7 @@ dependencies:
   dayjs: 1.10.7
   dotenv: 8.6.0
   glob: 7.2.0
+  grammy: 1.7.0
   hbs: 4.2.0
   lodash: 4.17.21
   nestjs-pino: 1.4.0
@@ -66,7 +71,6 @@ dependencies:
   rotating-file-stream: 2.1.6
   source-map-support: 0.5.21
   strip-ansi: 6.0.1
-  telegraf: 3.39.0
   typeorm: 0.2.41_pg@8.7.1
 
 devDependencies:
@@ -255,6 +259,30 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@grammyjs/menu/1.0.4_grammy@1.7.0:
+    resolution: {integrity: sha512-olBm2KtX54xiYn9IPgAITCxubgR7+4SC0FvvXfrLzXToBNX/06dAIoC7Gzp60UBXPTKsCfLzTwDLisa1aq4pQg==}
+    engines: {node: '>=12.20.0 || >=14.13.1'}
+    peerDependencies:
+      grammy: ^1.0.0
+    dependencies:
+      grammy: 1.7.0
+    dev: false
+
+  /@grammyjs/stateless-question/3.0.1_grammy@1.7.0:
+    resolution: {integrity: sha512-9S/ff+yPxEEFpFsjiu7UjsOhETt9jruAUNcfzfTJ9FTuyIEjcMpTLT8ncpWyNE2w8tWRTLmOpXHSswPohntH7w==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      grammy: ^1.2.0
+    dependencies:
+      '@grammyjs/types': 2.6.0
+      grammy: 1.7.0
+      telegram-format: 2.1.0
+    dev: false
+
+  /@grammyjs/types/2.6.0:
+    resolution: {integrity: sha512-eWckBf25l6xwSS2YO6Ioyf2BDEO7tyNZhgRLl5PzsdvqlHQR+XYTdKwhevsqLG4Y+zmF6hEXnuNTYu+HF8W8Sg==}
+    dev: false
 
   /@hapi/bourne/2.0.0:
     resolution: {integrity: sha512-WEezM1FWztfbzqIUbsDzFRVMxSoLy3HugVcux6KDDtTqzPsLE8NDRHfXvev66aH1i2oOKKar3/XDjbvh/OUBdg==}
@@ -973,6 +1001,13 @@ packages:
   /abbrev/1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
     dev: true
+
+  /abort-controller/3.0.0:
+    resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
+    engines: {node: '>=6.5'}
+    dependencies:
+      event-target-shim: 5.0.1
+    dev: false
 
   /accepts/1.3.7:
     resolution: {integrity: sha512-Il80Qs2WjYlJIBNzNkK6KYqlVMTbZLXgHx2oT0pU/fjRHyEp+PEfEPY0R3WCwAGVOtauxh1hOxNgIf5bv7dQpA==}
@@ -2000,6 +2035,11 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
+  /event-target-shim/5.0.1:
+    resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
+    engines: {node: '>=6'}
+    dev: false
+
   /events/3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -2356,6 +2396,18 @@ packages:
 
   /graceful-fs/4.2.9:
     resolution: {integrity: sha512-NtNxqUcXgpW2iMrfqSfR73Glt39K+BLwWsPs94yR63v45T0Wbej7eRmL5cWfwEgqXnmjQp3zaJTshdRW/qC2ZQ==}
+
+  /grammy/1.7.0:
+    resolution: {integrity: sha512-Xs4vRzCkSO+8CrFP8BXXOo4BGfBGWTPoDcbj8V3kz/c01XLNXI738HWv6/qjQ+IuPLnd/Qegjy7MBogbymogUg==}
+    engines: {node: ^12.20.0 || >=14.13.1}
+    dependencies:
+      '@grammyjs/types': 2.6.0
+      abort-controller: 3.0.0
+      debug: 4.3.3
+      node-fetch: 2.6.6
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /handlebars/4.7.7:
     resolution: {integrity: sha512-aAcXm5OAfE/8IXkcZvCepKU3VzW1/39Fb5ZuqMtgI/hT8X2YgoMvBY5dLhq/cpOvw7Lk1nK/UF71aLG/ZnVYRA==}
@@ -3041,10 +3093,6 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
-    dev: false
-
-  /module-alias/2.2.2:
-    resolution: {integrity: sha512-A/78XjoX2EmNvppVWEhM2oGk3x4lLxnkEA4jTbaK97QKSDjkIoOsKQlfylt/d3kKKi596Qy3NP5XrXJ6fZIC9Q==}
     dev: false
 
   /mri/1.1.4:
@@ -3761,11 +3809,6 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /sandwich-stream/2.0.2:
-    resolution: {integrity: sha512-jLYV0DORrzY3xaz/S9ydJL6Iz7essZeAfnAavsJ+zsJGZ1MOnsS52yRjU3uF3pJa/lla7+wisp//fxOwOH8SKQ==}
-    engines: {node: '>= 0.10'}
-    dev: false
-
   /sax/1.2.4:
     resolution: {integrity: sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==}
     dev: false
@@ -4100,19 +4143,9 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /telegraf/3.39.0:
-    resolution: {integrity: sha512-6u5UyW2KpMS/hwC4DKLGlicK/rVSYCahPFgF14ioP6BzwcDwQlciHCB/oWguvxLJaYGrvY6crzLHfjupFTBPXw==}
-    engines: {node: '>=8'}
-    hasBin: true
-    dependencies:
-      debug: 4.3.3
-      minimist: 1.2.5
-      module-alias: 2.2.2
-      node-fetch: 2.6.6
-      sandwich-stream: 2.0.2
-      typegram: 3.7.0
-    transitivePeerDependencies:
-      - supports-color
+  /telegram-format/2.1.0:
+    resolution: {integrity: sha512-V2thkhKzcNVL26h/ANeat/Z+AXBaDGoizs4cab6Kpq/w+d+Ai6M/AFFkuBwvCkZXqb+7UW2vt3Dko5+kKcOIHg==}
+    engines: {node: '>=12'}
     dev: false
 
   /terser-webpack-plugin/5.3.0_acorn@8.7.0+webpack@5.28.0:
@@ -4305,10 +4338,6 @@ packages:
 
   /typedarray/0.0.6:
     resolution: {integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=}
-    dev: false
-
-  /typegram/3.7.0:
-    resolution: {integrity: sha512-IafMO+GRi5H8CtWSNihuD56Bjpmj/ISbg6G8jdTkNxldrym+FOPlo/fxtaPs/LyWnS0l1Bm18MUDwOikZSKmJw==}
     dev: false
 
   /typeorm/0.2.41_pg@8.7.1:

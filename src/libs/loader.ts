@@ -28,7 +28,7 @@ export default async () => {
 
         const loadedFile = (await import(resolve(__dirname, '..', folder, file))).default
         if (!loadedFile) continue
-        if (typeof loadedFile.init !== 'undefined') await loadedFile.init()
+        if (loadedFile.init) await loadedFile.init()
 
         info(`${folders[folder]} ${loadedFile.constructor.name.toUpperCase()} loaded`)
       }

@@ -8,6 +8,7 @@ import Twitch from './twitch'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { info } from 'console'
+import { TelegramMessageSender } from '../services/telegram/MessageSender'
 
 dayjs.extend(relativeTime)
 
@@ -51,8 +52,8 @@ export class Announcer {
     if (event.streamType !== 'live') return
     const latestStream = await this.getLatestStream(event.broadcasterId)
 
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(event.broadcasterId)
-    
+    const stream = await Twitch.apiClient.streams.getStreamByUserId(event.broadcasterId)
+    console.log(stream?.id !== latestStream?.id)
     if (stream?.id !== latestStream?.id) {
       this.announce({
         message: `
@@ -64,6 +65,7 @@ export class Announcer {
         target: (await this.getChannelFollowers(this.channel.id)).map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
       })
+      info(`EventSub: Sended notification about ${event.broadcasterName}[${event.broadcasterId}].`)
     } else {
       info(`EventSub: Stream ${stream?.id} of ${event.broadcasterName}[${event.broadcasterId}] already in database, skipping announce.`)
     }
@@ -123,12 +125,10 @@ export class Announcer {
   }
 
   private announce(opts: SendMessageOpts) {
-    for (const service of services) {
-      service.makeAnnounce({
-        ...opts,
-        message: opts.message.replace(/  +/g, ''),
-      })
-    }
+    TelegramMessageSender.sendMessage({
+      ...opts,
+      message: opts.message.replace(/  +/g, ''),
+    })
   }
 
   private getThumnailUrl(url: string) {
