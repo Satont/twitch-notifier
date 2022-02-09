@@ -12,6 +12,20 @@ const lanugageMenu = new Menu<Context>('language', {
   },
 })
 
+lanugageMenu.dynamic((_ctx, range) => {
+  for (const key of Object.keys(i18n.translations)) {
+    const name = i18n.translations[key].language.name
+    const emoji = i18n.translations[key].language.emoji
+    range.text(`${emoji} ${name}`, async (ctx) => {
+      ctx.session.entity.settings.language = key
+      await ctx.session.entity.save()
+      ctx.session.i18n = i18n.clone(key)
+      ctx.editMessageText(ctx.session.i18n.translate('bot.description'))
+    })
+    range.row()
+  }
+})
+
 Object.keys(i18n.translations).forEach(key => {
   const name = i18n.translations[key].language.name
   const emoji = i18n.translations[key].language.emoji
