@@ -1,6 +1,7 @@
 import { Follow } from './Follow'
 import { Entity, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, Unique, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm'
 import { ChatSettings } from './ChatSettings'
+import { IgnoredCategory } from './IgnoredCategory'
 
 export enum Services {
   TELEGRAM = 'tg'
@@ -24,10 +25,13 @@ export class Chat extends BaseEntity {
   @UpdateDateColumn()
   updatedAt!: Date
 
-  @OneToMany(() => Follow, category => category.chat, { onDelete: 'CASCADE' })
+  @OneToMany(() => Follow, follow => follow.chat, { onDelete: 'CASCADE' })
   follows: Follow[]
 
   @OneToOne(() => ChatSettings, settings => settings.chat, { cascade: true, eager: true, onDelete: 'CASCADE' })
   @JoinColumn()
   settings: ChatSettings
+
+  @OneToMany(() => IgnoredCategory, category => category.chat, { onDelete: 'CASCADE' })
+  ingoredCategories: IgnoredCategory[]
 }

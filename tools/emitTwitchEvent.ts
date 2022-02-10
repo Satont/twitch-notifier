@@ -28,7 +28,7 @@ const command = [
   '-s',
   `${eventNamesMapping[eventName]}.${process.env.TWITCH_CLIENT_ID}`,
 ];
-execFile(resolve(__dirname, 'twitch-cli_1.1.5_Linux_x86_64'), command, (error, stdout, stderr) => {
+execFile(resolve(__dirname, 'twitch-cli'), command, (error, stdout, stderr) => {
   console.log('Executing: ' + command.join(' '));
 
   if (error) console.error('Error:', error);

@@ -28,6 +28,8 @@ services:
       POSTGRES_DB: notifier
     logging:
       driver: none
+    ports: 
+      - 30000:5432
 
   adminer:
     image: adminer

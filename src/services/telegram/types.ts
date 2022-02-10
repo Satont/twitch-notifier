@@ -9,7 +9,14 @@ interface SessionData {
     unfollow: {
       currentPage: number,
       totalPages: number
-    }
+    },
+    removeCategory: {
+      currentPage: number,
+      totalPages: number
+    },
+    categories: {
+      ignoreId: string,
+    },
   }
 }
 

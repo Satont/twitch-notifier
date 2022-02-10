@@ -3,7 +3,7 @@ import { getRepository, getConnection } from 'typeorm'
 import { Channel } from '../entities/Channel'
 import { Follow } from '../entities/Follow'
 import { Stream } from '../entities/Stream'
-import { SendMessageOpts, services } from '../services/_interface'
+import { SendMessageOpts } from '../services/_interface'
 import Twitch from './twitch'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -29,9 +29,11 @@ export class Announcer {
   private getChannelFollowers(channelId: string) {
     return getRepository(Follow).find({
       where: {
-        channel: { id: channelId },
+        channel: { 
+          id: channelId,
+        },
       },
-      relations: ['chat'],
+      relations: ['chat', 'chat.ingoredCategories'],
     })
   }
 
@@ -50,9 +52,11 @@ export class Announcer {
 
   async announceLive(event: EventSubStreamOnlineEvent) {
     if (event.streamType !== 'live') return
-    const latestStream = await this.getLatestStream(event.broadcasterId)
-
-    const stream = await Twitch.apiClient.streams.getStreamByUserId(event.broadcasterId)
+    const [latestStream, stream, targets] = await Promise.all([
+      this.getLatestStream(event.broadcasterId),
+      Twitch.apiClient.streams.getStreamByUserId(event.broadcasterId),
+      this.getChannelFollowers(this.channel.id),
+    ])
 
     if (stream?.id !== latestStream?.id) {
       this.announce({
@@ -62,7 +66,9 @@ export class Announcer {
           Title: ${stream.title}
           https://twitch.tv/${event.broadcasterName}
         `,
-        target: (await this.getChannelFollowers(this.channel.id)).map(f => f.chat.chatId),
+        target: targets
+          .filter(target => !target.chat.ingoredCategories.some(category => category.categoryId === stream.gameId))
+          .map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
       })
       info(`EventSub: Sended notification about ${event.broadcasterName}[${event.broadcasterId}].`)
@@ -99,7 +105,7 @@ export class Announcer {
   }
 
   async announceUpdate(event: EventSubChannelUpdateEvent) {
-    const stream = await Twitch.apiClient.helix.streams.getStreamByUserId(event.broadcasterId)
+    const stream = await Twitch.apiClient.streams.getStreamByUserId(event.broadcasterId)
     if (stream?.type !== 'live') return
 
     const latestStream = await this.getLatestStream(event.broadcasterId)
@@ -110,7 +116,9 @@ export class Announcer {
           Previous category: ${latestStream?.category}
           https://twitch.tv/${event.broadcasterName}
         `,
-        target: (await this.getChannelFollowers(this.channel.id)).filter(f => f.chat.settings.game_change_notification).map(f => f.chat.chatId),
+        target: (await this.getChannelFollowers(this.channel.id))
+          .filter(target => !target.chat.ingoredCategories.some(category => category.categoryId === event.categoryId))
+          .map(f => f.chat.chatId),
         image: this.getThumnailUrl(stream.thumbnailUrl),
       })
     }

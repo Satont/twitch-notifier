@@ -10,6 +10,13 @@ export const middleware = session({
         currentPage: 0,
         totalPages: 0,
       },
+      removeCategory: {
+        currentPage: 0,
+        totalPages: 0,
+      },
+      categories: {
+        ignoreId: '',
+      },
     },
   }),
 })

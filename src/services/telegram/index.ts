@@ -2,7 +2,7 @@ import { Bot } from 'grammy'
 import { Services } from '../../entities/Chat'
 import { error, warning } from '../../libs/logger'
 import { ServiceInterface } from '../_interface'
-import { clearFollowsComposer, followComposer, followsComposer, liveComposer, settingsComposer, unfollowComposer } from './composers'
+import { categoriesComposer, clearFollowsComposer, followComposer, followsComposer, liveComposer, settingsComposer, unfollowComposer } from './composers'
 import { i18nMiddleware, sessionMiddleware, userEntityMiddleware } from './middlewares'
 import { Context } from './types'
 
@@ -30,6 +30,7 @@ class TelegramService extends ServiceInterface {
     this.bot.use(clearFollowsComposer)
     this.bot.use(liveComposer)
     this.bot.use(followsComposer)
+    this.bot.use(categoriesComposer)
 
     this.bot.catch(err => {
       error(err)
@@ -46,6 +47,7 @@ class TelegramService extends ServiceInterface {
       { command: 'start', description: 'Start command' },
       { command: 'settings', description: 'Settings menu.' },
       { command: 'clearfollows', description: 'Unfollow from all users.' },
+      { command: 'categories', description: 'Manage categories.' },
     ])
     this.bot.start()
   }
