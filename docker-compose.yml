@@ -8,3 +8,11 @@ services:
       - 3000:3000
     env_file:
       - ./.env
+  db:
+    image: postgres:13
+    restart: always
+    command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all
+    environment:
+      POSTGRES_USER: notifier
+      POSTGRES_PASSWORD: notifier
+      POSTGRES_DB: notifier
