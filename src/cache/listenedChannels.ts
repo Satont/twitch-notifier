@@ -1,1 +1,0 @@
-export const listenedChannels: Set<string> = new Set()

@@ -1,0 +1,18 @@
+mode: set
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:14.114,19.16 2 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:19.16,21.3 1 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:23.2,27.16 2 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:27.16,29.3 1 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:31.2,31.21 1 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:34.86,36.16 2 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:36.16,38.3 1 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:40.2,46.16 2 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:46.16,48.3 1 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:50.2,50.16 1 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:53.87,59.16 2 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:59.16,61.3 1 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:63.2,63.16 1 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:66.98,73.16 2 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:73.16,75.3 1 0
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:77.2,77.21 1 1
+github.com/satont/twitch-notifier/internal/services/db/chat_impl.go:80.58,84.2 1 0

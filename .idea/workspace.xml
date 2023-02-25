@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/coverage.out" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat/chat.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat/where.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat_create.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat_delete.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat_query.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chat_update.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings/chatsettings.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings/where.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings_create.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings_delete.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings_query.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/chatsettings_update.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/config.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/context.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/ent.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/enttest/enttest.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/generate.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/hook/hook.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/migrate/migrate.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/migrate/schema.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/mutation.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/predicate/predicate.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/runtime.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/runtime/runtime.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/schema/chat.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/schema/chat_settings.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ent/tx.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/init.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/config/config.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/chat_impl.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/chat_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/interfaces.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/twitch/chunked_req.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/twitch/implementation.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/twitch/interface.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/twitch/rate_limiter.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/twitch_streams_cheker/interface.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/types/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.eslintrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/FUNDING.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/dockerimage.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.npmrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CNAME" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile.dev" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowdin.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.dev.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/commands/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/commands/follows.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/commands/live.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/commands/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/commands/unfollowall.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/composers/categories.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/scenes/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/en/scenes/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/commands/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/commands/follows.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/commands/live.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/commands/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/commands/unfollowall.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/composers/categories.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/scenes/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/ru/scenes/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/commands/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/commands/follows.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/commands/live.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/commands/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/commands/unfollowall.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/scenes/follow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/locales/uk/scenes/unfollow.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nest-cli.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nodemon.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/bootstrap.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/styles.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cache/listenedChannels.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/follow.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/follows.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/live.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/unFollowAll.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commands/unfollow.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/commons/stacktrace.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Channel.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Chat.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/ChatSettings.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Follow.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/IgnoredCategory.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entities/Stream.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libs/announcer.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libs/i18n.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libs/loader.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libs/logger.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/libs/twitch.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1607025517426-initial.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1607032700368-remove_locales_enums.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1607457119367-offline_notifications.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1618419645268-no_nullable_follows.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1626048220050-latestStreamIdColumn.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1629234153096-add_streams.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1629237450026-store_channel_and_title_in_streams.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1630512788842-cascade_deletes.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1630512788850-remove_vk.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/migrations/1644513838591-ignoredCategories.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/_interface.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/MessageSender.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/categories.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/clearfollows.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/follow.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/follows.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/live.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/settings.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/composers/unfollow.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/middlewares/entity.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/middlewares/i18n.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/middlewares/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/middlewares/session.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/telegram/types.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typings/telegraf.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/typings/twitch.d.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/watchers/twitch.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/app.controller.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/app.module.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/app.service.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/emitTwitchEvent.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/twitch-cli" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.build.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/layouts/index.hbs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/pages/home.hbs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/pages/top.hbs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/partials/head.hbs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/partials/navbar.hbs" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file:///usr/lib/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2MDuRFmBeY3VO719NhVWOma2AnE" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/satont/Projects/twitch-notifier/ent/schema&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/opt/intellij-idea-ultimate-edition/plugins/javascript-impl/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ent/schema" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Makefile Target.test">
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build chat_impl.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/internal/services/db/chat_impl.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestChatService_Create in github.com/satont/twitch-notifier/internal/services/db" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$/internal/services/db" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/satont/twitch-notifier/internal/services/db" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestChatService_Create\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestChatService_Create/Create#01 in github.com/satont/twitch-notifier/internal/services/db" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$/internal/services/db" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/satont/twitch-notifier/internal/services/db" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestChatService_Create\E$/^\QCreate#01\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$" />
+      <go_parameters value="-i" />
+      <kind value="DIRECTORY" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test github.com/satont/twitch-notifier/internal/services/db" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="twitch-notifier" />
+      <working_directory value="$PROJECT_DIR$/internal/services/db" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/satont/twitch-notifier/internal/services/db" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="test" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Makefile Target.test" />
+        <item itemvalue="Go Test.go test github.com/satont/twitch-notifier/internal/services/db" />
+        <item itemvalue="Go Test.TestChatService_Create in github.com/satont/twitch-notifier/internal/services/db" />
+        <item itemvalue="Go Test.TestChatService_Create/Create#01 in github.com/satont/twitch-notifier/internal/services/db" />
+        <item itemvalue="Go Build.go build chat_impl.go" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="" />
+      <created>1677314464543</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1677314464543</updated>
+      <workItem from="1677314465738" duration="206000" />
+      <workItem from="1677314676059" duration="16487000" />
+      <workItem from="1677334213191" duration="11766000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="javascript:npm:hbs" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

@@ -1,0 +1,11 @@
+package types
+
+import (
+	"github.com/satont/twitch-notifier/internal/services/db"
+	"github.com/satont/twitch-notifier/internal/services/twitch"
+)
+
+type Services struct {
+	Twitch twitch.TwitchService
+	Chat   db.ChatInterface
+}
