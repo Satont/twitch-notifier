@@ -32,11 +32,14 @@ func NewTelegram(token string, services *types.Services) *telegramService {
 				SessionManager: sessionManager,
 			}})
 
-	commands.NewStartCommand(&tg_types.CommandOpts{
+	commandOpts := &tg_types.CommandOpts{
 		Services:       services,
 		Router:         router,
 		SessionManager: sessionManager,
-	})
+	}
+
+	commands.NewStartCommand(commandOpts)
+	commands.NewFollowCommand(commandOpts)
 
 	poller := tgb.NewPoller(router, client)
 
