@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
-      <change afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/channel_mock.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/follow_mock.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/channel_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/channel_impl.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/telegram.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/telegram.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/follow.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/follow_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +140,7 @@
       <workItem from="1677314465738" duration="206000" />
       <workItem from="1677314676059" duration="16487000" />
       <workItem from="1677334213191" duration="11766000" />
-      <workItem from="1677372966403" duration="35429000" />
+      <workItem from="1677372966403" duration="36575000" />
     </task>
     <task id="LOCAL-00001" summary="upd rageywide">
       <created>1677382369646</created>
@@ -206,7 +205,14 @@
       <option name="project" value="LOCAL" />
       <updated>1677405392651</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="upd rageywide">
+      <created>1677408996702</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1677408996702</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

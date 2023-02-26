@@ -12,9 +12,7 @@ type FollowCommand struct {
 	*tg_types.CommandOpts
 }
 
-func (c *FollowCommand) createFollow(ctx context.Context, input string) (*ent.Follow, error) {
-	chat := c.SessionManager.Get(ctx).Chat
-
+func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input string) (*ent.Follow, error) {
 	twitchChannel, err := c.Services.Twitch.GetUser("", input)
 	if err != nil {
 		return nil, err
@@ -34,7 +32,9 @@ func (c *FollowCommand) createFollow(ctx context.Context, input string) (*ent.Fo
 }
 
 func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
-	_, err := c.createFollow(ctx, msg.Text)
+	chat := c.SessionManager.Get(ctx).Chat
+
+	_, err := c.createFollow(ctx, chat, msg.Text)
 	if err != nil {
 		return err
 	}
