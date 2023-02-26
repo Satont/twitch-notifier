@@ -49,6 +49,16 @@ func TestFollow(t *testing.T) {
 	}
 	f := &ent.Follow{}
 
+	follow := &FollowCommand{
+		&tg_types.CommandOpts{
+			Services: &types.Services{
+				Twitch:  mockedTwitch,
+				Channel: channelsMock,
+				Follow:  followsMock,
+			},
+		},
+	}
+
 	// table tests
 	table := []struct {
 		name       string
@@ -82,15 +92,6 @@ func TestFollow(t *testing.T) {
 	for _, tt := range table {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setupMocks()
-			follow := &FollowCommand{
-				&tg_types.CommandOpts{
-					Services: &types.Services{
-						Twitch:  mockedTwitch,
-						Channel: channelsMock,
-						Follow:  followsMock,
-					},
-				},
-			}
 
 			got, err := follow.createFollow(ctx, chat, tt.input)
 			if tt.wantErr {
