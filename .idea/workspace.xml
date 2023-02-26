@@ -4,28 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker-compose.dev.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/services/db/channel_impl.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/services/db/follow_impl.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/services/twitch/mock.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/twitch-notifier.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/twitch-notifier.iml" afterDir="false" />
+    <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
+      <change afterPath="$PROJECT_DIR$/internal/services/db/stream_impl.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/telegram/commands/start.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/telegram/middlewares/chat.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/telegram/middlewares/logg.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/telegram/telegram.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/telegram/types/session.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Taskfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/coverage.out" beforeDir="false" afterPath="$PROJECT_DIR$/coverage.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ent/schema/chat.go" beforeDir="false" afterPath="$PROJECT_DIR$/ent/schema/chat.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ent/schema/chat_settings.go" beforeDir="false" afterPath="$PROJECT_DIR$/ent/schema/chat_settings.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/config/config.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/db/chat_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_impl.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/db/chat_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/db/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/twitch/implementation.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/twitch/implementation.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/twitch/interface.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/twitch/interface.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/twitch_streams_cheker/interface.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/twitch_streams_cheker/interface.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/types/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/types/types.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,8 +142,16 @@
       <workItem from="1677314465738" duration="206000" />
       <workItem from="1677314676059" duration="16487000" />
       <workItem from="1677334213191" duration="11766000" />
-      <workItem from="1677372966403" duration="9165000" />
+      <workItem from="1677372966403" duration="20968000" />
     </task>
+    <task id="LOCAL-00001" summary="upd rageywide">
+      <created>1677382369646</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1677382369646</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -159,6 +162,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="upd rageywide" />
+    <option name="LAST_COMMIT_MESSAGE" value="upd rageywide" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

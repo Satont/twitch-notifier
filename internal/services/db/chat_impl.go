@@ -32,17 +32,16 @@ func (c *chatService) Update(chatId string, service chat.Service, settings *ent.
 }
 
 func (c *chatService) Create(chatId string, service chat.Service) (*ent.Chat, error) {
-	settings, err := c.entClient.ChatSettings.Create().Save(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
 	ch, err := c.entClient.Chat.
 		Create().
 		SetChatID(chatId).
 		SetService(service).
-		SetSettings(settings).
 		Save(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = c.entClient.ChatSettings.Create().SetChatID(ch.ID).Save(context.Background())
 	if err != nil {
 		return nil, err
 	}

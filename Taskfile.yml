@@ -12,3 +12,13 @@ tasks:
         --dir "file://ent/migrate/migrations"
         --to "ent://ent/schema"
         --dev-url "docker://postgres/15/test?search_path=public"
+
+  dev:
+    deps: [generate]
+    cmds:
+      - go run ./cmd/main.go
+
+  tests:
+    deps: [generate]
+    cmds:
+      - go test -v ./...

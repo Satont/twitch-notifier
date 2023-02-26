@@ -1,6 +1,8 @@
 package twitch_streams_cheker
 
 import (
+	"context"
+	"fmt"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"time"
 )
@@ -17,16 +19,17 @@ func NewTwitchStreamCheker(twitch twitch.Interface) *twitchStreamCheker {
 	return checker
 }
 
-func (t *twitchStreamCheker) StartPolling() {
+func (t *twitchStreamCheker) StartPolling(ctx context.Context) {
 	go func() {
 		for {
-			t.Check()
-
-			time.Sleep(1 * time.Minute)
+			select {
+			case <-time.After(1 * time.Minute):
+				fmt.Println("polled")
+			case <-ctx.Done():
+				return
+			}
 		}
 	}()
-
-	return
 }
 
 func (t *twitchStreamCheker) Check() {
