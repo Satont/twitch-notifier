@@ -5,12 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
-      <change beforePath="$PROJECT_DIR$/internal/services/db/channel_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/channel_impl.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/chat_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_impl.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/chat_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/Tests.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/services/db/follow_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/db/follow_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/follow_impl.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/services/db/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/stream_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/stream_impl.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/start.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/start.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,6 +53,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "do.not.suggest.installing.go.template.plugin": "true",
     "go.import.settings.migrated": "true",
@@ -118,21 +119,6 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
-    <configuration name="Tests" type="ShConfigurationType">
-      <option name="SCRIPT_TEXT" value="clear &amp;&amp; task tests" />
-      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
-      <option name="SCRIPT_PATH" value="task tests" />
-      <option name="SCRIPT_OPTIONS" value="" />
-      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
-      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
-      <option name="INTERPRETER_PATH" value="/bin/zsh" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="EXECUTE_IN_TERMINAL" value="true" />
-      <option name="EXECUTE_SCRIPT_FILE" value="false" />
-      <envs />
-      <method v="2" />
-    </configuration>
     <list>
       <item itemvalue="Go Test.Tests" />
       <item itemvalue="Go Test.Test i18n" />
@@ -155,7 +141,7 @@
       <workItem from="1677314465738" duration="206000" />
       <workItem from="1677314676059" duration="16487000" />
       <workItem from="1677334213191" duration="11766000" />
-      <workItem from="1677372966403" duration="29485000" />
+      <workItem from="1677372966403" duration="31451000" />
     </task>
     <task id="LOCAL-00001" summary="upd rageywide">
       <created>1677382369646</created>
@@ -192,7 +178,21 @@
       <option name="project" value="LOCAL" />
       <updated>1677402708931</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="upd rageywide">
+      <created>1677403064855</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1677403064855</updated>
+    </task>
+    <task id="LOCAL-00007" summary="upd rageywide">
+      <created>1677403132654</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1677403132654</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

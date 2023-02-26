@@ -29,8 +29,8 @@ type ChannelInterface interface {
 }
 
 type FollowInterface interface {
-	Create(_ context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) (*ent.Follow, error)
-	Delete(_ context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) error
+	Create(_ context.Context, channelID uuid.UUID, chatID uuid.UUID) (*ent.Follow, error)
+	Delete(_ context.Context, id uuid.UUID) error
 }
 
 type StreamUpdateQuery struct {
