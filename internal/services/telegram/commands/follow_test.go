@@ -31,6 +31,7 @@ func TestFollow(t *testing.T) {
 	mockedTwitch := &twitch.MockedService{}
 	channelsMock := &db.ChannelMock{}
 	followsMock := &db.FollowMock{}
+
 	user := &helix.User{
 		ID:          "1",
 		Login:       login,
@@ -48,24 +49,61 @@ func TestFollow(t *testing.T) {
 	}
 	f := &ent.Follow{}
 
-	follow := &FollowCommand{
-		&tg_types.CommandOpts{
-			Services: &types.Services{
-				Twitch:  mockedTwitch,
-				Channel: channelsMock,
-				Follow:  followsMock,
+	// table tests
+	table := []struct {
+		name       string
+		input      string
+		want       *ent.Follow
+		wantErr    bool
+		setupMocks func()
+	}{
+		{
+			name:    "Should fail because of GetUser error",
+			input:   "fukushine2",
+			want:    nil,
+			wantErr: true,
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", "", "fukushine2").Return((*helix.User)(nil), nil)
+			},
+		},
+		{
+			name:    "Should create",
+			input:   login,
+			want:    f,
+			wantErr: false,
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", "", login).Return(user, nil)
+				channelsMock.On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
+				followsMock.On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
 			},
 		},
 	}
 
-	mockedTwitch.On("GetUser", "", login).Return(user, nil)
-	channelsMock.On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
-	followsMock.On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
+	for _, tt := range table {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks()
+			follow := &FollowCommand{
+				&tg_types.CommandOpts{
+					Services: &types.Services{
+						Twitch:  mockedTwitch,
+						Channel: channelsMock,
+						Follow:  followsMock,
+					},
+				},
+			}
 
-	_, err := follow.createFollow(ctx, chat, login)
-	assert.NoError(t, err)
+			got, err := follow.createFollow(ctx, chat, tt.input)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, tt.want, got)
 
-	mockedTwitch.AssertExpectations(t)
-	channelsMock.AssertExpectations(t)
-	followsMock.AssertExpectations(t)
+			mockedTwitch.AssertExpectations(t)
+			channelsMock.AssertExpectations(t)
+			followsMock.AssertExpectations(t)
+		})
+	}
+
 }
