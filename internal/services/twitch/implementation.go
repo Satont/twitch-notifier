@@ -10,7 +10,7 @@ type twitchService struct {
 	apiClient *helix.Client
 }
 
-func NewTwitchService(clientId string, clientSecret string) (TwitchService, error) {
+func NewTwitchService(clientId string, clientSecret string) (Interface, error) {
 	apiClient, err := helix.NewClient(&helix.Options{
 		ClientID:      clientId,
 		ClientSecret:  clientSecret,

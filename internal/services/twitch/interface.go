@@ -4,7 +4,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 )
 
-type TwitchService interface {
+type Interface interface {
 	GetUser(id, login string) (*helix.User, error)
 	GetUsers(ids, logins []string) ([]helix.User, error)
 

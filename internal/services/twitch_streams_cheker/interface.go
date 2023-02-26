@@ -6,23 +6,27 @@ import (
 )
 
 type twitchStreamCheker struct {
-	twitch twitch.TwitchService
+	twitch twitch.Interface
 }
 
-func NewTwitchStreamCheker(twitch twitch.TwitchService) *twitchStreamCheker {
+func NewTwitchStreamCheker(twitch twitch.Interface) *twitchStreamCheker {
 	checker := &twitchStreamCheker{
 		twitch: twitch,
 	}
 
+	return checker
+}
+
+func (t *twitchStreamCheker) StartPolling() {
 	go func() {
 		for {
-			checker.Check()
+			t.Check()
 
 			time.Sleep(1 * time.Minute)
 		}
 	}()
 
-	return checker
+	return
 }
 
 func (t *twitchStreamCheker) Check() {

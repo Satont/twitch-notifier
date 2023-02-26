@@ -28,13 +28,16 @@ func (ChatSettings) Fields() []ent.Field {
 		field.Bool("game_change_notification").Default(true),
 		field.Bool("offline_notification").Default(true),
 		field.Enum("chat_language").Values(ChatLanguageRu.String(), ChatLanguageEn.String()).Default(ChatLanguageEn.String()),
+		field.UUID("chat_id", uuid.UUID{}),
 	}
 }
 
 func (ChatSettings) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("owner", Chat.Type).
-			Ref("chat_settings").
-			Unique(),
+		edge.From("chat", Chat.Type).
+			Ref("settings").
+			Unique().
+			Field("chat_id").
+			Required(),
 	}
 }

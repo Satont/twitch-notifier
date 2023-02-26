@@ -43,7 +43,8 @@ func (Chat) Indexes() []ent.Index {
 
 func (Chat) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("chat_settings", ChatSettings.Type).Unique().Required(),
+		edge.To("settings", ChatSettings.Type).Unique(),
+		//edge.To("id", ChatSettings.Type).Unique().Required(),
 		edge.To("follows", Follow.Type),
 	}
 }

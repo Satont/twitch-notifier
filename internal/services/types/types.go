@@ -6,6 +6,8 @@ import (
 )
 
 type Services struct {
-	Twitch twitch.TwitchService
-	Chat   db.ChatInterface
+	Twitch  twitch.Interface
+	Chat    db.ChatInterface
+	Channel db.ChannelInterface
+	Follow  db.FollowInterface
 }

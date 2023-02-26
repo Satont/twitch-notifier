@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -14,6 +15,9 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/twitch_streams_cheker"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -62,17 +66,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	chatService := db.NewChatService(client)
-
 	services := &types.Services{
-		Twitch: twitchService,
-		Chat:   chatService,
+		Twitch:  twitchService,
+		Chat:    db.NewChatService(client),
+		Channel: db.NewChannelService(client),
+		Follow:  db.NewFollowService(client),
 	}
 
-	twitch_streams_cheker.NewTwitchStreamCheker(services.Twitch)
+	twitch_streams_cheker.NewTwitchStreamCheker(services.Twitch).StartPolling()
 
-	//spew.Dump(chatService.GetByID("1"))
-	//spew.Dump(chatService.GetFollowsByID("1"))
-
-	twitchService.GetUser("", "fukushine")
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-exitSignal
+	fmt.Println("Closing...")
 }

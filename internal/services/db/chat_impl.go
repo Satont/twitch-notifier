@@ -22,7 +22,7 @@ func (c *chatService) Update(chatId string, service chat.Service, settings *ent.
 
 	newChat, err := c.entClient.Chat.
 		UpdateOne(ch).
-		SetChatSettings(settings).
+		SetSettings(settings).
 		Save(context.Background())
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (c *chatService) Create(chatId string, service chat.Service) (*ent.Chat, er
 		Create().
 		SetChatID(chatId).
 		SetService(service).
-		SetChatSettings(settings).
+		SetSettings(settings).
 		Save(context.Background())
 	if err != nil {
 		return nil, err
@@ -55,6 +55,14 @@ func (c *chatService) GetByID(chatId string, service chat.Service) (*ent.Chat, e
 		Query().
 		Where(chat.ChatID(chatId), chat.ServiceEQ(service)).
 		Only(context.Background())
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
