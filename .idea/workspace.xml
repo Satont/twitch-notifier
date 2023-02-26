@@ -119,7 +119,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Tests" type="ShConfigurationType">
-      <option name="SCRIPT_TEXT" value="task tests" />
+      <option name="SCRIPT_TEXT" value="clear &amp;&amp; task tests" />
       <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
       <option name="SCRIPT_PATH" value="task tests" />
       <option name="SCRIPT_OPTIONS" value="" />
