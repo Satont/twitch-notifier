@@ -5,17 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
-      <change afterPath="$PROJECT_DIR$/cmd/i18n/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/locales/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/locales/en/commands/follow.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/i18n/helpers.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/i18n/i18n.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/i18n/i18n_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/i18n/test_locales/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/i18n/test_locales/en/nested/world.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/i18n/i18n.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/middlewares/chat.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/middlewares/chat.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/telegram.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/telegram.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/types/session.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/types/session.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/types/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/types/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/i18n/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/i18n/i18n.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +55,7 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "WebServerToolWindowFactoryState": "false",
+    "do.not.suggest.installing.go.template.plugin": "true",
     "go.import.settings.migrated": "true",
     "last_opened_file_path": "/home/satont/Projects/twitch-notifier/ent/schema",
     "node.js.detected.package.eslint": "true",
@@ -151,7 +148,7 @@
       <workItem from="1677314465738" duration="206000" />
       <workItem from="1677314676059" duration="16487000" />
       <workItem from="1677334213191" duration="11766000" />
-      <workItem from="1677372966403" duration="27309000" />
+      <workItem from="1677372966403" duration="28010000" />
     </task>
     <task id="LOCAL-00001" summary="upd rageywide">
       <created>1677382369646</created>
@@ -167,7 +164,14 @@
       <option name="project" value="LOCAL" />
       <updated>1677394570863</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="upd rageywide">
+      <created>1677400943316</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1677400943316</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

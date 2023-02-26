@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -29,7 +29,7 @@ func NewI18n(localesPath string) (*I18n, error) {
 		name := strings.Replace(entry.Name(), ".json", "", 1)
 
 		fileContent := make(map[string]any)
-		f, err := os.ReadFile(path.Join(localesPath, entry.Name()))
+		f, err := os.ReadFile(filepath.Join(localesPath, entry.Name()))
 		if err != nil {
 			return nil, err
 		}
@@ -38,13 +38,13 @@ func NewI18n(localesPath string) (*I18n, error) {
 	}
 
 	for langCode, _ := range translations {
-		langNestedDirs, err := os.ReadDir(path.Join(localesPath, langCode))
+		langNestedDirs, err := os.ReadDir(filepath.Join(localesPath, langCode))
 		if err != nil {
 			return nil, err
 		}
 
 		for _, dir := range langNestedDirs {
-			files, err := os.ReadDir(path.Join(localesPath, langCode, dir.Name()))
+			files, err := os.ReadDir(filepath.Join(localesPath, langCode, dir.Name()))
 			if err != nil {
 				return nil, err
 			}
@@ -53,7 +53,7 @@ func NewI18n(localesPath string) (*I18n, error) {
 
 			for _, file := range files {
 				fileContent := make(map[string]any)
-				f, err := os.ReadFile(path.Join(localesPath, langCode, dir.Name(), file.Name()))
+				f, err := os.ReadFile(filepath.Join(localesPath, langCode, dir.Name(), file.Name()))
 				if err != nil {
 					return nil, err
 				}

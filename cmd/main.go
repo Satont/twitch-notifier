@@ -11,14 +11,21 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/twitch_streams_cheker"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/pkg/i18n"
 	"go.uber.org/zap"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 )
 
 func main() {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalln(err)
@@ -45,11 +52,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	i18, err := i18n.NewI18n(filepath.Join(wd, "locales"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	services := &types.Services{
 		Twitch:  twitchService,
 		Chat:    db.NewChatService(client),
 		Channel: db.NewChannelService(client),
 		Follow:  db.NewFollowService(client),
+		I18N:    i18,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

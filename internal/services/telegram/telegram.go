@@ -19,9 +19,7 @@ type telegramService struct {
 func NewTelegram(token string, services *types.Services) *telegramService {
 	client := tg.New(token)
 
-	var sessionManager = session.NewManager(tg_types.Session{
-		PizzaCount: 0,
-	})
+	var sessionManager = session.NewManager(tg_types.Session{})
 
 	router := tgb.NewRouter().
 		Use(sessionManager).
@@ -29,8 +27,10 @@ func NewTelegram(token string, services *types.Services) *telegramService {
 			Services: services,
 		}).
 		Use(&middlewares.ChatMiddleware{
-			Services: services,
-		})
+			MiddlewareOpts: &tg_types.MiddlewareOpts{
+				Services:       services,
+				SessionManager: sessionManager,
+			}})
 
 	commands.NewStartCommand(&tg_types.CommandOpts{
 		Services:       services,

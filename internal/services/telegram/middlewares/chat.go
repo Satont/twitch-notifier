@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/satont/twitch-notifier/ent/chat"
-	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"go.uber.org/zap"
 )
 
 type ChatMiddleware struct {
-	Services *types.Services
+	*tg_types.MiddlewareOpts
 }
 
 func (c *ChatMiddleware) Wrap(next tgb.Handler) tgb.Handler {
@@ -30,7 +30,7 @@ func (c *ChatMiddleware) Wrap(next tgb.Handler) tgb.Handler {
 			}
 		}
 
-		zap.L().Info("chat", zap.Any("user", user))
+		c.SessionManager.Get(ctx).Chat = user
 
 		return next.Handle(ctx, update)
 	})
