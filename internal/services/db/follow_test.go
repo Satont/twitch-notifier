@@ -10,7 +10,7 @@ import (
 
 func FollowCreateTest(t *testing.T) {
 	entClient, err := setupTest()
-	assert.Nil(t, err, "Expects err to be nil")
+	assert.NoError(t, err)
 	defer teardownTest(entClient)
 
 	ctx := context.Background()
@@ -20,13 +20,13 @@ func FollowCreateTest(t *testing.T) {
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", chat.ServiceTelegram)
-	assert.Nil(t, err, "Expects err to be nil")
+	assert.NoError(t, err)
 
 	newChannel, err := channelsService.Create(ctx, "1", channel.ServiceTwitch)
-	assert.Nil(t, err, "Expects err to be nil")
+	assert.NoError(t, err)
 
 	f, err := service.Create(ctx, newChannel.ID, newChat.ID)
-	assert.Nil(t, err, "Expects err to be nil")
+	assert.NoError(t, err)
 	assert.Equal(t, newChannel.ID, f.Edges.Channel.ID, "Expects channel_id to be equal.")
 	assert.Equal(t, newChat.ID, f.Edges.Chat.ID, "Expects chat_id to be equal.")
 }
