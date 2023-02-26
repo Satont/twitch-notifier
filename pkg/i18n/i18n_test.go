@@ -3,7 +3,7 @@ package i18n
 import (
 	"github.com/stretchr/testify/assert"
 	"os"
-	"path"
+	"path/filepath"
 	"testing"
 )
 
@@ -13,7 +13,7 @@ func TestNewI18n(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tt, err := NewI18n(path.Join(wd, "pkg", "i18n", "test_locales"))
+	tt, err := NewI18n(filepath.Join(wd, "test_locales"))
 	if err != nil {
 		t.Fatal(err)
 	}

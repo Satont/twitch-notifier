@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
-      <change beforePath="$PROJECT_DIR$/cmd/i18n/i18n.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/middlewares/chat.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/middlewares/chat.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/telegram.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/telegram.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/types/session.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/types/session.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/types/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/types/types.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/i18n/i18n.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/i18n/i18n.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/db/chat_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_impl.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/db/chat_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/start.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/start.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/i18n/i18n_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/i18n/i18n_test.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +77,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.Test i18n">
+  <component name="RunManager" selected="Shell Script.Tests">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="twitch-notifier" />
       <working_directory value="$PROJECT_DIR$" />
@@ -119,21 +118,29 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
-    <configuration name="test" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="test" workingDirectory="" arguments="">
-        <envs />
-      </makefile>
+    <configuration name="Tests" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="task tests" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="task tests" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="false" />
+      <envs />
       <method v="2" />
     </configuration>
     <list>
       <item itemvalue="Go Test.Tests" />
       <item itemvalue="Go Test.Test i18n" />
-      <item itemvalue="Makefile Target.test" />
+      <item itemvalue="Shell Script.Tests" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Go Test.Test i18n" />
-        <item itemvalue="Makefile Target.test" />
       </list>
     </recent_temporary>
   </component>
@@ -148,7 +155,7 @@
       <workItem from="1677314465738" duration="206000" />
       <workItem from="1677314676059" duration="16487000" />
       <workItem from="1677334213191" duration="11766000" />
-      <workItem from="1677372966403" duration="28010000" />
+      <workItem from="1677372966403" duration="29128000" />
     </task>
     <task id="LOCAL-00001" summary="upd rageywide">
       <created>1677382369646</created>
@@ -171,7 +178,14 @@
       <option name="project" value="LOCAL" />
       <updated>1677400943316</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="upd rageywide">
+      <created>1677401671546</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1677401671546</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

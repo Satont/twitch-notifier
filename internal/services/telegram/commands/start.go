@@ -22,7 +22,7 @@ func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate
 	)
 	keyBoard := tg.NewInlineKeyboardMarkup(layout.Keyboard()...)
 
-	spew.Dump(c.SessionManager.Get(ctx).Chat)
+	spew.Dump(c.SessionManager.Get(ctx).Chat.Edges)
 
 	description := c.Services.I18N.Translate("bot.description", "en", nil)
 

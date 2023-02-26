@@ -33,11 +33,6 @@ func TestChatService_GetByID(t *testing.T) {
 	}
 	defer teardownTest(entClient)
 
-	//settings, err := entClient.ChatSettings.Create().Save(context.Background())
-	//if err != nil {
-	//	t.Fatal(err)
-	//}
-
 	_, err = entClient.Chat.
 		Create().
 		SetID(uuid.New()).
@@ -75,8 +70,8 @@ func TestChatService_Create(t *testing.T) {
 		entClient: entClient,
 	}
 	got, err := c.Create("1", chat.ServiceTelegram)
-	assert.Equal(t, "1", got.ChatID, "Expects chat_id to be 1.")
 	assert.Nil(t, err, "Expects got to be nil")
+	assert.Equal(t, "1", got.ChatID, "Expects chat_id to be 1.")
 	settings := got.QuerySettings().OnlyX(context.Background())
 	assert.NotNil(t, settings, "Expects settings to be not nil")
 	assert.Equal(t, true, settings.GameChangeNotification, "Expects game_change_notification to be true")

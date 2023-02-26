@@ -41,10 +41,12 @@ func (c *chatService) Create(chatId string, service chat.Service) (*ent.Chat, er
 		return nil, err
 	}
 
-	_, err = c.entClient.ChatSettings.Create().SetChatID(ch.ID).Save(context.Background())
+	settings, err := c.entClient.ChatSettings.Create().SetChatID(ch.ID).Save(context.Background())
 	if err != nil {
 		return nil, err
 	}
+
+	ch.Edges.Settings = settings
 
 	return ch, nil
 }
@@ -53,6 +55,7 @@ func (c *chatService) GetByID(chatId string, service chat.Service) (*ent.Chat, e
 	ch, err := c.entClient.Chat.
 		Query().
 		Where(chat.ChatID(chatId), chat.ServiceEQ(service)).
+		WithSettings().
 		Only(context.Background())
 
 	if err != nil {
