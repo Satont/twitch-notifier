@@ -11,11 +11,11 @@ type channelService struct {
 	entClient *ent.Client
 }
 
-func (c *channelService) GetByID(channelID string, service channel.Service) (*ent.Channel, error) {
+func (c *channelService) GetByID(ctx context.Context, channelID string, service channel.Service) (*ent.Channel, error) {
 	ch, err := c.entClient.Channel.
 		Query().
 		Where(channel.ChannelID(channelID), channel.ServiceEQ(service)).
-		Only(context.Background())
+		Only(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -32,13 +32,13 @@ func (c *channelService) GetByID(channelID string, service channel.Service) (*en
 	return ch, nil
 }
 
-func (c *channelService) GetFollowsByID(channelID string, service channel.Service) ([]*ent.Follow, error) {
+func (c *channelService) GetFollowsByID(ctx context.Context, channelID string, service channel.Service) ([]*ent.Follow, error) {
 	follows, err := c.entClient.Follow.
 		Query().
 		Where(follow.HasChannelWith(channel.ChannelID(channelID), channel.ServiceEQ(service))).
 		WithChat().
 		WithChannel().
-		All(context.Background())
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +46,10 @@ func (c *channelService) GetFollowsByID(channelID string, service channel.Servic
 	return follows, nil
 }
 
-func (c *channelService) Create(channelID string, service channel.Service) (*ent.Channel, error) {
+func (c *channelService) Create(ctx context.Context, channelID string, service channel.Service) (*ent.Channel, error) {
 	ch, err := c.entClient.Channel.Create().
 		SetChannelID(channelID).
-		SetService(service).Save(context.Background())
+		SetService(service).Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +57,11 @@ func (c *channelService) Create(channelID string, service channel.Service) (*ent
 	return ch, nil
 }
 
-func (c *channelService) Update(channelID string, service channel.Service, query *ChannelUpdateQuery) (*ent.Channel, error) {
+func (c *channelService) Update(ctx context.Context, channelID string, service channel.Service, query *ChannelUpdateQuery) (*ent.Channel, error) {
 	ch, err := c.entClient.Channel.
 		Query().
 		Where(channel.ChannelIDIn(channelID), channel.ServiceEQ(service)).
-		Only(context.Background())
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}

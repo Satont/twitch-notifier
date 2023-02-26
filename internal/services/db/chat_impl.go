@@ -11,11 +11,11 @@ type chatService struct {
 	entClient *ent.Client
 }
 
-func (c *chatService) Update(chatId string, service chat.Service, settings *ent.ChatSettings) (*ent.Chat, error) {
+func (c *chatService) Update(ctx context.Context, chatId string, service chat.Service, settings *ent.ChatSettings) (*ent.Chat, error) {
 	ch, err := c.entClient.Chat.
 		Query().
 		Where(chat.ChatID(chatId), chat.ServiceEQ(service)).
-		Only(context.Background())
+		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (c *chatService) Update(chatId string, service chat.Service, settings *ent.
 	newChat, err := c.entClient.Chat.
 		UpdateOne(ch).
 		SetSettings(settings).
-		Save(context.Background())
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -31,17 +31,17 @@ func (c *chatService) Update(chatId string, service chat.Service, settings *ent.
 	return newChat, nil
 }
 
-func (c *chatService) Create(chatId string, service chat.Service) (*ent.Chat, error) {
+func (c *chatService) Create(ctx context.Context, chatId string, service chat.Service) (*ent.Chat, error) {
 	ch, err := c.entClient.Chat.
 		Create().
 		SetChatID(chatId).
 		SetService(service).
-		Save(context.Background())
+		Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	settings, err := c.entClient.ChatSettings.Create().SetChatID(ch.ID).Save(context.Background())
+	settings, err := c.entClient.ChatSettings.Create().SetChatID(ch.ID).Save(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +51,12 @@ func (c *chatService) Create(chatId string, service chat.Service) (*ent.Chat, er
 	return ch, nil
 }
 
-func (c *chatService) GetByID(chatId string, service chat.Service) (*ent.Chat, error) {
+func (c *chatService) GetByID(ctx context.Context, chatId string, service chat.Service) (*ent.Chat, error) {
 	ch, err := c.entClient.Chat.
 		Query().
 		Where(chat.ChatID(chatId), chat.ServiceEQ(service)).
 		WithSettings().
-		Only(context.Background())
+		Only(ctx)
 
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -73,13 +73,13 @@ func (c *chatService) GetByID(chatId string, service chat.Service) (*ent.Chat, e
 	return ch, nil
 }
 
-func (c *chatService) GetFollowsByID(chatId string, service chat.Service) ([]*ent.Follow, error) {
+func (c *chatService) GetFollowsByID(ctx context.Context, chatId string, service chat.Service) ([]*ent.Follow, error) {
 	follows, err := c.entClient.Follow.
 		Query().
 		Where(follow.HasChatWith(chat.ChatID(chatId), chat.ServiceEQ(service))).
 		WithChat().
 		WithChannel().
-		All(context.Background())
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}

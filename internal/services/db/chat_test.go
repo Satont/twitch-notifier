@@ -33,13 +33,15 @@ func TestChatService_GetByID(t *testing.T) {
 	}
 	defer teardownTest(entClient)
 
+	ctx := context.Background()
+
 	_, err = entClient.Chat.
 		Create().
 		SetID(uuid.New()).
 		SetChatID("1").
 		SetService(chat.ServiceTelegram).
 		//SetSettings(settings).
-		Save(context.Background())
+		Save(ctx)
 
 	if err != nil {
 		t.Fatal(err)
@@ -48,13 +50,13 @@ func TestChatService_GetByID(t *testing.T) {
 	c := &chatService{
 		entClient: entClient,
 	}
-	got, err := c.GetByID("1", chat.ServiceTelegram)
+	got, err := c.GetByID(ctx, "1", chat.ServiceTelegram)
 	if err != nil {
 		t.Errorf("%v error = %v", "GetByID", err)
 	}
 	assert.Equal(t, "1", got.ChatID, "Expects chat_id to be 1.")
 
-	got, err = c.GetByID("2", chat.ServiceTelegram)
+	got, err = c.GetByID(ctx, "2", chat.ServiceTelegram)
 	assert.Nil(t, err, "Expects err to be not nil")
 	assert.Nil(t, got, "Expects got to be nil")
 }
@@ -66,17 +68,19 @@ func TestChatService_Create(t *testing.T) {
 	}
 	defer teardownTest(entClient)
 
+	ctx := context.Background()
+
 	c := &chatService{
 		entClient: entClient,
 	}
-	got, err := c.Create("1", chat.ServiceTelegram)
+	got, err := c.Create(ctx, "1", chat.ServiceTelegram)
 	assert.Nil(t, err, "Expects got to be nil")
 	assert.Equal(t, "1", got.ChatID, "Expects chat_id to be 1.")
 	settings := got.QuerySettings().OnlyX(context.Background())
 	assert.NotNil(t, settings, "Expects settings to be not nil")
 	assert.Equal(t, true, settings.GameChangeNotification, "Expects game_change_notification to be true")
 
-	got, err = c.Create("1", chat.ServiceTelegram)
+	got, err = c.Create(ctx, "1", chat.ServiceTelegram)
 	assert.Nil(t, got, "Expects got to be nil")
 	assert.NotNil(t, err, "Expects err to be not nil")
 }
@@ -88,12 +92,14 @@ func TestChatService_GetFollowsByID(t *testing.T) {
 	}
 	defer teardownTest(entClient)
 
+	ctx := context.Background()
+
 	channel, err := entClient.Channel.
 		Create().
 		SetID(uuid.New()).
 		SetService(channel2.ServiceTwitch).
 		SetChannelID("1").
-		Save(context.Background())
+		Save(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,18 +109,18 @@ func TestChatService_GetFollowsByID(t *testing.T) {
 		SetID(uuid.New()).
 		SetChatID("1").
 		SetService(chat.ServiceTelegram).
-		Save(context.Background())
+		Save(ctx)
 
 	_, err = entClient.Follow.Create().SetID(uuid.New()).SetChannel(channel).SetChat(ch).Save(context.Background())
 
 	c := &chatService{
 		entClient: entClient,
 	}
-	got, err := c.GetFollowsByID("1", chat.ServiceTelegram)
+	got, err := c.GetFollowsByID(ctx, "1", chat.ServiceTelegram)
 	assert.Equal(t, 1, len(got), "Expects got to be 1")
 	assert.Nil(t, err, "Expects got to be nil")
 
-	got, err = c.GetFollowsByID("2", chat.ServiceTelegram)
+	got, err = c.GetFollowsByID(ctx, "2", chat.ServiceTelegram)
 	assert.Equal(t, 0, len(got), "Expects got to be empty slice")
 	assert.Nil(t, err, "Expects err to be not nil")
 }

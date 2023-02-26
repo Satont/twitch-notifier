@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
@@ -10,12 +11,12 @@ type followService struct {
 	entClient *ent.Client
 }
 
-func (f followService) Create(channelID string, channelService channel.Service, chatID string, chatService chat.Service) (*ent.Follow, error) {
+func (f followService) Create(ctx context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) (*ent.Follow, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (f followService) Delete(channelID string, channelService channel.Service, chatID string, chatService chat.Service) error {
+func (f followService) Delete(ctx context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) error {
 	//TODO implement me
 	panic("implement me")
 }

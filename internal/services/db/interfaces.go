@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
@@ -8,10 +9,10 @@ import (
 )
 
 type ChatInterface interface {
-	GetByID(chatId string, service chat.Service) (*ent.Chat, error)
-	GetFollowsByID(chatId string, service chat.Service) ([]*ent.Follow, error)
-	Create(chatId string, service chat.Service) (*ent.Chat, error)
-	Update(chatId string, service chat.Service, settings *ent.ChatSettings) (*ent.Chat, error)
+	GetByID(_ context.Context, chatId string, service chat.Service) (*ent.Chat, error)
+	GetFollowsByID(_ context.Context, chatId string, service chat.Service) ([]*ent.Follow, error)
+	Create(_ context.Context, chatId string, service chat.Service) (*ent.Chat, error)
+	Update(_ context.Context, chatId string, service chat.Service, settings *ent.ChatSettings) (*ent.Chat, error)
 }
 
 type ChannelUpdateQuery struct {
@@ -21,15 +22,15 @@ type ChannelUpdateQuery struct {
 }
 
 type ChannelInterface interface {
-	GetByID(channelID string, service channel.Service) (*ent.Channel, error)
-	GetFollowsByID(channelID string, service channel.Service) ([]*ent.Follow, error)
-	Create(channelID string, service channel.Service) (*ent.Channel, error)
-	Update(channelID string, service channel.Service, updateQuery *ChannelUpdateQuery) (*ent.Channel, error)
+	GetByID(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
+	GetFollowsByID(_ context.Context, channelID string, service channel.Service) ([]*ent.Follow, error)
+	Create(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
+	Update(_ context.Context, channelID string, service channel.Service, updateQuery *ChannelUpdateQuery) (*ent.Channel, error)
 }
 
 type FollowInterface interface {
-	Create(channelID string, channelService channel.Service, chatID string, chatService chat.Service) (*ent.Follow, error)
-	Delete(channelID string, channelService channel.Service, chatID string, chatService chat.Service) error
+	Create(_ context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) (*ent.Follow, error)
+	Delete(_ context.Context, channelID string, channelService channel.Service, chatID string, chatService chat.Service) error
 }
 
 type StreamUpdateQuery struct {
@@ -39,11 +40,11 @@ type StreamUpdateQuery struct {
 }
 
 type StreamInterface interface {
-	GetByID(streamId string) (*ent.Stream, error)
+	GetByID(_ context.Context, streamId string) (*ent.Stream, error)
 
-	GetLatestByChannelID(channelEntityID uuid.UUID) (*ent.Stream, error)
-	GetManyByChannelID(channelEntityID uuid.UUID, limit int) ([]*ent.Stream, error)
+	GetLatestByChannelID(_ context.Context, channelEntityID uuid.UUID) (*ent.Stream, error)
+	GetManyByChannelID(_ context.Context, channelEntityID uuid.UUID, limit int) ([]*ent.Stream, error)
 
-	UpdateOneByStreamID(streamID string, updateQuery *StreamUpdateQuery) (*ent.Stream, error)
-	CreateOneByChannelID(channelEntityID uuid.UUID, updateQuery *StreamUpdateQuery) (*ent.Stream, error)
+	UpdateOneByStreamID(_ context.Context, streamID string, updateQuery *StreamUpdateQuery) (*ent.Stream, error)
+	CreateOneByChannelID(_ context.Context, channelEntityID uuid.UUID, updateQuery *StreamUpdateQuery) (*ent.Stream, error)
 }

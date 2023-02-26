@@ -13,8 +13,8 @@ type streamService struct {
 	entClient *ent.Client
 }
 
-func (s *streamService) GetByID(streamId string) (*ent.Stream, error) {
-	str, err := s.entClient.Stream.Query().Where(stream.IDEQ(streamId)).Only(context.Background())
+func (s *streamService) GetByID(ctx context.Context, streamId string) (*ent.Stream, error) {
+	str, err := s.entClient.Stream.Query().Where(stream.IDEQ(streamId)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -26,12 +26,12 @@ func (s *streamService) GetByID(streamId string) (*ent.Stream, error) {
 	return str, nil
 }
 
-func (s *streamService) GetLatestByChannelID(channelEntityID uuid.UUID) (*ent.Stream, error) {
+func (s *streamService) GetLatestByChannelID(ctx context.Context, channelEntityID uuid.UUID) (*ent.Stream, error) {
 	str, err := s.entClient.Stream.
 		Query().
 		Where(stream.HasChannelWith(channel.IDEQ(channelEntityID))).
 		Order(ent.Desc(stream.FieldStartedAt)).
-		First(context.Background())
+		First(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -43,13 +43,13 @@ func (s *streamService) GetLatestByChannelID(channelEntityID uuid.UUID) (*ent.St
 	return str, nil
 }
 
-func (s *streamService) GetManyByChannelID(channelEntityID uuid.UUID, limit int) ([]*ent.Stream, error) {
+func (s *streamService) GetManyByChannelID(ctx context.Context, channelEntityID uuid.UUID, limit int) ([]*ent.Stream, error) {
 	streams, err := s.entClient.Stream.
 		Query().
 		Where(stream.HasChannelWith(channel.IDEQ(channelEntityID))).
 		Order(ent.Desc(stream.FieldStartedAt)).
 		Limit(limit).
-		All(context.Background())
+		All(ctx)
 
 	if err != nil {
 		return nil, err
@@ -58,8 +58,8 @@ func (s *streamService) GetManyByChannelID(channelEntityID uuid.UUID, limit int)
 	return streams, err
 }
 
-func (s *streamService) UpdateOneByStreamID(streamID string, updateQuery *StreamUpdateQuery) (*ent.Stream, error) {
-	stream, err := s.GetByID(streamID)
+func (s *streamService) UpdateOneByStreamID(ctx context.Context, streamID string, updateQuery *StreamUpdateQuery) (*ent.Stream, error) {
+	stream, err := s.GetByID(ctx, streamID)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +85,10 @@ func (s *streamService) UpdateOneByStreamID(streamID string, updateQuery *Stream
 		query.AppendTitles([]string{*updateQuery.Title})
 	}
 
-	return query.Save(context.Background())
+	return query.Save(ctx)
 }
 
-func (s *streamService) CreateOneByChannelID(channelEntityID uuid.UUID, data *StreamUpdateQuery) (*ent.Stream, error) {
+func (s *streamService) CreateOneByChannelID(ctx context.Context, channelEntityID uuid.UUID, data *StreamUpdateQuery) (*ent.Stream, error) {
 	query := s.entClient.Stream.Create().
 		SetChannelID(channelEntityID)
 
@@ -102,7 +102,7 @@ func (s *streamService) CreateOneByChannelID(channelEntityID uuid.UUID, data *St
 		query.SetCategories([]string{*data.Category})
 	}
 
-	return query.Save(context.Background())
+	return query.Save(ctx)
 }
 
 func NewStreamService(entClient *ent.Client) *streamService {
