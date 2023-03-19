@@ -57,7 +57,15 @@ func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdat
 		return err
 	}
 
-	return msg.Answer("Created").DoVoid(ctx)
+	message := c.Services.I18N.Translate(
+		"commands.follow.success",
+		chat.Edges.Settings.ChatLanguage.String(),
+		map[string]string{
+			"streamer": msg.Text,
+		},
+	)
+
+	return msg.Answer(message).DoVoid(ctx)
 }
 
 func NewFollowCommand(opts *tgtypes.CommandOpts) {
