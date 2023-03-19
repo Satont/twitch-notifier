@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide">
-      <change afterPath="$PROJECT_DIR$/internal/services/db/follow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Taskfile.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Taskfile.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/chat_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/chat_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/follow_impl.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/follow_impl.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/follow_mock.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/follow_mock.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/follow_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/follow_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/db/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/db/interfaces.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/follow.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/services/telegram/commands/follow_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/services/telegram/commands/follow_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/i18n/i18n_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/i18n/i18n_test.go" afterDir="false" />
-    </list>
+    <list default="true" id="6839f964-efac-4a57-891b-046cc3df1b4e" name="Changes" comment="upd rageywide" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -207,7 +194,7 @@
       <workItem from="1677372966403" duration="42366000" />
       <workItem from="1677463165380" duration="9769000" />
       <workItem from="1679180863476" duration="129000" />
-      <workItem from="1679182888322" duration="5655000" />
+      <workItem from="1679182888322" duration="5960000" />
     </task>
     <task id="LOCAL-00001" summary="upd rageywide">
       <created>1677382369646</created>
@@ -307,7 +294,28 @@
       <option name="project" value="LOCAL" />
       <updated>1677415802342</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="upd rageywide">
+      <created>1679188646561</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1679188646561</updated>
+    </task>
+    <task id="LOCAL-00016" summary="upd rageywide">
+      <created>1679188725746</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1679188725746</updated>
+    </task>
+    <task id="LOCAL-00017" summary="upd rageywide">
+      <created>1679188780602</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1679188780602</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
