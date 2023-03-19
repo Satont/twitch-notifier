@@ -23,7 +23,7 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 	session := c.SessionManager.Get(ctx)
 
 	limit := maxRows * perRow
-	offset := session.FollowsMenu.CurrentPage * limit
+	offset := (session.FollowsMenu.CurrentPage - 1) * limit
 
 	follows, err := c.Services.Follow.GetByChatID(
 		ctx,
@@ -65,18 +65,19 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 
 	var paginationRow *tg.ButtonLayout[tg.InlineKeyboardButton]
 
-	if session.FollowsMenu.CurrentPage > 0 || session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages {
+	if session.FollowsMenu.CurrentPage > 1 || session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
 		paginationRow = layout.Row()
 	}
 
-	if session.FollowsMenu.CurrentPage > 0 && paginationRow != nil {
+	fmt.Println(session.FollowsMenu.CurrentPage, session.FollowsMenu.TotalPages)
+	if session.FollowsMenu.CurrentPage > 1 && paginationRow != nil {
 		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
 			"«",
 			"channels_unfollow_prev_page",
 		))
 	}
 
-	if session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages && paginationRow != nil {
+	if session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages && paginationRow != nil {
 		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
 			"»",
 			"channels_unfollow_next_page",
@@ -92,7 +93,7 @@ func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpda
 	session := c.SessionManager.Get(ctx)
 
 	session.FollowsMenu.TotalPages = 0
-	session.FollowsMenu.CurrentPage = 0
+	session.FollowsMenu.CurrentPage = 1
 
 	keyboard, err := c.newKeyboard(ctx, followsMaxRows, followsPerRow)
 	if err != nil {

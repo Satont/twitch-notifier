@@ -110,7 +110,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
 					Chat: chat,
 					FollowsMenu: &tgtypes.Menu{
-						CurrentPage: 0,
+						CurrentPage: 1,
 						TotalPages:  0,
 					},
 				})
@@ -200,7 +200,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
 					Chat: chat,
 					FollowsMenu: &tgtypes.Menu{
-						CurrentPage: 0,
+						CurrentPage: 1,
 						TotalPages:  0,
 					},
 				})
@@ -240,7 +240,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 			},
 			args: args{
 				maxRows: 1,
-				perRow:  2,
+				perRow:  1,
 			},
 			want: &tg.InlineKeyboardMarkup{
 				InlineKeyboard: [][]tg.InlineKeyboardButton{
@@ -269,23 +269,19 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 			wantErr: false,
 			setupMocks: func() {
 				mockedTwitch.
-					On("GetChannelsByUserIds", []string{"3", "4"}).
+					On("GetChannelsByUserIds", []string{"2"}).
 					Return([]helix.ChannelInformation{
 						{
-							BroadcasterID:   "3",
+							BroadcasterID:   "2",
 							BroadcasterName: "third",
-						},
-						{
-							BroadcasterID:   "4",
-							BroadcasterName: "fourth",
 						},
 					}, nil)
 
 				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
 					Chat: chat,
 					FollowsMenu: &tgtypes.Menu{
-						CurrentPage: 1,
-						TotalPages:  3,
+						CurrentPage: 2,
+						TotalPages:  4,
 					},
 				})
 
@@ -294,13 +290,128 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 					nil,
 				)
 
-				mockedFollow.On("GetByChatID", ctx, chat.ID, 2, 2).Return(
+				mockedFollow.On("GetByChatID", ctx, chat.ID, 1, 1).Return(
+					[]*db_models.Follow{
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "2",
+							},
+						},
+					},
+					nil,
+				)
+			},
+		},
+		{
+			name: "test pagination on page 1",
+			fields: fields{
+				CommandOpts: &tgtypes.CommandOpts{
+					SessionManager: sessionManager,
+					Services: &types.Services{
+						Twitch: mockedTwitch,
+						Follow: mockedFollow,
+					},
+				},
+			},
+			args: args{
+				maxRows: 1,
+				perRow:  1,
+			},
+			want: &tg.InlineKeyboardMarkup{
+				InlineKeyboard: [][]tg.InlineKeyboardButton{
+					{
+						{
+							Text:         "third",
+							CallbackData: "channels_unfollow_3",
+						},
+					},
+					{
+						{
+							Text:         "»",
+							CallbackData: "channels_unfollow_next_page",
+						},
+					},
+				},
+			},
+			wantErr: false,
+			setupMocks: func() {
+				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+					Chat: chat,
+					FollowsMenu: &tgtypes.Menu{
+						CurrentPage: 1,
+						TotalPages:  2,
+					},
+				})
+
+				mockedFollow.On("GetByChatID", ctx, chat.ID, 1, 0).Return(
 					[]*db_models.Follow{
 						{
 							Channel: &db_models.Channel{
 								ChannelID: "3",
 							},
 						},
+					},
+					nil,
+				)
+
+				mockedFollow.On("CountByChatID", ctx, chat.ID).Return(
+					2,
+					nil,
+				)
+
+				mockedTwitch.
+					On("GetChannelsByUserIds", []string{"3"}).
+					Return([]helix.ChannelInformation{
+						{
+							BroadcasterID:   "3",
+							BroadcasterName: "third",
+						},
+					}, nil)
+			},
+		},
+		{
+			name: "test pagination on page 2",
+			fields: fields{
+				CommandOpts: &tgtypes.CommandOpts{
+					SessionManager: sessionManager,
+					Services: &types.Services{
+						Twitch: mockedTwitch,
+						Follow: mockedFollow,
+					},
+				},
+			},
+			args: args{
+				maxRows: 1,
+				perRow:  1,
+			},
+			want: &tg.InlineKeyboardMarkup{
+				InlineKeyboard: [][]tg.InlineKeyboardButton{
+					{
+						{
+							Text:         "fourth",
+							CallbackData: "channels_unfollow_4",
+						},
+					},
+					{
+						{
+							Text:         "«",
+							CallbackData: "channels_unfollow_prev_page",
+						},
+					},
+				},
+			},
+			wantErr: false,
+			setupMocks: func() {
+				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+					Chat: chat,
+					FollowsMenu: &tgtypes.Menu{
+						CurrentPage: 2,
+						TotalPages:  2,
+					},
+				})
+
+				mockedFollow.On("GetByChatID", ctx, chat.ID, 1, 1).Return(
+					[]*db_models.Follow{
 						{
 							Channel: &db_models.Channel{
 								ChannelID: "4",
@@ -309,6 +420,20 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 					},
 					nil,
 				)
+
+				mockedFollow.On("CountByChatID", ctx, chat.ID).Return(
+					2,
+					nil,
+				)
+
+				mockedTwitch.
+					On("GetChannelsByUserIds", []string{"4"}).
+					Return([]helix.ChannelInformation{
+						{
+							BroadcasterID:   "4",
+							BroadcasterName: "fourth",
+						},
+					}, nil)
 			},
 		},
 	}
@@ -333,8 +458,8 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				assert.Greater(t, len(got.InlineKeyboard[rowI]), 0)
 
 				for btnI, btn := range row {
-					assert.Equal(t, got.InlineKeyboard[rowI][btnI].Text, btn.Text)
-					assert.Equal(t, got.InlineKeyboard[rowI][btnI].CallbackData, btn.CallbackData)
+					assert.Equal(t, btn.Text, got.InlineKeyboard[rowI][btnI].Text)
+					assert.Equal(t, btn.CallbackData, got.InlineKeyboard[rowI][btnI].CallbackData)
 				}
 			}
 
