@@ -2,8 +2,7 @@ package db
 
 import (
 	"context"
-	"github.com/satont/twitch-notifier/ent"
-	"github.com/satont/twitch-notifier/ent/channel"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
 type ChannelUpdateQuery struct {
@@ -13,9 +12,26 @@ type ChannelUpdateQuery struct {
 }
 
 type ChannelInterface interface {
-	GetByID(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
-	GetFollowsByID(_ context.Context, channelID string, service channel.Service) ([]*ent.Follow, error)
-	Create(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
-	Update(_ context.Context, channelID string, service channel.Service, updateQuery *ChannelUpdateQuery) (*ent.Channel, error)
-	GetByIdOrCreate(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
+	GetByID(
+		_ context.Context,
+		channelID string,
+		service db_models.ChannelService,
+	) (*db_models.Channel, error)
+	GetFollowsByID(
+		_ context.Context,
+		channelID string,
+		service db_models.ChannelService,
+	) ([]*db_models.Follow, error)
+	Create(_ context.Context, channelID string, service db_models.ChannelService) (*db_models.Channel, error)
+	Update(
+		_ context.Context,
+		channelID string,
+		service db_models.ChannelService,
+		updateQuery *ChannelUpdateQuery,
+	) (*db_models.Channel, error)
+	GetByIdOrCreate(
+		_ context.Context,
+		channelID string,
+		service db_models.ChannelService,
+	) (*db_models.Channel, error)
 }
