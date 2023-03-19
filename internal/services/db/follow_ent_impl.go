@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
+	"github.com/satont/twitch-notifier/ent/follow"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
@@ -13,12 +14,20 @@ type followService struct {
 	entClient *ent.Client
 }
 
-func (f *followService) converEntity(follow *ent.Follow) *db_models.Follow {
-	return &db_models.Follow{
-		ID:        follow.ID,
-		ChannelID: follow.Edges.Channel.ID,
-		ChatID:    follow.Edges.Chat.ID,
+func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
+	convertedFollow := &db_models.Follow{
+		ID: follow.ID,
 	}
+
+	if follow.Edges.Channel != nil {
+		convertedFollow.ChannelID = follow.Edges.Channel.ID
+	}
+
+	if follow.Edges.Chat != nil {
+		convertedFollow.ChatID = follow.Edges.Chat.ID
+	}
+
+	return convertedFollow
 }
 
 func (f *followService) Create(
@@ -54,7 +63,12 @@ func (f *followService) GetByChatAndChannel(
 	channelID uuid.UUID,
 	chatID uuid.UUID,
 ) (*db_models.Follow, error) {
-	follow, err := f.entClient.Follow.Query().WithChannel().WithChat().First(ctx)
+	fol, err := f.entClient.Follow.
+		Query().
+		Where(follow.ChannelID(channelID), follow.ChatID(chatID)).
+		WithChannel().
+		WithChat().
+		First(ctx)
 
 	if err != nil && ent.IsNotFound(err) {
 		return nil, nil
@@ -62,15 +76,19 @@ func (f *followService) GetByChatAndChannel(
 		return nil, err
 	}
 
-	return f.converEntity(follow), err
+	if fol == nil {
+		return nil, nil
+	}
+
+	return f.convertEntity(fol), err
 }
 
 func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID) ([]*db_models.Follow, error) {
 	follows, err := f.entClient.Follow.
 		Query().
-		WithChannel(func(query *ent.ChannelQuery) {
-			query.Where(channel.IDEQ(channelID))
-		}).
+		Where(follow.HasChannelWith(channel.IDEQ(channelID))).
+		WithChannel().
+		WithChat().
 		All(ctx)
 
 	if err != nil {
@@ -78,8 +96,8 @@ func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID)
 	}
 
 	result := make([]*db_models.Follow, len(follows))
-	for i, follow := range follows {
-		result[i] = f.converEntity(follow)
+	for i, foll := range follows {
+		result[i] = f.convertEntity(foll)
 	}
 
 	return result, nil
@@ -88,9 +106,9 @@ func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID)
 func (f *followService) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*db_models.Follow, error) {
 	follows, err := f.entClient.Follow.
 		Query().
-		WithChat(func(query *ent.ChatQuery) {
-			query.Where(chat.IDEQ(chatID))
-		}).
+		Where(follow.HasChatWith(chat.IDEQ(chatID))).
+		WithChat().
+		WithChannel().
 		All(ctx)
 
 	if err != nil {
@@ -98,8 +116,8 @@ func (f *followService) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*d
 	}
 
 	result := make([]*db_models.Follow, len(follows))
-	for i, follow := range follows {
-		result[i] = f.converEntity(follow)
+	for i, foll := range follows {
+		result[i] = f.convertEntity(foll)
 	}
 
 	return result, nil

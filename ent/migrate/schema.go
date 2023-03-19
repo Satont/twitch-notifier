@@ -97,6 +97,13 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "follow_channel_id_chat_id",
+				Unique:  true,
+				Columns: []*schema.Column{FollowsColumns[1], FollowsColumns[2]},
+			},
+		},
 	}
 	// StreamsColumns holds the columns for the "streams" table.
 	StreamsColumns = []*schema.Column{
