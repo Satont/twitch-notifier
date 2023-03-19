@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -134,6 +135,89 @@ func TestChatService_Create(t *testing.T) {
 				assert.Equal(t, true, chat.Settings.GameChangeNotification)
 				assert.Equal(t, true, chat.Settings.OfflineNotification)
 				assert.Equal(t, chat.ID, chat.Settings.ChatID)
+			}
+		})
+	}
+}
+
+func TestChatService_Update(t *testing.T) {
+	t.Parallel()
+
+	entClient, err := setupTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer teardownTest(entClient)
+
+	chatService := NewChatEntRepository(entClient)
+
+	table := []struct {
+		name         string
+		chatID       string
+		wantErr      bool
+		shouldCreate bool
+		newValues    struct {
+			language                db_models.ChatLanguage
+			gameChangeNotification  bool
+			streamStartNotification bool
+		}
+	}{
+		{
+			name:         "Update chat",
+			chatID:       "123",
+			wantErr:      false,
+			shouldCreate: true,
+			newValues: struct {
+				language                db_models.ChatLanguage
+				gameChangeNotification  bool
+				streamStartNotification bool
+			}{
+				language:                db_models.ChatLanguageRu,
+				gameChangeNotification:  false,
+				streamStartNotification: false,
+			},
+		},
+		{
+			name:         "Should fail if chat not found",
+			chatID:       "321",
+			wantErr:      true,
+			shouldCreate: false,
+		},
+	}
+
+	for _, tt := range table {
+		t.Run(tt.chatID, func(t *testing.T) {
+			if tt.shouldCreate {
+				_, err = chatService.Create(
+					context.Background(),
+					tt.chatID,
+					db_models.ChatServiceTelegram,
+				)
+				assert.NoError(t, err)
+			}
+
+			newChat, err := chatService.Update(
+				context.Background(),
+				tt.chatID,
+				db_models.ChatServiceTelegram,
+				&ChatUpdateQuery{
+					Settings: &ChatUpdateSettingsQuery{
+						GameChangeNotification: lo.ToPtr(false),
+						OfflineNotification:    lo.ToPtr(false),
+						ChatLanguage:           lo.ToPtr(db_models.ChatLanguageRu),
+					},
+				},
+			)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+
+				assert.Equal(t, tt.chatID, newChat.ChatID)
+				assert.Equal(t, tt.newValues.language, newChat.Settings.ChatLanguage)
+				assert.Equal(t, tt.newValues.gameChangeNotification, newChat.Settings.GameChangeNotification)
+				assert.Equal(t, tt.newValues.streamStartNotification, newChat.Settings.OfflineNotification)
 			}
 		})
 	}

@@ -5,6 +5,16 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
+type ChatUpdateSettingsQuery struct {
+	GameChangeNotification *bool
+	OfflineNotification    *bool
+	ChatLanguage           *db_models.ChatLanguage
+}
+
+type ChatUpdateQuery struct {
+	Settings *ChatUpdateSettingsQuery
+}
+
 type ChatInterface interface {
 	GetByID(
 		_ context.Context,
@@ -20,6 +30,6 @@ type ChatInterface interface {
 		_ context.Context,
 		chatId string,
 		service db_models.ChatService,
-		settings *db_models.ChatSettings,
+		query *ChatUpdateQuery,
 	) (*db_models.Chat, error)
 }

@@ -33,32 +33,39 @@ func (c *chatService) Update(
 	ctx context.Context,
 	chatId string,
 	service db_models.ChatService,
-	settings *db_models.ChatSettings,
+	settings *ChatUpdateQuery,
 ) (*db_models.Chat, error) {
 	ch, err := c.entClient.Chat.
 		Query().
 		Where(chat.ChatID(chatId), chat.ServiceEQ(chat.Service(service))).
+		WithSettings().
 		Only(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	newSettings := &ent.ChatSettings{
-		ID:                     settings.ID,
-		GameChangeNotification: settings.GameChangeNotification,
-		OfflineNotification:    settings.OfflineNotification,
-		ChatLanguage:           chatsettings.ChatLanguage(db_models.ChatLanguageEn),
+	if settings.Settings != nil {
+		updater := ch.Edges.Settings.Update()
+
+		if settings.Settings.ChatLanguage != nil {
+			updater.SetChatLanguage(chatsettings.ChatLanguage(*settings.Settings.ChatLanguage))
+		}
+
+		if settings.Settings.GameChangeNotification != nil {
+			updater.SetGameChangeNotification(*settings.Settings.GameChangeNotification)
+		}
+
+		if settings.Settings.OfflineNotification != nil {
+			updater.SetOfflineNotification(*settings.Settings.OfflineNotification)
+		}
+
+		_, err = updater.Save(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	newChat, err := c.entClient.Chat.
-		UpdateOne(ch).
-		SetSettings(newSettings).
-		Save(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.convertEntity(newChat), nil
+	return c.GetByID(ctx, chatId, service)
 }
 
 func (c *chatService) Create(
