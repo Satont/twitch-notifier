@@ -137,6 +137,7 @@ func TestFollowService_GetByChatAndChannel(t *testing.T) {
 		chatID    uuid.UUID
 		channelID uuid.UUID
 		wantNil   bool
+		wantErr   bool
 	}{
 		{
 			name:      "Get follow",
@@ -149,14 +150,20 @@ func TestFollowService_GetByChatAndChannel(t *testing.T) {
 			chatID:    uuid.New(),
 			channelID: uuid.New(),
 			wantNil:   true,
+			wantErr:   true,
 		},
 	}
 
 	for _, tt := range table {
 		t.Run(tt.name, func(t *testing.T) {
 			f, err := service.GetByChatAndChannel(ctx, tt.channelID, tt.chatID)
-			assert.NoError(t, err)
 
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+
+			}
 			if tt.wantNil {
 				assert.Nil(t, f)
 			} else {
