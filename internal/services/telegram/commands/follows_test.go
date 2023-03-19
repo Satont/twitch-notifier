@@ -148,7 +148,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 			},
 		},
 		{
-			name: "test pagination",
+			name: "test pagination with next button",
 			fields: fields{
 				CommandOpts: &tgtypes.CommandOpts{
 					SessionManager: sessionManager,
@@ -211,6 +211,90 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				)
 
 				mockedFollow.On("GetByChatID", ctx, chat.ID, 2, 0).Return(
+					[]*db_models.Follow{
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "3",
+							},
+						},
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "4",
+							},
+						},
+					},
+					nil,
+				)
+			},
+		},
+		{
+			name: "test pagination with prev and next buttons",
+			fields: fields{
+				CommandOpts: &tgtypes.CommandOpts{
+					SessionManager: sessionManager,
+					Services: &types.Services{
+						Twitch: mockedTwitch,
+						Follow: mockedFollow,
+					},
+				},
+			},
+			args: args{
+				maxRows: 1,
+				perRow:  2,
+			},
+			want: &tg.InlineKeyboardMarkup{
+				InlineKeyboard: [][]tg.InlineKeyboardButton{
+					{
+						{
+							Text:         "third",
+							CallbackData: "channels_unfollow_3",
+						},
+						{
+							Text:         "fourth",
+							CallbackData: "channels_unfollow_4",
+						},
+					},
+					{
+						{
+							Text:         "«",
+							CallbackData: "channels_unfollow_prev_page",
+						},
+						{
+							Text:         "»",
+							CallbackData: "channels_unfollow_next_page",
+						},
+					},
+				},
+			},
+			wantErr: false,
+			setupMocks: func() {
+				mockedTwitch.
+					On("GetChannelsByUserIds", []string{"3", "4"}).
+					Return([]helix.ChannelInformation{
+						{
+							BroadcasterID:   "3",
+							BroadcasterName: "third",
+						},
+						{
+							BroadcasterID:   "4",
+							BroadcasterName: "fourth",
+						},
+					}, nil)
+
+				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+					Chat: chat,
+					FollowsMenu: &tgtypes.Menu{
+						CurrentPage: 1,
+						TotalPages:  3,
+					},
+				})
+
+				mockedFollow.On("CountByChatID", ctx, chat.ID).Return(
+					8,
+					nil,
+				)
+
+				mockedFollow.On("GetByChatID", ctx, chat.ID, 2, 2).Return(
 					[]*db_models.Follow{
 						{
 							Channel: &db_models.Channel{
