@@ -21,6 +21,14 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
+      - name: Intall goveralls
+        run: |
+          go install github.com/mattn/goveralls@latest
       - name: Test
         run: |
-          go test -v -parallel=10 ./...
+          go test -v -parallel=10 -covermode atomic -coverprofile=covprofile ./...
+      - name: Send coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          goveralls -coverprofile=coverage.out -service=github
