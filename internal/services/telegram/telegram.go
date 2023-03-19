@@ -21,7 +21,10 @@ type telegramService struct {
 func NewTelegram(ctx context.Context, token string, services *types.Services) *telegramService {
 	client := tg.New(token)
 
-	var sessionManager = session.NewManager(tg_types.Session{})
+	var sessionManager = session.NewManager(tg_types.Session{
+		FollowsMenu: &tg_types.Menu{},
+		Scene:       "",
+	})
 
 	router := tgb.NewRouter().
 		Use(sessionManager).

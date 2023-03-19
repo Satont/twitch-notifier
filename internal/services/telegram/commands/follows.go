@@ -16,8 +16,8 @@ type FollowsCommand struct {
 	*tgtypes.CommandOpts
 }
 
-const followsMaxRows = 5
-const followsPerRow = 3
+const followsMaxRows = 3
+const followsPerRow = 5
 
 func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (*tg.InlineKeyboardMarkup, error) {
 	session := c.SessionManager.Get(ctx)
@@ -69,14 +69,14 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 		paginationRow = layout.Row()
 	}
 
-	if session.FollowsMenu.CurrentPage > 0 {
+	if session.FollowsMenu.CurrentPage > 0 && paginationRow != nil {
 		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
 			"«",
 			"channels_unfollow_prev_page",
 		))
 	}
 
-	if session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages {
+	if session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages && paginationRow != nil {
 		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
 			"»",
 			"channels_unfollow_next_page",
@@ -129,11 +129,49 @@ func (c *FollowsCommand) unfollowQuery(ctx context.Context, msg *tgb.CallbackQue
 	return msg.Answer().Text("unfollowed").DoVoid(ctx)
 }
 
+func (c *FollowsCommand) prevPageQuery(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+	session := c.SessionManager.Get(ctx)
+
+	if session.FollowsMenu.CurrentPage > 0 {
+		session.FollowsMenu.CurrentPage--
+	}
+
+	keyboard, err := c.newKeyboard(ctx, followsMaxRows, followsPerRow)
+	if err != nil {
+		zap.S().Error(err)
+	}
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
+func (c *FollowsCommand) nextPageQuery(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+	session := c.SessionManager.Get(ctx)
+
+	if session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages {
+		session.FollowsMenu.CurrentPage++
+	}
+
+	keyboard, err := c.newKeyboard(ctx, followsMaxRows, followsPerRow)
+	if err != nil {
+		zap.S().Error(err)
+	}
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
 func NewFollowsCommand(opts *tgtypes.CommandOpts) {
 	cmd := &FollowsCommand{
 		CommandOpts: opts,
 	}
 
 	opts.Router.Message(cmd.HandleCommand, tgb.Command("follows"))
+	opts.Router.CallbackQuery(cmd.prevPageQuery, tgb.TextEqual("channels_unfollow_prev_page"))
+	opts.Router.CallbackQuery(cmd.nextPageQuery, tgb.TextEqual("channels_unfollow_next_page"))
 	opts.Router.CallbackQuery(cmd.unfollowQuery, tgb.TextHasPrefix("channels_unfollow_"))
 }

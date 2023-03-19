@@ -330,6 +330,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 
 			for rowI, row := range tt.want.InlineKeyboard {
 				assert.LessOrEqual(t, len(got.InlineKeyboard[rowI]), 3)
+				assert.Greater(t, len(got.InlineKeyboard[rowI]), 0)
 
 				for btnI, btn := range row {
 					assert.Equal(t, got.InlineKeyboard[rowI][btnI].Text, btn.Text)
