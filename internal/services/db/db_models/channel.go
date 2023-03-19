@@ -8,7 +8,7 @@ import (
 type ChannelService string
 
 const (
-	ServiceTwitch ChannelService = "twitch"
+	ChannelServiceTwitch ChannelService = "twitch"
 )
 
 func (s ChannelService) String() string {

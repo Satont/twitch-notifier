@@ -59,8 +59,8 @@ func main() {
 
 	services := &types.Services{
 		Twitch:  twitchService,
-		Chat:    db.NewChatService(client),
-		Channel: db.NewChannelService(client),
+		Chat:    db.NewChatEntRepository(client),
+		Channel: db.NewChannelEntRepository(client),
 		Follow:  db.NewFollowService(client),
 		I18N:    i18,
 	}

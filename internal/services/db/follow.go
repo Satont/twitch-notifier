@@ -11,8 +11,9 @@ type FollowInterface interface {
 	Delete(_ context.Context, id uuid.UUID) error
 	GetByChatAndChannel(
 		_ context.Context,
-		channelId uuid.UUID,
-		chatId uuid.UUID,
+		channelID uuid.UUID,
+		chatID uuid.UUID,
 	) (*db_models.Follow, error)
-	GetByChannelID(_ context.Context, channelId uuid.UUID) ([]*db_models.Follow, error)
+	GetByChannelID(_ context.Context, channelID uuid.UUID) ([]*db_models.Follow, error)
+	GetByChatID(_ context.Context, chatID uuid.UUID) ([]*db_models.Follow, error)
 }

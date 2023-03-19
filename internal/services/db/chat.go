@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
@@ -12,11 +11,6 @@ type ChatInterface interface {
 		chatId string,
 		service db_models.ChatService,
 	) (*db_models.Chat, error)
-	GetFollowsByID(
-		_ context.Context,
-		chatId string,
-		service db_models.ChatService,
-	) ([]*db_models.Follow, error)
 	Create(
 		_ context.Context,
 		chatId string,
@@ -26,6 +20,6 @@ type ChatInterface interface {
 		_ context.Context,
 		chatId string,
 		service db_models.ChatService,
-		settings *ent.ChatSettings,
+		settings *db_models.ChatSettings,
 	) (*db_models.Chat, error)
 }
