@@ -8,7 +8,8 @@ import (
 )
 
 type Session struct {
-	Chat *ent.Chat
+	Chat  *ent.Chat
+	Scene string
 }
 
 type CommandOpts struct {

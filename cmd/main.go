@@ -68,7 +68,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	tg := telegram.NewTelegram(cfg.TelegramToken, services)
+	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
 
 	checker := twitch_streams_cheker.NewTwitchStreamCheker(services.Twitch)

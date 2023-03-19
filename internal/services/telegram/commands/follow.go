@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	"go.uber.org/zap"
 )
 
 type FollowCommand struct {
@@ -49,12 +50,31 @@ func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input 
 	return follow, nil
 }
 
-func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
+func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate) error {
 	chat := c.SessionManager.Get(ctx).Chat
 
 	_, err := c.createFollow(ctx, chat, msg.Text)
-	if err != nil {
-		return err
+	if errors.Is(err, channelNotFoundError) {
+		message := c.Services.I18N.Translate(
+			"commands.follow.errors.streamerNotFound",
+			chat.Edges.Settings.ChatLanguage.String(),
+			map[string]string{
+				"streamer": msg.Text,
+			},
+		)
+		return msg.Answer(message).DoVoid(ctx)
+	} else if errors.Is(err, followAlreadyExists) {
+		message := c.Services.I18N.Translate(
+			"commands.follow.alreadyFollowed",
+			chat.Edges.Settings.ChatLanguage.String(),
+			map[string]string{
+				"streamer": msg.Text,
+			},
+		)
+		return msg.Answer(message).DoVoid(ctx)
+	} else if err != nil {
+		zap.S().Error(err)
+		return msg.Answer("Internal error").DoVoid(ctx)
 	}
 
 	message := c.Services.I18N.Translate(
@@ -65,7 +85,15 @@ func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdat
 		},
 	)
 
+	c.SessionManager.Get(ctx).Scene = ""
+
 	return msg.Answer(message).DoVoid(ctx)
+}
+
+func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
+	c.SessionManager.Get(ctx).Scene = "follow"
+
+	return msg.Answer("enter name").DoVoid(ctx)
 }
 
 func NewFollowCommand(opts *tgtypes.CommandOpts) {
@@ -73,5 +101,9 @@ func NewFollowCommand(opts *tgtypes.CommandOpts) {
 		CommandOpts: opts,
 	}
 
+	opts.Router.Message(cmd.handleScene, tgb.FilterFunc(func(ctx context.Context, update *tgb.Update) (bool, error) {
+		session := opts.SessionManager.Get(ctx)
+		return session.Scene == "follow", nil
+	}))
 	opts.Router.Message(cmd.HandleCommand, tgb.Command("follow"))
 }

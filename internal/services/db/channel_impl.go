@@ -12,17 +12,19 @@ type channelService struct {
 }
 
 func (c *channelService) GetByIdOrCreate(ctx context.Context, channelID string, service channel.Service) (*ent.Channel, error) {
-	ch := c.entClient.Channel.
+	ch, err := c.entClient.Channel.
 		Query().
 		Where(channel.ChannelID(channelID), channel.ServiceEQ(service)).
-		OnlyX(ctx)
+		First(ctx)
 
-	if ch == nil {
+	if ent.IsNotFound(err) {
 		newChannel, err := c.Create(ctx, channelID, service)
 		if err != nil {
 			return nil, err
 		}
 		ch = newChannel
+	} else if err != nil {
+		return nil, err
 	}
 
 	return ch, nil

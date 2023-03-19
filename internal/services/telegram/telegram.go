@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/telegram/middlewares"
 	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"go.uber.org/zap"
 )
 
 type telegramService struct {
@@ -16,16 +17,16 @@ type telegramService struct {
 	poller   *tgb.Poller
 }
 
-func NewTelegram(token string, services *types.Services) *telegramService {
+func NewTelegram(ctx context.Context, token string, services *types.Services) *telegramService {
 	client := tg.New(token)
 
 	var sessionManager = session.NewManager(tg_types.Session{})
 
 	router := tgb.NewRouter().
 		Use(sessionManager).
-		Use(&middlewares.LoggMiddleware{
-			Services: services,
-		}).
+		//Use(&middlewares.LoggMiddleware{
+		//	Services: services,
+		//}).
 		Use(&middlewares.ChatMiddleware{
 			MiddlewareOpts: &tg_types.MiddlewareOpts{
 				Services:       services,
@@ -38,10 +39,22 @@ func NewTelegram(token string, services *types.Services) *telegramService {
 		SessionManager: sessionManager,
 	}
 
+	router.Message(func(ctx context.Context, update *tgb.MessageUpdate) error {
+		sessionManager.Get(ctx).Scene = ""
+		return nil
+	}, tgb.Command("cancel"))
+
 	commands.NewStartCommand(commandOpts)
 	commands.NewFollowCommand(commandOpts)
 
 	poller := tgb.NewPoller(router, client)
+
+	me, err := client.GetMe().Do(ctx)
+	if err != nil {
+		zap.S().Fatalw("failed to get bot info", "err", err)
+	}
+
+	zap.S().Infow("Telegram bot started", "id", me.ID, "username", me.Username)
 
 	return &telegramService{
 		poller:   poller,
