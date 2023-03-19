@@ -16,8 +16,35 @@ type FollowsCommand struct {
 	*tgtypes.CommandOpts
 }
 
-func (c *FollowsCommand) newKeyboard(follows []*db_models.Follow) (*tg.InlineKeyboardMarkup, error) {
-	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](3)
+const followsMaxRows = 5
+const followsPerRow = 3
+
+func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (*tg.InlineKeyboardMarkup, error) {
+	session := c.SessionManager.Get(ctx)
+
+	limit := maxRows * perRow
+	offset := session.FollowsMenu.CurrentPage * limit
+
+	follows, err := c.Services.Follow.GetByChatID(
+		ctx,
+		session.Chat.ID,
+		limit,
+		offset,
+	)
+	if err != nil {
+		zap.S().Error(err)
+		return nil, err
+	}
+
+	totalFollows, err := c.Services.Follow.CountByChatID(ctx, session.Chat.ID)
+	if err != nil {
+		zap.S().Error(err)
+		return nil, err
+	}
+
+	session.FollowsMenu.TotalPages = totalFollows / limit
+
+	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](perRow)
 
 	channelsIds := lo.Map(follows, func(follow *db_models.Follow, _ int) string {
 		return follow.Channel.ChannelID
@@ -36,19 +63,38 @@ func (c *FollowsCommand) newKeyboard(follows []*db_models.Follow) (*tg.InlineKey
 		))
 	}
 
+	var paginationRow *tg.ButtonLayout[tg.InlineKeyboardButton]
+
+	if session.FollowsMenu.CurrentPage > 0 || session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages {
+		paginationRow = layout.Row()
+	}
+
+	if session.FollowsMenu.CurrentPage > 0 {
+		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
+			"«",
+			"channels_unfollow_prev_page",
+		))
+	}
+
+	if session.FollowsMenu.CurrentPage+1 <= session.FollowsMenu.TotalPages {
+		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
+			"»",
+			"channels_unfollow_next_page",
+		))
+	}
+
 	markup := tg.NewInlineKeyboardMarkup(layout.Keyboard()...)
 
 	return &markup, nil
 }
 
 func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
-	follows, err := c.Services.Follow.GetByChatID(ctx, c.SessionManager.Get(ctx).Chat.ID)
-	if err != nil {
-		zap.S().Error(err)
-		return msg.Answer("internal error").DoVoid(ctx)
-	}
+	session := c.SessionManager.Get(ctx)
 
-	keyboard, err := c.newKeyboard(follows)
+	session.FollowsMenu.TotalPages = 0
+	session.FollowsMenu.CurrentPage = 0
+
+	keyboard, err := c.newKeyboard(ctx, followsMaxRows, followsPerRow)
 	if err != nil {
 		zap.S().Error(err)
 		return msg.Answer("internal error").DoVoid(ctx)

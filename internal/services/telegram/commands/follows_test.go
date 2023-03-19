@@ -20,70 +20,45 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 	type fields struct {
 		CommandOpts *tgtypes.CommandOpts
 	}
+
 	type args struct {
-		follows []*db_models.Follow
+		maxRows int
+		perRow  int
 	}
 
-	mockedTwitch := &twitch.MockedService{}
+	ctx := context.Background()
 
-	mockedTwitch.On("GetChannelsByUserIds", []string{"1", "2", "3", "4"}).Return([]helix.ChannelInformation{
-		{
-			BroadcasterID:   "1",
-			BroadcasterName: "first",
-		},
-		{
-			BroadcasterID:   "2",
-			BroadcasterName: "second",
-		},
-		{
-			BroadcasterID:   "3",
-			BroadcasterName: "third",
-		},
-		{
-			BroadcasterID:   "4",
-			BroadcasterName: "fourth",
-		},
-	}, nil)
+	chat := &db_models.Chat{
+		ID:     uuid.New(),
+		ChatID: "1",
+	}
+
+	sessionManager := tgtypes.NewMockedSessionManager()
+	mockedTwitch := &twitch.MockedService{}
+	mockedFollow := &db.FollowMock{}
 
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *tg.InlineKeyboardMarkup
-		wantErr bool
+		name       string
+		fields     fields
+		args       args
+		want       *tg.InlineKeyboardMarkup
+		wantErr    bool
+		setupMocks func()
 	}{
 		{
 			name: "should return keyboard with 4 buttons",
 			fields: fields{
 				CommandOpts: &tgtypes.CommandOpts{
+					SessionManager: sessionManager,
 					Services: &types.Services{
 						Twitch: mockedTwitch,
+						Follow: mockedFollow,
 					},
 				},
 			},
 			args: args{
-				follows: []*db_models.Follow{
-					{
-						Channel: &db_models.Channel{
-							ChannelID: "1",
-						},
-					},
-					{
-						Channel: &db_models.Channel{
-							ChannelID: "2",
-						},
-					},
-					{
-						Channel: &db_models.Channel{
-							ChannelID: "3",
-						},
-					},
-					{
-						Channel: &db_models.Channel{
-							ChannelID: "4",
-						},
-					},
-				},
+				maxRows: 5,
+				perRow:  3,
 			},
 			want: &tg.InlineKeyboardMarkup{
 				InlineKeyboard: [][]tg.InlineKeyboardButton{
@@ -110,6 +85,147 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				},
 			},
 			wantErr: false,
+			setupMocks: func() {
+				mockedTwitch.
+					On("GetChannelsByUserIds", []string{"1", "2", "3", "4"}).
+					Return([]helix.ChannelInformation{
+						{
+							BroadcasterID:   "1",
+							BroadcasterName: "first",
+						},
+						{
+							BroadcasterID:   "2",
+							BroadcasterName: "second",
+						},
+						{
+							BroadcasterID:   "3",
+							BroadcasterName: "third",
+						},
+						{
+							BroadcasterID:   "4",
+							BroadcasterName: "fourth",
+						},
+					}, nil)
+
+				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+					Chat: chat,
+					FollowsMenu: &tgtypes.Menu{
+						CurrentPage: 0,
+						TotalPages:  0,
+					},
+				})
+
+				mockedFollow.On("CountByChatID", ctx, chat.ID).Return(
+					4,
+					nil,
+				)
+
+				mockedFollow.On("GetByChatID", ctx, chat.ID, followsMaxRows*followsPerRow, 0).Return(
+					[]*db_models.Follow{
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "1",
+							},
+						},
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "2",
+							},
+						},
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "3",
+							},
+						},
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "4",
+							},
+						},
+					},
+					nil,
+				)
+			},
+		},
+		{
+			name: "test pagination",
+			fields: fields{
+				CommandOpts: &tgtypes.CommandOpts{
+					SessionManager: sessionManager,
+					Services: &types.Services{
+						Twitch: mockedTwitch,
+						Follow: mockedFollow,
+					},
+				},
+			},
+			args: args{
+				maxRows: 1,
+				perRow:  2,
+			},
+			want: &tg.InlineKeyboardMarkup{
+				InlineKeyboard: [][]tg.InlineKeyboardButton{
+					{
+						{
+							Text:         "third",
+							CallbackData: "channels_unfollow_3",
+						},
+						{
+							Text:         "fourth",
+							CallbackData: "channels_unfollow_4",
+						},
+					},
+					{
+						{
+							Text:         "»",
+							CallbackData: "channels_unfollow_next_page",
+						},
+					},
+				},
+			},
+			wantErr: false,
+			setupMocks: func() {
+				mockedTwitch.
+					On("GetChannelsByUserIds", []string{"3", "4"}).
+					Return([]helix.ChannelInformation{
+						{
+							BroadcasterID:   "3",
+							BroadcasterName: "third",
+						},
+						{
+							BroadcasterID:   "4",
+							BroadcasterName: "fourth",
+						},
+					}, nil)
+
+				sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+					Chat: chat,
+					FollowsMenu: &tgtypes.Menu{
+						CurrentPage: 0,
+						TotalPages:  0,
+					},
+				})
+
+				mockedFollow.On("CountByChatID", ctx, chat.ID).Return(
+					4,
+					nil,
+				)
+
+				mockedFollow.On("GetByChatID", ctx, chat.ID, 2, 0).Return(
+					[]*db_models.Follow{
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "3",
+							},
+						},
+						{
+							Channel: &db_models.Channel{
+								ChannelID: "4",
+							},
+						},
+					},
+					nil,
+				)
+			},
 		},
 	}
 
@@ -118,22 +234,32 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 			c := &FollowsCommand{
 				CommandOpts: tt.fields.CommandOpts,
 			}
-			got, err := c.newKeyboard(tt.args.follows)
+			tt.setupMocks()
+
+			got, err := c.newKeyboard(ctx, tt.args.maxRows, tt.args.perRow)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
 
-			assert.Len(t, got.InlineKeyboard, 2)
+			assert.Len(t, got.InlineKeyboard, len(tt.want.InlineKeyboard))
 
-			for rowI, row := range got.InlineKeyboard {
-				assert.LessOrEqual(t, len(row), 3)
+			for rowI, row := range tt.want.InlineKeyboard {
+				assert.LessOrEqual(t, len(got.InlineKeyboard[rowI]), 3)
 
 				for btnI, btn := range row {
-					assert.Equal(t, tt.want.InlineKeyboard[rowI][btnI].Text, btn.Text)
-					assert.Equal(t, tt.want.InlineKeyboard[rowI][btnI].CallbackData, btn.CallbackData)
+					assert.Equal(t, got.InlineKeyboard[rowI][btnI].Text, btn.Text)
+					assert.Equal(t, got.InlineKeyboard[rowI][btnI].CallbackData, btn.CallbackData)
 				}
 			}
+
+			mockedFollow.AssertExpectations(t)
+			mockedTwitch.AssertExpectations(t)
+			sessionManager.AssertExpectations(t)
+
+			mockedTwitch.ExpectedCalls = nil
+			mockedFollow.ExpectedCalls = nil
+			sessionManager.ExpectedCalls = nil
 		})
 	}
 }
@@ -152,7 +278,7 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 
 	//mockedTwitch := &twitch.MockedService{}
 	channelsMock := &db.ChannelMock{}
-	//followsMock := &db.FollowMock{}
+	followsMock := &db.FollowMock{}
 
 	ctx := context.Background()
 	chat := &db_models.Chat{
@@ -163,6 +289,7 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 	commandOpts := &tgtypes.CommandOpts{
 		Services: &types.Services{
 			Channel: channelsMock,
+			Follow:  followsMock,
 		},
 	}
 
@@ -188,6 +315,62 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 				channelsMock.
 					On("GetByID", ctx, "1", db_models.ChannelServiceTwitch).
 					Return((*db_models.Channel)(nil), db_models.ChannelNotFoundError)
+			},
+		},
+		{
+			name: "should return error if follow not found",
+			fields: fields{
+				CommandOpts: commandOpts,
+			},
+			args: args{
+				ctx:   ctx,
+				chat:  chat,
+				input: "channels_unfollow_1",
+			},
+			wantErr:   true,
+			wantedErr: db_models.FollowNotFoundError,
+			setupMocks: func() {
+				channelId := uuid.New()
+				channelsMock.
+					On("GetByID", ctx, "1", db_models.ChannelServiceTwitch).
+					Return(&db_models.Channel{
+						ID:        channelId,
+						ChannelID: "1",
+					}, nil)
+				followsMock.
+					On("GetByChatAndChannel", ctx, channelId, chat.ID).
+					Return((*db_models.Follow)(nil), db_models.FollowNotFoundError)
+			},
+		},
+		{
+			name: "should return nil",
+			fields: fields{
+				CommandOpts: commandOpts,
+			},
+			args: args{
+				ctx:   ctx,
+				chat:  chat,
+				input: "channels_unfollow_1",
+			},
+			wantErr:   false,
+			wantedErr: nil,
+			setupMocks: func() {
+				channelID := uuid.New()
+				followID := uuid.New()
+				channelsMock.
+					On("GetByID", ctx, "1", db_models.ChannelServiceTwitch).
+					Return(&db_models.Channel{
+						ID:        channelID,
+						ChannelID: "1",
+					}, nil)
+				followsMock.
+					On("GetByChatAndChannel", ctx, channelID, chat.ID).
+					Return(&db_models.Follow{
+						ID: followID,
+					}, nil)
+				followsMock.
+					On("Delete", ctx, followID).
+					Return(nil)
 			},
 		},
 	}

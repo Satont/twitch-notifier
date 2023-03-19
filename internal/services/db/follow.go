@@ -15,5 +15,6 @@ type FollowInterface interface {
 		chatID uuid.UUID,
 	) (*db_models.Follow, error)
 	GetByChannelID(_ context.Context, channelID uuid.UUID) ([]*db_models.Follow, error)
-	GetByChatID(_ context.Context, chatID uuid.UUID) ([]*db_models.Follow, error)
+	GetByChatID(_ context.Context, chatID uuid.UUID, limit, offset int) ([]*db_models.Follow, error)
+	CountByChatID(_ context.Context, chatID uuid.UUID) (int, error)
 }

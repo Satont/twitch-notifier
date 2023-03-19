@@ -131,15 +131,27 @@ func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID)
 	return result, nil
 }
 
-func (f *followService) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*db_models.Follow, error) {
-	follows, err := f.entClient.Follow.
+func (f *followService) GetByChatID(
+	ctx context.Context,
+	chatID uuid.UUID,
+	limit,
+	offset int,
+) ([]*db_models.Follow, error) {
+	query := f.entClient.Follow.
 		Query().
 		Where(follow.HasChatWith(chat.IDEQ(chatID))).
 		WithChat(func(query *ent.ChatQuery) {
 			query.WithSettings()
 		}).
 		WithChannel().
-		All(ctx)
+		Order(ent.Desc(follow.FieldChannelID))
+
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	query.Offset(offset)
+
+	follows, err := query.All(ctx)
 
 	if err != nil {
 		return nil, err
@@ -151,6 +163,15 @@ func (f *followService) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*d
 	}
 
 	return result, nil
+}
+
+func (f *followService) CountByChatID(_ context.Context, chatID uuid.UUID) (int, error) {
+	count, err := f.entClient.Follow.Query().Where(follow.ChatIDEQ(chatID)).Count(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func NewFollowService(entClient *ent.Client) FollowInterface {

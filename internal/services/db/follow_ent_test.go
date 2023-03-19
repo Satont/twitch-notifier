@@ -248,10 +248,15 @@ func TestFollowService_GetByChatID(t *testing.T) {
 		assert.Equal(t, newChat.ID, f.ChatID, "Expects chat_id to be equal.")
 	}
 
-	follows, err := service.GetByChatID(ctx, newChat.ID)
+	follows, err := service.GetByChatID(ctx, newChat.ID, 0, 0)
 	assert.NoError(t, err)
+	assert.Len(t, follows, 5)
 
 	for _, foll := range follows {
 		assert.Equal(t, newChat.ID, foll.ChatID, "Expects chat_id to be equal.")
 	}
+
+	followsPaginated, err := service.GetByChatID(ctx, newChat.ID, 0, 2)
+	assert.NoError(t, err)
+	assert.Len(t, followsPaginated, 3)
 }
