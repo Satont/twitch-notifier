@@ -21,5 +21,5 @@ func setupTest() (*ent.Client, error) {
 }
 
 func teardownTest(entClient *ent.Client) {
-	entClient.Close()
+	_ = entClient.Close()
 }
