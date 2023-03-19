@@ -7,6 +7,7 @@ import (
 )
 
 type StreamUpdateQuery struct {
+	StreamID string
 	IsLive   *bool
 	Category *string
 	Title    *string

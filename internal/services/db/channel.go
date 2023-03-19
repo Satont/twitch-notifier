@@ -17,11 +17,6 @@ type ChannelInterface interface {
 		channelID string,
 		service db_models.ChannelService,
 	) (*db_models.Channel, error)
-	GetFollowsByID(
-		_ context.Context,
-		channelID string,
-		service db_models.ChannelService,
-	) ([]*db_models.Follow, error)
 	Create(_ context.Context, channelID string, service db_models.ChannelService) (*db_models.Channel, error)
 	Update(
 		_ context.Context,

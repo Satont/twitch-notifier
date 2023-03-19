@@ -4,15 +4,14 @@ import (
 	"context"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
-	"github.com/satont/twitch-notifier/ent/follow"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
-type channelService struct {
+type channelEntService struct {
 	entClient *ent.Client
 }
 
-func (c *channelService) convertEntity(ch *ent.Channel) *db_models.Channel {
+func (c *channelEntService) convertEntity(ch *ent.Channel) *db_models.Channel {
 	return &db_models.Channel{
 		ID:        ch.ID,
 		ChannelID: ch.ChannelID,
@@ -24,7 +23,7 @@ func (c *channelService) convertEntity(ch *ent.Channel) *db_models.Channel {
 	}
 }
 
-func (c *channelService) GetByIdOrCreate(
+func (c *channelEntService) GetByIdOrCreate(
 	ctx context.Context,
 	channelID string,
 	service db_models.ChannelService,
@@ -49,7 +48,7 @@ func (c *channelService) GetByIdOrCreate(
 	return c.convertEntity(ch), nil
 }
 
-func (c *channelService) GetByID(
+func (c *channelEntService) GetByID(
 	ctx context.Context,
 	channelID string,
 	service db_models.ChannelService,
@@ -76,40 +75,7 @@ func (c *channelService) GetByID(
 	return c.convertEntity(ch), nil
 }
 
-func (c *channelService) GetFollowsByID(
-	ctx context.Context,
-	channelID string,
-	service db_models.ChannelService,
-) ([]*db_models.Follow, error) {
-	channelService := channel.Service(service.String())
-
-	follows, err := c.entClient.Follow.
-		Query().
-		Where(follow.HasChannelWith(
-			channel.ChannelID(channelID),
-			channel.ServiceEQ(channelService)),
-		).
-		WithChat().
-		WithChannel().
-		All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]*db_models.Follow, 0, len(follows))
-
-	for _, f := range follows {
-		result = append(result, &db_models.Follow{
-			ID:        f.ID,
-			ChatID:    f.Edges.Chat.ID,
-			ChannelID: f.Edges.Channel.ID,
-		})
-	}
-
-	return result, nil
-}
-
-func (c *channelService) Create(
+func (c *channelEntService) Create(
 	ctx context.Context,
 	channelID string,
 	service db_models.ChannelService,
@@ -126,14 +92,13 @@ func (c *channelService) Create(
 	return c.convertEntity(ch), nil
 }
 
-func (c *channelService) Update(
+func (c *channelEntService) Update(
 	ctx context.Context,
 	channelID string,
 	service db_models.ChannelService,
 	query *ChannelUpdateQuery,
 ) (*db_models.Channel, error) {
 	channelService := channel.Service(service.String())
-
 	ch, err := c.entClient.Channel.
 		Query().
 		Where(channel.ChannelIDIn(channelID), channel.ServiceEQ(channelService)).
@@ -165,8 +130,8 @@ func (c *channelService) Update(
 	return c.convertEntity(newChannel), nil
 }
 
-func NewChannelEntRepository(entClient *ent.Client) ChannelInterface {
-	return &channelService{
+func NewChannelEntService(entClient *ent.Client) ChannelInterface {
+	return &channelEntService{
 		entClient: entClient,
 	}
 }

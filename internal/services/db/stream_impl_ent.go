@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
@@ -10,14 +11,14 @@ import (
 	"time"
 )
 
-type StreamService struct {
+type StreamEntService struct {
 	entClient *ent.Client
 }
 
-func (s *StreamService) convertEntity(stream *ent.Stream) *db_models.Stream {
+func (s *StreamEntService) convertEntity(stream *ent.Stream) *db_models.Stream {
 	return &db_models.Stream{
 		ID:         stream.ID,
-		ChannelID:  stream.Edges.Channel.ID,
+		ChannelID:  stream.ChannelID,
 		Titles:     stream.Titles,
 		Categories: stream.Categories,
 		StartedAt:  stream.StartedAt,
@@ -26,7 +27,7 @@ func (s *StreamService) convertEntity(stream *ent.Stream) *db_models.Stream {
 	}
 }
 
-func (s *StreamService) GetByID(ctx context.Context, streamID string) (*db_models.Stream, error) {
+func (s *StreamEntService) GetByID(ctx context.Context, streamID string) (*db_models.Stream, error) {
 	str, err := s.entClient.Stream.Query().Where(stream.IDEQ(streamID)).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -39,7 +40,7 @@ func (s *StreamService) GetByID(ctx context.Context, streamID string) (*db_model
 	return s.convertEntity(str), nil
 }
 
-func (s *StreamService) GetLatestByChannelID(
+func (s *StreamEntService) GetLatestByChannelID(
 	ctx context.Context,
 	channelEntityID uuid.UUID,
 ) (*db_models.Stream, error) {
@@ -59,7 +60,7 @@ func (s *StreamService) GetLatestByChannelID(
 	return s.convertEntity(str), nil
 }
 
-func (s *StreamService) GetManyByChannelID(
+func (s *StreamEntService) GetManyByChannelID(
 	ctx context.Context,
 	channelEntityID uuid.UUID,
 	limit int,
@@ -83,7 +84,7 @@ func (s *StreamService) GetManyByChannelID(
 	return convertedStreams, err
 }
 
-func (s *StreamService) UpdateOneByStreamID(
+func (s *StreamEntService) UpdateOneByStreamID(
 	ctx context.Context,
 	streamID string,
 	updateQuery *StreamUpdateQuery,
@@ -93,7 +94,7 @@ func (s *StreamService) UpdateOneByStreamID(
 		return nil, err
 	}
 	if str == nil {
-		return nil, nil
+		return nil, errors.New("stream not found")
 	}
 
 	query := s.entClient.Stream.UpdateOneID(str.ID)
@@ -122,7 +123,7 @@ func (s *StreamService) UpdateOneByStreamID(
 	return s.convertEntity(newStream), nil
 }
 
-func (s *StreamService) CreateOneByChannelID(
+func (s *StreamEntService) CreateOneByChannelID(
 	ctx context.Context,
 	channelEntityID uuid.UUID,
 	data *StreamUpdateQuery,
@@ -131,6 +132,7 @@ func (s *StreamService) CreateOneByChannelID(
 		SetChannelID(channelEntityID)
 
 	query.SetStartedAt(time.Now().UTC())
+	query.SetID(data.StreamID)
 
 	if data.Title != nil {
 		query.SetTitles([]string{*data.Title})
@@ -148,8 +150,8 @@ func (s *StreamService) CreateOneByChannelID(
 	return s.convertEntity(str), nil
 }
 
-func NewStreamService(entClient *ent.Client) *StreamService {
-	return &StreamService{
+func NewStreamEntService(entClient *ent.Client) *StreamEntService {
+	return &StreamEntService{
 		entClient: entClient,
 	}
 }

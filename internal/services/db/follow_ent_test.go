@@ -19,7 +19,7 @@ func TestFollowService_Create(t *testing.T) {
 	ctx := context.Background()
 
 	chService := NewChatEntRepository(entClient)
-	channelsService := NewChannelEntRepository(entClient)
+	channelsService := NewChannelEntService(entClient)
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
@@ -72,7 +72,7 @@ func TestFollowService_Delete(t *testing.T) {
 	ctx := context.Background()
 
 	chService := NewChatEntRepository(entClient)
-	channelsService := NewChannelEntRepository(entClient)
+	channelsService := NewChannelEntService(entClient)
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
@@ -120,7 +120,7 @@ func TestFollowService_GetByChatAndChannel(t *testing.T) {
 	ctx := context.Background()
 
 	chService := NewChatEntRepository(entClient)
-	channelsService := NewChannelEntRepository(entClient)
+	channelsService := NewChannelEntService(entClient)
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
@@ -177,7 +177,7 @@ func TestFollowService_GetByChannelID(t *testing.T) {
 	ctx := context.Background()
 
 	chService := NewChatEntRepository(entClient)
-	channelsService := NewChannelEntRepository(entClient)
+	channelsService := NewChannelEntService(entClient)
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
@@ -223,7 +223,7 @@ func TestFollowService_GetByChatID(t *testing.T) {
 	ctx := context.Background()
 
 	chService := NewChatEntRepository(entClient)
-	channelsService := NewChannelEntRepository(entClient)
+	channelsService := NewChannelEntService(entClient)
 	service := NewFollowService(entClient)
 
 	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
