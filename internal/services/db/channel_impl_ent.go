@@ -62,7 +62,7 @@ func (c *channelEntService) GetByID(
 
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, nil
+			return nil, db_models.ChannelNotFoundError
 		}
 
 		return nil, err

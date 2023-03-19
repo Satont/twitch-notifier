@@ -92,7 +92,7 @@ func TestFollowService(t *testing.T) {
 				channelsMock.
 					On("GetByIdOrCreate", ctx, user.ID, db_models.ChannelServiceTwitch).Return(chann, nil)
 				followsMock.
-					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return(f, nil)
+					On("Create", ctx, chann.ID, chat.ID).Return((*db_models.Follow)(nil), db_models.FollowAlreadyExistsError)
 			},
 		},
 	}

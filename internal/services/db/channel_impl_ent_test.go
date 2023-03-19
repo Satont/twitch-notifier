@@ -44,20 +44,20 @@ func TestChannelEntService_GetByID(t *testing.T) {
 		name          string
 		channelID     string
 		service       db_models.ChannelService
-		wantNil       bool
+		wantErr       bool
 		createChannel bool
 	}{
 		{
 			name:      "channel not found",
 			channelID: "123",
 			service:   db_models.ChannelServiceTwitch,
-			wantNil:   true,
+			wantErr:   true,
 		},
 		{
 			name:          "channel found",
 			channelID:     "321",
 			service:       db_models.ChannelServiceTwitch,
-			wantNil:       false,
+			wantErr:       false,
 			createChannel: true,
 		},
 	}
@@ -70,10 +70,11 @@ func TestChannelEntService_GetByID(t *testing.T) {
 			}
 
 			channel, err := channelService.GetByID(context.Background(), tt.channelID, tt.service)
-			assert.NoError(t, err)
-			if tt.wantNil {
-				assert.Nil(t, channel)
+			if tt.wantErr {
+				assert.Error(t, err)
+				assert.EqualError(t, err, db_models.ChannelNotFoundError.Error())
 			} else {
+				assert.NoError(t, err)
 				assert.Equal(t, tt.channelID, channel.ChannelID)
 				assert.Equal(t, tt.service, channel.Service)
 			}

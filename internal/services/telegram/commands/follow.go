@@ -15,7 +15,6 @@ type FollowCommand struct {
 
 var (
 	channelNotFoundError = errors.New("channel not found")
-	followAlreadyExists  = errors.New("follow already exists")
 )
 
 func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, input string) (*db_models.Follow, error) {
@@ -33,14 +32,6 @@ func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, 
 		return nil, err
 	}
 
-	existedFollow, err := c.Services.Follow.GetByChatAndChannel(ctx, chat.ID, dbChannel.ID)
-	if err != nil {
-		return nil, err
-	}
-	if existedFollow != nil {
-		return nil, followAlreadyExists
-	}
-
 	follow, err := c.Services.Follow.Create(ctx, dbChannel.ID, chat.ID)
 	if err != nil {
 		return nil, err
@@ -53,6 +44,9 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 	chat := c.SessionManager.Get(ctx).Chat
 
 	_, err := c.createFollow(ctx, chat, msg.Text)
+
+	c.SessionManager.Get(ctx).Scene = ""
+
 	if errors.Is(err, channelNotFoundError) {
 		message := c.Services.I18N.Translate(
 			"commands.follow.errors.streamerNotFound",
@@ -62,7 +56,7 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 			},
 		)
 		return msg.Answer(message).DoVoid(ctx)
-	} else if errors.Is(err, followAlreadyExists) {
+	} else if errors.Is(err, db_models.FollowAlreadyExistsError) {
 		message := c.Services.I18N.Translate(
 			"commands.follow.alreadyFollowed",
 			chat.Settings.ChatLanguage.String(),
@@ -83,8 +77,6 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 			"streamer": msg.Text,
 		},
 	)
-
-	c.SessionManager.Get(ctx).Scene = ""
 
 	return msg.Answer(message).DoVoid(ctx)
 }

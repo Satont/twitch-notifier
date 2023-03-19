@@ -1,8 +1,13 @@
 package db_models
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"time"
+)
+
+var (
+	ChannelNotFoundError = errors.New("channel not found")
 )
 
 type ChannelService string

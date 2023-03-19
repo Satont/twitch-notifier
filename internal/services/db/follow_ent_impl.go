@@ -21,10 +21,31 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
 
 	if follow.Edges.Channel != nil {
 		convertedFollow.ChannelID = follow.Edges.Channel.ID
+
+		convertedFollow.Channel = &db_models.Channel{
+			ID:        follow.Edges.Channel.ID,
+			ChannelID: follow.Edges.Channel.ChannelID,
+			Service:   db_models.ChannelService(follow.Edges.Channel.Service),
+			IsLive:    false,
+			UpdatedAt: follow.Edges.Channel.UpdatedAt,
+		}
 	}
 
 	if follow.Edges.Chat != nil {
 		convertedFollow.ChatID = follow.Edges.Chat.ID
+
+		chatSettings := &db_models.ChatSettings{
+			ID:           follow.Edges.Chat.Edges.Settings.ID,
+			ChatID:       follow.Edges.Chat.Edges.Settings.ChatID,
+			ChatLanguage: db_models.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
+		}
+
+		convertedFollow.Chat = &db_models.Chat{
+			ID:       follow.Edges.Chat.ID,
+			ChatID:   follow.Edges.Chat.ChatID,
+			Service:  db_models.ChatService(follow.Edges.Chat.Service),
+			Settings: chatSettings,
+		}
 	}
 
 	return convertedFollow
@@ -40,7 +61,10 @@ func (f *followService) Create(
 		SetChatID(chatID).
 		SetChannelID(channelID).
 		Save(ctx)
-	if err != nil {
+
+	if ent.IsConstraintError(err) {
+		return nil, db_models.FollowAlreadyExistsError
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -67,11 +91,13 @@ func (f *followService) GetByChatAndChannel(
 		Query().
 		Where(follow.ChannelID(channelID), follow.ChatID(chatID)).
 		WithChannel().
-		WithChat().
+		WithChat(func(query *ent.ChatQuery) {
+			query.WithSettings()
+		}).
 		First(ctx)
 
 	if err != nil && ent.IsNotFound(err) {
-		return nil, nil
+		return nil, db_models.FollowNotFoundError
 	} else if err != nil {
 		return nil, err
 	}
@@ -88,7 +114,9 @@ func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID)
 		Query().
 		Where(follow.HasChannelWith(channel.IDEQ(channelID))).
 		WithChannel().
-		WithChat().
+		WithChat(func(query *ent.ChatQuery) {
+			query.WithSettings()
+		}).
 		All(ctx)
 
 	if err != nil {
@@ -107,7 +135,9 @@ func (f *followService) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*d
 	follows, err := f.entClient.Follow.
 		Query().
 		Where(follow.HasChatWith(chat.IDEQ(chatID))).
-		WithChat().
+		WithChat(func(query *ent.ChatQuery) {
+			query.WithSettings()
+		}).
 		WithChannel().
 		All(ctx)
 
