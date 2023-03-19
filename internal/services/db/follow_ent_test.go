@@ -212,3 +212,46 @@ func TestFollowService_GetByChannelID(t *testing.T) {
 		}
 	}
 }
+
+func TestFollowService_GetByChatID(t *testing.T) {
+	t.Parallel()
+
+	entClient, err := setupTest()
+	assert.NoError(t, err)
+	defer teardownTest(entClient)
+
+	ctx := context.Background()
+
+	chService := NewChatEntRepository(entClient)
+	channelsService := NewChannelEntRepository(entClient)
+	service := NewFollowService(entClient)
+
+	newChat, err := chService.Create(ctx, "1", db_models.ChatServiceTelegram)
+	assert.NoError(t, err)
+
+	channelsIds := make([]uuid.UUID, 0)
+
+	for i := 0; i < 5; i++ {
+		ch, err := channelsService.Create(
+			ctx,
+			fmt.Sprintf("%v", i),
+			db_models.ChannelServiceTwitch,
+		)
+		assert.NoError(t, err)
+		channelsIds = append(channelsIds, ch.ID)
+	}
+
+	for _, channelID := range channelsIds {
+		f, err := service.Create(ctx, channelID, newChat.ID)
+		assert.NoError(t, err)
+		assert.Equal(t, channelID, f.ChannelID, "Expects channel_id to be equal.")
+		assert.Equal(t, newChat.ID, f.ChatID, "Expects chat_id to be equal.")
+	}
+
+	follows, err := service.GetByChatID(ctx, newChat.ID)
+	assert.NoError(t, err)
+
+	for _, foll := range follows {
+		assert.Equal(t, newChat.ID, foll.ChatID, "Expects chat_id to be equal.")
+	}
+}
