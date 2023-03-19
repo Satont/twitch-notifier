@@ -29,11 +29,6 @@ type ChannelInterface interface {
 	GetByIdOrCreate(_ context.Context, channelID string, service channel.Service) (*ent.Channel, error)
 }
 
-type FollowInterface interface {
-	Create(_ context.Context, channelID uuid.UUID, chatID uuid.UUID) (*ent.Follow, error)
-	Delete(_ context.Context, id uuid.UUID) error
-}
-
 type StreamUpdateQuery struct {
 	IsLive   *bool
 	Category *string

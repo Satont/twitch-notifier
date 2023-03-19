@@ -22,8 +22,8 @@ func setupTest() (*ent.Client, error) {
 	return entClient, nil
 }
 
-func teardownTest(entClient *ent.Client) error {
-	return entClient.Close()
+func teardownTest(entClient *ent.Client) {
+	entClient.Close()
 }
 
 func TestChatService_GetByID(t *testing.T) {

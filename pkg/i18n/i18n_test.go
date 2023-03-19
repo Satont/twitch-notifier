@@ -8,6 +8,8 @@ import (
 )
 
 func TestNewI18n(t *testing.T) {
+	t.Parallel()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)

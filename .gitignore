@@ -1,5 +1,1 @@
-ent/**/*
-!ent/generate.go
-!ent/schema/*
 coverage.out
-.env

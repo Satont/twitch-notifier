@@ -6,12 +6,17 @@ import (
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
-	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 )
 
 type FollowCommand struct {
-	*tg_types.CommandOpts
+	*tgtypes.CommandOpts
 }
+
+var (
+	channelNotFoundError = errors.New("channel not found")
+	followAlreadyExists  = errors.New("follow already exists")
+)
 
 func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input string) (*ent.Follow, error) {
 	twitchChannel, err := c.Services.Twitch.GetUser("", input)
@@ -20,12 +25,20 @@ func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input 
 	}
 
 	if twitchChannel == nil {
-		return nil, errors.New("channel not found")
+		return nil, channelNotFoundError
 	}
 
 	dbChannel, err := c.Services.Channel.GetByIdOrCreate(ctx, twitchChannel.ID, channel.ServiceTwitch)
 	if err != nil {
 		return nil, err
+	}
+
+	existedFollow, err := c.Services.Follow.GetByChatAndChannel(ctx, chat.ID, dbChannel.ID)
+	if err != nil {
+		return nil, err
+	}
+	if existedFollow != nil {
+		return nil, followAlreadyExists
 	}
 
 	follow, err := c.Services.Follow.Create(ctx, dbChannel.ID, chat.ID)
@@ -47,7 +60,7 @@ func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdat
 	return msg.Answer("Created").DoVoid(ctx)
 }
 
-func NewFollowCommand(opts *tg_types.CommandOpts) {
+func NewFollowCommand(opts *tgtypes.CommandOpts) {
 	cmd := &FollowCommand{
 		CommandOpts: opts,
 	}

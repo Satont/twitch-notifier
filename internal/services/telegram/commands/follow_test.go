@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"github.com/google/uuid"
-	"github.com/mr-linch/go-tg"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
@@ -12,29 +11,20 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
-type MockMessageUpdate struct {
-	mock.Mock
-}
-
-func (m *MockMessageUpdate) Answer(text string) *tg.SendMessageCall {
-	args := m.Called(text)
-	return args.Get(0).(*tg.SendMessageCall)
-}
-
-func TestFollow(t *testing.T) {
-	login := "fukushine"
+func TestFollowService(t *testing.T) {
+	t.Parallel()
 
 	mockedTwitch := &twitch.MockedService{}
 	channelsMock := &db.ChannelMock{}
 	followsMock := &db.FollowMock{}
 
+	userLogin := "fukushine"
 	user := &helix.User{
 		ID:          "1",
-		Login:       login,
+		Login:       userLogin,
 		DisplayName: "Fukushine",
 	}
 
@@ -78,13 +68,32 @@ func TestFollow(t *testing.T) {
 		},
 		{
 			name:    "Should create",
-			input:   login,
+			input:   userLogin,
 			want:    f,
 			wantErr: false,
 			setupMocks: func() {
-				mockedTwitch.On("GetUser", "", login).Return(user, nil)
-				channelsMock.On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
-				followsMock.On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
+				mockedTwitch.
+					On("GetUser", "", userLogin).Return(user, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
+				followsMock.
+					On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
+				followsMock.
+					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return((*ent.Follow)(nil), nil)
+			},
+		},
+		{
+			name:    "Should fail because follow exists",
+			input:   userLogin,
+			want:    nil,
+			wantErr: true,
+			setupMocks: func() {
+				mockedTwitch.
+					On("GetUser", "", userLogin).Return(user, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
+				followsMock.
+					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return(f, nil)
 			},
 		},
 	}
@@ -98,13 +107,16 @@ func TestFollow(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 			}
-			assert.Equal(t, tt.want, got)
 
 			mockedTwitch.AssertExpectations(t)
 			channelsMock.AssertExpectations(t)
 			followsMock.AssertExpectations(t)
+
+			mockedTwitch.ExpectedCalls = nil
+			channelsMock.ExpectedCalls = nil
+			followsMock.ExpectedCalls = nil
 		})
 	}
-
 }
