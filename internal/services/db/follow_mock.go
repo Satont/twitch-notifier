@@ -42,3 +42,9 @@ func (f *FollowMock) GetByChannelID(ctx context.Context, channelId uuid.UUID) ([
 
 	return args.Get(0).([]*db_models.Follow), args.Error(1)
 }
+
+func (f *FollowMock) GetByChatID(ctx context.Context, chatID uuid.UUID) ([]*db_models.Follow, error) {
+	args := f.Called(ctx, chatID)
+
+	return args.Get(0).([]*db_models.Follow), args.Error(1)
+}

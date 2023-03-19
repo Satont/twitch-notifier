@@ -3,12 +3,12 @@ package tg_types
 import (
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/mr-linch/go-tg/tgb/session"
-	"github.com/satont/twitch-notifier/ent"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	"github.com/satont/twitch-notifier/internal/services/types"
 )
 
 type Session struct {
-	Chat  *ent.Chat
+	Chat  *db_models.Chat
 	Scene string
 }
 

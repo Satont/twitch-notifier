@@ -4,8 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/mr-linch/go-tg/tgb"
-	"github.com/satont/twitch-notifier/ent"
-	"github.com/satont/twitch-notifier/ent/channel"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"go.uber.org/zap"
 )
@@ -19,7 +18,7 @@ var (
 	followAlreadyExists  = errors.New("follow already exists")
 )
 
-func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input string) (*ent.Follow, error) {
+func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, input string) (*db_models.Follow, error) {
 	twitchChannel, err := c.Services.Twitch.GetUser("", input)
 	if err != nil {
 		return nil, err
@@ -29,7 +28,7 @@ func (c *FollowCommand) createFollow(ctx context.Context, chat *ent.Chat, input 
 		return nil, channelNotFoundError
 	}
 
-	dbChannel, err := c.Services.Channel.GetByIdOrCreate(ctx, twitchChannel.ID, channel.ServiceTwitch)
+	dbChannel, err := c.Services.Channel.GetByIdOrCreate(ctx, twitchChannel.ID, db_models.ChannelServiceTwitch)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +56,7 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 	if errors.Is(err, channelNotFoundError) {
 		message := c.Services.I18N.Translate(
 			"commands.follow.errors.streamerNotFound",
-			chat.Edges.Settings.ChatLanguage.String(),
+			chat.Settings.ChatLanguage.String(),
 			map[string]string{
 				"streamer": msg.Text,
 			},
@@ -66,7 +65,7 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 	} else if errors.Is(err, followAlreadyExists) {
 		message := c.Services.I18N.Translate(
 			"commands.follow.alreadyFollowed",
-			chat.Edges.Settings.ChatLanguage.String(),
+			chat.Settings.ChatLanguage.String(),
 			map[string]string{
 				"streamer": msg.Text,
 			},
@@ -79,7 +78,7 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 
 	message := c.Services.I18N.Translate(
 		"commands.follow.success",
-		chat.Edges.Settings.ChatLanguage.String(),
+		chat.Settings.ChatLanguage.String(),
 		map[string]string{
 			"streamer": msg.Text,
 		},

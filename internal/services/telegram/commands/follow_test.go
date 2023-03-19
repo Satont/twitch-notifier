@@ -4,9 +4,8 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twitch-notifier/ent"
-	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/internal/services/db"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
@@ -30,14 +29,14 @@ func TestFollowService(t *testing.T) {
 
 	ctx := context.Background()
 
-	chat := &ent.Chat{
+	chat := &db_models.Chat{
 		ID: uuid.New(),
 	}
-	chann := &ent.Channel{
+	chann := &db_models.Channel{
 		ID:        uuid.New(),
 		ChannelID: "1",
 	}
-	f := &ent.Follow{}
+	f := &db_models.Follow{}
 
 	follow := &FollowCommand{
 		&tg_types.CommandOpts{
@@ -53,7 +52,7 @@ func TestFollowService(t *testing.T) {
 	table := []struct {
 		name       string
 		input      string
-		want       *ent.Follow
+		want       *db_models.Follow
 		wantErr    bool
 		setupMocks func()
 	}{
@@ -75,11 +74,11 @@ func TestFollowService(t *testing.T) {
 				mockedTwitch.
 					On("GetUser", "", userLogin).Return(user, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
+					On("GetByIdOrCreate", ctx, user.ID, db_models.ChannelServiceTwitch).Return(chann, nil)
 				followsMock.
 					On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
 				followsMock.
-					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return((*ent.Follow)(nil), nil)
+					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return((*db_models.Follow)(nil), nil)
 			},
 		},
 		{
@@ -91,7 +90,7 @@ func TestFollowService(t *testing.T) {
 				mockedTwitch.
 					On("GetUser", "", userLogin).Return(user, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, user.ID, channel.ServiceTwitch).Return(chann, nil)
+					On("GetByIdOrCreate", ctx, user.ID, db_models.ChannelServiceTwitch).Return(chann, nil)
 				followsMock.
 					On("GetByChatAndChannel", ctx, chat.ID, chann.ID).Return(f, nil)
 			},
