@@ -19,13 +19,21 @@ func NewTwitchStreamChecker(twitch twitch.Interface) *twitchStreamChecker {
 	return checker
 }
 
+func (t *twitchStreamChecker) check(ctx context.Context) {
+	return
+}
+
 func (t *twitchStreamChecker) StartPolling(ctx context.Context) {
+	ticker := time.NewTicker(1 * time.Minute)
+
 	go func() {
 		for {
 			select {
-			case <-time.After(1 * time.Minute):
+			case <-ticker.C:
 				fmt.Println("polled")
+				t.check(ctx)
 			case <-ctx.Done():
+				ticker.Stop()
 				return
 			}
 		}
