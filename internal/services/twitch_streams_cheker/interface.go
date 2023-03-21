@@ -3,28 +3,52 @@ package twitch_streams_cheker
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twitch-notifier/internal/services/twitch"
+	"github.com/samber/lo"
+	"github.com/satont/twitch-notifier/internal/services/types"
+	"go.uber.org/zap"
 	"time"
 )
 
-type twitchStreamChecker struct {
-	twitch twitch.Interface
+type TwitchStreamChecker struct {
+	services *types.Services
 }
 
-func NewTwitchStreamChecker(twitch twitch.Interface) *twitchStreamChecker {
-	checker := &twitchStreamChecker{
-		twitch: twitch,
+func NewTwitchStreamChecker(services *types.Services) *TwitchStreamChecker {
+	checker := &TwitchStreamChecker{
+		services,
 	}
 
 	return checker
 }
 
-func (t *twitchStreamChecker) check(ctx context.Context) {
+func (t *TwitchStreamChecker) check(ctx context.Context) {
+	channels, err := t.services.Channel.GetAll(ctx)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	channelsIDs := make([]string, 0, len(channels))
+	for _, channel := range channels {
+		channelsIDs = append(channelsIDs, channel.ChannelID)
+	}
+
+	streams, err := t.services.Twitch.GetStreamsByUserIds(channelsIDs)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	fmt.Println(streams)
+
 	return
 }
 
-func (t *twitchStreamChecker) StartPolling(ctx context.Context) {
-	ticker := time.NewTicker(1 * time.Minute)
+func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
+	tickTime := lo.
+		If(t.services.Config.AppEnv == "development", 10*time.Second).
+		Else(1 * time.Minute)
+	ticker := time.NewTicker(tickTime)
 
 	go func() {
 		for {
@@ -40,6 +64,6 @@ func (t *twitchStreamChecker) StartPolling(ctx context.Context) {
 	}()
 }
 
-func (t *twitchStreamChecker) Check() {
+func (t *TwitchStreamChecker) Check() {
 	return
 }

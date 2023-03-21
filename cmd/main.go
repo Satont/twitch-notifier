@@ -58,6 +58,7 @@ func main() {
 	}
 
 	services := &types.Services{
+		Config:  cfg,
 		Twitch:  twitchService,
 		Chat:    db.NewChatEntRepository(client),
 		Channel: db.NewChannelEntService(client),
@@ -71,7 +72,7 @@ func main() {
 	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
 
-	checker := twitch_streams_cheker.NewTwitchStreamChecker(services.Twitch)
+	checker := twitch_streams_cheker.NewTwitchStreamChecker(services)
 	checker.StartPolling(ctx)
 
 	logger.Sugar().Info("Started")

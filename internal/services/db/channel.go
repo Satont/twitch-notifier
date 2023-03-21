@@ -29,4 +29,5 @@ type ChannelInterface interface {
 		channelID string,
 		service db_models.ChannelService,
 	) (*db_models.Channel, error)
+	GetAll(_ context.Context) ([]*db_models.Channel, error)
 }

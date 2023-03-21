@@ -130,6 +130,23 @@ func (c *channelEntService) Update(
 	return c.convertEntity(newChannel), nil
 }
 
+func (c *channelEntService) GetAll(ctx context.Context) ([]*db_models.Channel, error) {
+	channels, err := c.entClient.Channel.
+		Query().
+		All(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*db_models.Channel, 0, len(channels))
+	for _, ch := range channels {
+		result = append(result, c.convertEntity(ch))
+	}
+
+	return result, nil
+}
+
 func NewChannelEntService(entClient *ent.Client) ChannelInterface {
 	return &channelEntService{
 		entClient: entClient,

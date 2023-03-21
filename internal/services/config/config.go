@@ -11,6 +11,7 @@ type Config struct {
 	TwitchClientId     string `required:"true" envconfig:"TWITCH_CLIENTID"`
 	TwitchClientSecret string `required:"true" envconfig:"TWITCH_CLIENTSECRET"`
 	TelegramToken      string `required:"true" envconfig:"TELEGRAM_TOKEN"`
+	AppEnv             string `required:"true" envconfig:"APP_ENV" default:"development"`
 }
 
 func NewConfig() (*Config, error) {
