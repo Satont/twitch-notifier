@@ -60,3 +60,9 @@ func (c *ChannelMock) GetByIdOrCreate(
 
 	return args.Get(0).(*db_models.Channel), args.Error(1)
 }
+
+func (c *ChannelMock) GetAll(ctx context.Context) ([]*db_models.Channel, error) {
+	args := c.Called(ctx)
+
+	return args.Get(0).([]*db_models.Channel), args.Error(1)
+}
