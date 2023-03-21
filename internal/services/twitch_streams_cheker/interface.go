@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-type twitchStreamCheker struct {
+type twitchStreamChecker struct {
 	twitch twitch.Interface
 }
 
-func NewTwitchStreamCheker(twitch twitch.Interface) *twitchStreamCheker {
-	checker := &twitchStreamCheker{
+func NewTwitchStreamChecker(twitch twitch.Interface) *twitchStreamChecker {
+	checker := &twitchStreamChecker{
 		twitch: twitch,
 	}
 
 	return checker
 }
 
-func (t *twitchStreamCheker) StartPolling(ctx context.Context) {
+func (t *twitchStreamChecker) StartPolling(ctx context.Context) {
 	go func() {
 		for {
 			select {
@@ -32,6 +32,6 @@ func (t *twitchStreamCheker) StartPolling(ctx context.Context) {
 	}()
 }
 
-func (t *twitchStreamCheker) Check() {
+func (t *twitchStreamChecker) Check() {
 	return
 }

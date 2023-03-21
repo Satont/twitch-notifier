@@ -71,7 +71,7 @@ func main() {
 	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
 
-	checker := twitch_streams_cheker.NewTwitchStreamCheker(services.Twitch)
+	checker := twitch_streams_cheker.NewTwitchStreamChecker(services.Twitch)
 	checker.StartPolling(ctx)
 
 	logger.Sugar().Info("Started")
