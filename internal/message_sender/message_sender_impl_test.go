@@ -46,7 +46,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 					assert.Equal(t, http.MethodPost, r.Method)
 					assert.Equal(
 						t,
-						fmt.Sprintf("/bot%s/test/sendMessage", test_utils.TelegramClientToken),
+						fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
 						r.URL.Path,
 					)
 
@@ -76,7 +76,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 					assert.Equal(t, http.MethodPost, r.Method)
 					assert.Equal(
 						t,
-						fmt.Sprintf("/bot%s/test/sendPhoto", test_utils.TelegramClientToken),
+						fmt.Sprintf("/bot%s/sendPhoto", test_utils.TelegramClientToken),
 						r.URL.Path,
 					)
 
