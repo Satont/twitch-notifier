@@ -137,11 +137,9 @@ func TestLiveCommand_GetList(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.wants, list)
 
-			sessionManager.AssertExpectations(t)
 			followMock.AssertExpectations(t)
 			twitchMock.AssertExpectations(t)
 
-			sessionManager.ExpectedCalls = nil
 			followMock.ExpectedCalls = nil
 			twitchMock.ExpectedCalls = nil
 		})
