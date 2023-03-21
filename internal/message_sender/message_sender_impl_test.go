@@ -97,6 +97,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 
 			err := sender.SendMessage(context.Background(), tt.chat, tt.opts)
 			assert.NoError(t, err)
+			assert.Nil(t, err)
 		})
 	}
 }
