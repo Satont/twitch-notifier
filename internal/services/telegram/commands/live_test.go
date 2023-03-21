@@ -36,6 +36,27 @@ func TestLiveCommand_GetList(t *testing.T) {
 		return time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
 	}
 
+	follows := []*db_models.Follow{
+		{
+			ID:        uuid.UUID{},
+			ChannelID: uuid.UUID{},
+			ChatID:    uuid.UUID{},
+			Channel: &db_models.Channel{
+				ChannelID: "1",
+			},
+			Chat: nil,
+		},
+		{
+			ID:        uuid.UUID{},
+			ChannelID: uuid.UUID{},
+			ChatID:    uuid.UUID{},
+			Channel: &db_models.Channel{
+				ChannelID: "2",
+			},
+			Chat: nil,
+		},
+	}
+
 	table := []struct {
 		name       string
 		setupMocks func()
@@ -54,29 +75,7 @@ func TestLiveCommand_GetList(t *testing.T) {
 			name: "Should return empty list if no channels online",
 			setupMocks: func() {
 				followMock.On("GetByChatID", ctx, chat.ID, 0, 0).
-					Return(
-						[]*db_models.Follow{
-							{
-								ID:        uuid.UUID{},
-								ChannelID: uuid.UUID{},
-								ChatID:    uuid.UUID{},
-								Channel: &db_models.Channel{
-									ChannelID: "1",
-								},
-								Chat: nil,
-							},
-							{
-								ID:        uuid.UUID{},
-								ChannelID: uuid.UUID{},
-								ChatID:    uuid.UUID{},
-								Channel: &db_models.Channel{
-									ChannelID: "2",
-								},
-								Chat: nil,
-							},
-						},
-						nil,
-					)
+					Return(follows, nil)
 				twitchMock.
 					On(
 						"GetStreamsByUserIds",
@@ -90,29 +89,7 @@ func TestLiveCommand_GetList(t *testing.T) {
 			name: "Should return one channel",
 			setupMocks: func() {
 				followMock.On("GetByChatID", ctx, chat.ID, 0, 0).
-					Return(
-						[]*db_models.Follow{
-							{
-								ID:        uuid.UUID{},
-								ChannelID: uuid.UUID{},
-								ChatID:    uuid.UUID{},
-								Channel: &db_models.Channel{
-									ChannelID: "1",
-								},
-								Chat: nil,
-							},
-							{
-								ID:        uuid.UUID{},
-								ChannelID: uuid.UUID{},
-								ChatID:    uuid.UUID{},
-								Channel: &db_models.Channel{
-									ChannelID: "2",
-								},
-								Chat: nil,
-							},
-						},
-						nil,
-					)
+					Return(follows, nil)
 				twitchMock.
 					On(
 						"GetStreamsByUserIds",
