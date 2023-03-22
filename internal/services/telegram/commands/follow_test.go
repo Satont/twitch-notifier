@@ -2,14 +2,20 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
+	"github.com/mr-linch/go-tg"
+	"github.com/mr-linch/go-tg/tgb"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	"github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -116,4 +122,49 @@ func TestFollowService(t *testing.T) {
 			followsMock.ExpectedCalls = nil
 		})
 	}
+}
+
+func TestFollowCommand_HandleCommand(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	sessionService := test_utils.NewMockedSessionManager()
+
+	sessionService.On("Get", ctx).Return(&tg_types.Session{
+		Chat: &db_models.Chat{ChatID: "123"},
+	})
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Equal(
+			t,
+			fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
+			r.URL.Path,
+		)
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+	}))
+
+	tgClient := test_utils.NewTelegramClient(server)
+
+	followCommand := &FollowCommand{
+		&tg_types.CommandOpts{
+			SessionManager: sessionService,
+			Services:       &types.Services{},
+		},
+	}
+
+	err := followCommand.HandleCommand(ctx, &tgb.MessageUpdate{
+		Client: tgClient,
+		Message: &tg.Message{
+			Chat: tg.Chat{
+				ID: 123,
+			},
+		},
+	})
+	assert.NoError(t, err)
+
+	sessionService.AssertExpectations(t)
 }

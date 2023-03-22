@@ -84,7 +84,7 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
 	c.SessionManager.Get(ctx).Scene = "follow"
 
-	return msg.Answer("enter name").DoVoid(ctx)
+	return msg.Answer("Enter name").DoVoid(ctx)
 }
 
 func NewFollowCommand(opts *tgtypes.CommandOpts) {

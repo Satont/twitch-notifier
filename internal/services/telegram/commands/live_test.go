@@ -9,6 +9,7 @@ import (
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -24,7 +25,7 @@ func TestLiveCommand_GetList(t *testing.T) {
 
 	ctx := context.Background()
 
-	sessionManager := tgtypes.NewMockedSessionManager()
+	sessionManager := test_utils.NewMockedSessionManager()
 	sessionManager.On("Get", ctx).Return(&tgtypes.Session{
 		Chat: chat,
 	})

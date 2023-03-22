@@ -1,13 +1,14 @@
-package tg_types
+package test_utils
 
 import (
 	"context"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/mr-linch/go-tg/tgb/session"
+	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/stretchr/testify/mock"
 )
 
-type MockedSessionManager[T Session] struct {
+type MockedSessionManager[T tgtypes.Session] struct {
 	mock.Mock
 }
 
@@ -42,6 +43,6 @@ func (m *MockedSessionManager[T]) Wrap(next tgb.Handler) tgb.Handler {
 	panic("implement me")
 }
 
-func NewMockedSessionManager() *MockedSessionManager[Session] {
-	return &MockedSessionManager[Session]{}
+func NewMockedSessionManager() *MockedSessionManager[tgtypes.Session] {
+	return &MockedSessionManager[tgtypes.Session]{}
 }
