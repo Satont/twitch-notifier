@@ -156,6 +156,7 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 		},
 	}
 
+	assert.Equal(t, "", sessionService.Get(ctx).Scene)
 	err := followCommand.HandleCommand(ctx, &tgb.MessageUpdate{
 		Client: tgClient,
 		Message: &tg.Message{
@@ -165,6 +166,7 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 		},
 	})
 	assert.NoError(t, err)
+	assert.Equal(t, "follow", sessionService.Get(ctx).Scene)
 
 	sessionService.AssertExpectations(t)
 }
