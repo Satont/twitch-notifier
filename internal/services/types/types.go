@@ -3,6 +3,7 @@ package types
 import (
 	"github.com/satont/twitch-notifier/internal/services/config"
 	"github.com/satont/twitch-notifier/internal/services/db"
+
 	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/pkg/i18n"

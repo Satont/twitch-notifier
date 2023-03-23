@@ -3,14 +3,15 @@ package message_sender
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	"github.com/satont/twitch-notifier/internal/test_utils"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
+	"github.com/satont/twitch-notifier/internal/test_utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMessageSender_SendMessage(t *testing.T) {
