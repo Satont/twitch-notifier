@@ -86,7 +86,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 			}
 		}
 
-		// stream is still online
+		// stream is still online, need to check does we need to update title or category
 		if twitchCurrentStreamOk && currentDBStream != nil {
 			latestTitle := currentDBStream.Titles[len(currentDBStream.Titles)-1]
 			latestCategory := currentDBStream.Categories[len(currentDBStream.Categories)-1]

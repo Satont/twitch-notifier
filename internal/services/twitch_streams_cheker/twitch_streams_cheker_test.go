@@ -69,6 +69,62 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}).Return((*db_models.Stream)(nil), nil)
 			},
 		},
+		{
+			name: "stream is still online, we should update category",
+			setupMocks: func() {
+				channel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
+				newHelixStream := &helix.Stream{
+					ID:       "123",
+					GameName: "Just Chatting",
+					Title:    "title",
+					UserID:   "1",
+				}
+				dbStream := &db_models.Stream{
+					ID:         "123",
+					Titles:     []string{"title"},
+					Categories: []string{"Dota 2"},
+				}
+
+				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
+					channel,
+				}, nil)
+				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
+					*newHelixStream,
+				}, nil)
+				streamMock.On("GetLatestByChannelID", ctx, channel.ID).Return(dbStream, nil)
+				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
+					Category: lo.ToPtr("Just Chatting"),
+				}).Return((*db_models.Stream)(nil), nil)
+			},
+		},
+		{
+			name: "stream is still online, we should update title",
+			setupMocks: func() {
+				channel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
+				newHelixStream := &helix.Stream{
+					ID:       "123",
+					GameName: "Dota 2",
+					Title:    "title1",
+					UserID:   "1",
+				}
+				dbStream := &db_models.Stream{
+					ID:         "123",
+					Titles:     []string{"title"},
+					Categories: []string{"Dota 2"},
+				}
+
+				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
+					channel,
+				}, nil)
+				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
+					*newHelixStream,
+				}, nil)
+				streamMock.On("GetLatestByChannelID", ctx, channel.ID).Return(dbStream, nil)
+				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
+					Title: lo.ToPtr("title1"),
+				}).Return((*db_models.Stream)(nil), nil)
+			},
+		},
 	}
 
 	for _, tt := range table {
