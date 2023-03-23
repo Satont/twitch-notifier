@@ -6,10 +6,9 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	"github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
-	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -25,8 +24,8 @@ func TestLiveCommand_GetList(t *testing.T) {
 
 	ctx := context.Background()
 
-	sessionManager := test_utils.NewMockedSessionManager()
-	sessionManager.On("Get", ctx).Return(&tgtypes.Session{
+	sessionManager := tg_types.NewMockedSessionManager()
+	sessionManager.On("Get", ctx).Return(&tg_types.Session{
 		Chat: chat,
 	})
 
@@ -125,7 +124,7 @@ func TestLiveCommand_GetList(t *testing.T) {
 			tt.setupMocks()
 
 			command := &LiveCommand{
-				CommandOpts: &tgtypes.CommandOpts{
+				CommandOpts: &tg_types.CommandOpts{
 					SessionManager: sessionManager,
 					Services: &types.Services{
 						Follow: followMock,

@@ -129,7 +129,7 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 
 	ctx := context.Background()
 
-	sessionService := test_utils.NewMockedSessionManager()
+	sessionService := tg_types.NewMockedSessionManager()
 
 	sessionService.On("Get", ctx).Return(&tg_types.Session{
 		Chat: &db_models.Chat{ChatID: "123"},
