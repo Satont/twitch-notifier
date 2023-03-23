@@ -171,7 +171,13 @@ func NewFollowsCommand(opts *tgtypes.CommandOpts) {
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, tgb.Command("follows"))
+	opts.Router.Message(
+		cmd.HandleCommand,
+		tgb.Command(
+			"follows",
+			tgb.WithCommandAlias("unfollow"),
+		),
+	)
 	opts.Router.CallbackQuery(cmd.prevPageQuery, tgb.TextEqual("channels_unfollow_prev_page"))
 	opts.Router.CallbackQuery(cmd.nextPageQuery, tgb.TextEqual("channels_unfollow_next_page"))
 	opts.Router.CallbackQuery(cmd.unfollowQuery, tgb.TextHasPrefix("channels_unfollow_"))

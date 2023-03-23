@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/services/config"
 	"github.com/satont/twitch-notifier/internal/services/db"
+	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/satont/twitch-notifier/internal/services/telegram"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/twitch_streams_cheker"
@@ -63,6 +64,7 @@ func main() {
 		Chat:    db.NewChatEntRepository(client),
 		Channel: db.NewChannelEntService(client),
 		Follow:  db.NewFollowService(client),
+		Stream:  db.NewStreamEntService(client),
 		I18N:    i18,
 	}
 
@@ -72,7 +74,9 @@ func main() {
 	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
 
-	checker := twitch_streams_cheker.NewTwitchStreamChecker(services, nil)
+	sender := message_sender.NewMessageSender(tg.Client)
+
+	checker := twitch_streams_cheker.NewTwitchStreamChecker(services, sender, nil)
 	checker.StartPolling(ctx)
 
 	logger.Sugar().Info("Started")

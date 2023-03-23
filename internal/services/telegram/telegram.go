@@ -13,12 +13,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type telegramService struct {
+type TelegramService struct {
 	services *types.Services
 	poller   *tgb.Poller
+	Client   *tg.Client
 }
 
-func NewTelegram(ctx context.Context, token string, services *types.Services) *telegramService {
+func NewTelegram(ctx context.Context, token string, services *types.Services) *TelegramService {
 	client := tg.New(token)
 
 	var sessionManager = session.NewManager(tg_types.Session{
@@ -62,12 +63,13 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *t
 
 	zap.S().Infow("Telegram bot started", "id", me.ID, "username", me.Username)
 
-	return &telegramService{
+	return &TelegramService{
 		poller:   poller,
 		services: services,
+		Client:   client,
 	}
 }
 
-func (t *telegramService) StartPolling(ctx context.Context) {
+func (t *TelegramService) StartPolling(ctx context.Context) {
 	go t.poller.Run(ctx)
 }

@@ -22,7 +22,7 @@ import (
 func TestFollowService(t *testing.T) {
 	t.Parallel()
 
-	mockedTwitch := &twitch.MockedService{}
+	mockedTwitch := &twitch.Mock{}
 	channelsMock := &db.ChannelMock{}
 	followsMock := &db.FollowMock{}
 

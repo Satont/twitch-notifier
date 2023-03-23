@@ -31,7 +31,7 @@ func TestLiveCommand_GetList(t *testing.T) {
 	})
 
 	followMock := &db.FollowMock{}
-	twitchMock := &twitch.MockedService{}
+	twitchMock := &twitch.Mock{}
 
 	var now = func() time.Time {
 		return time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
