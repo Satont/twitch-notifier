@@ -166,19 +166,22 @@ func (c *FollowsCommand) nextPageQuery(ctx context.Context, msg *tgb.CallbackQue
 		DoVoid(ctx)
 }
 
+var (
+	followsCommandFilter = tgb.Command(
+		"follows",
+		tgb.WithCommandAlias("unfollow"))
+	followsPrevPageQuery = tgb.TextEqual("channels_unfollow_prev_page")
+	followsNextPageQuery = tgb.TextEqual("channels_unfollow_next_page")
+	followUnfollowQuery  = tgb.TextHasPrefix("channels_unfollow_")
+)
+
 func NewFollowsCommand(opts *tgtypes.CommandOpts) {
 	cmd := &FollowsCommand{
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(
-		cmd.HandleCommand,
-		tgb.Command(
-			"follows",
-			tgb.WithCommandAlias("unfollow"),
-		),
-	)
-	opts.Router.CallbackQuery(cmd.prevPageQuery, tgb.TextEqual("channels_unfollow_prev_page"))
-	opts.Router.CallbackQuery(cmd.nextPageQuery, tgb.TextEqual("channels_unfollow_next_page"))
-	opts.Router.CallbackQuery(cmd.unfollowQuery, tgb.TextHasPrefix("channels_unfollow_"))
+	opts.Router.Message(cmd.HandleCommand, followsCommandFilter)
+	opts.Router.CallbackQuery(cmd.prevPageQuery, followsPrevPageQuery)
+	opts.Router.CallbackQuery(cmd.nextPageQuery, followsNextPageQuery)
+	opts.Router.CallbackQuery(cmd.unfollowQuery, followUnfollowQuery)
 }

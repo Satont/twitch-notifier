@@ -87,6 +87,10 @@ func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdat
 	return msg.Answer("Enter name").DoVoid(ctx)
 }
 
+var (
+	followCommandQuery = tgb.Command("follow")
+)
+
 func NewFollowCommand(opts *tgtypes.CommandOpts) {
 	cmd := &FollowCommand{
 		CommandOpts: opts,
@@ -96,5 +100,5 @@ func NewFollowCommand(opts *tgtypes.CommandOpts) {
 		session := opts.SessionManager.Get(ctx)
 		return session.Scene == "follow", nil
 	}))
-	opts.Router.Message(cmd.HandleCommand, tgb.Command("follow"))
+	opts.Router.Message(cmd.HandleCommand, followCommandQuery)
 }

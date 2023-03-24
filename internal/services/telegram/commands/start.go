@@ -26,13 +26,15 @@ func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate
 	return msg.Answer(description).ReplyMarkup(keyBoard).DoVoid(ctx)
 }
 
+var startCommandFilter = tgb.Command("start",
+	tgb.WithCommandAlias("help"),
+	tgb.WithCommandAlias("info"),
+)
+
 func NewStartCommand(opts *tg_types.CommandOpts) {
 	cmd := &StartCommand{
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, tgb.Command("start",
-		tgb.WithCommandAlias("help"),
-		tgb.WithCommandAlias("info"),
-	))
+	opts.Router.Message(cmd.HandleCommand, startCommandFilter)
 }

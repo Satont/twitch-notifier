@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -169,4 +170,21 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 	assert.Equal(t, "follow", sessionService.Get(ctx).Scene)
 
 	sessionService.AssertExpectations(t)
+}
+
+func Test_NewFollowCommand(t *testing.T) {
+	t.Parallel()
+
+	router := &tg_types.MockedRouter{}
+
+	router.
+		On("Message", mock.Anything, mock.Anything).
+		Return(router)
+	router.
+		On("Message", mock.Anything, []tgb.Filter{followCommandQuery}).
+		Return(router)
+
+	NewFollowCommand(&tg_types.CommandOpts{Router: router})
+
+	router.AssertExpectations(t)
 }

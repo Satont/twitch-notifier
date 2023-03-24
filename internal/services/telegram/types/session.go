@@ -32,7 +32,7 @@ type Session struct {
 
 type CommandOpts struct {
 	Services       *types.Services
-	Router         *tgb.Router
+	Router         Router
 	SessionManager SessionManager[Session]
 }
 

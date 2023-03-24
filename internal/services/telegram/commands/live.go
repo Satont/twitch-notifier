@@ -76,10 +76,12 @@ func (c *LiveCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate)
 	return nil
 }
 
+var liveCommandFilter = tgb.Command("follow")
+
 func NewLiveCommand(opts *tgtypes.CommandOpts) {
 	cmd := &LiveCommand{
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, tgb.Command("follow"))
+	opts.Router.Message(cmd.HandleCommand, liveCommandFilter)
 }
