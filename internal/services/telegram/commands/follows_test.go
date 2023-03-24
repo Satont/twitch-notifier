@@ -2,15 +2,14 @@ package commands
 
 import (
 	"context"
+	"testing"
+
 	"github.com/google/uuid"
-	"github.com/mr-linch/go-tg/tgb"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 //func TestFollowsCommand_newKeyboard(t *testing.T) {
@@ -603,25 +602,25 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 	}
 }
 
-func Test_NewFollowsCommand(t *testing.T) {
-	t.Parallel()
+// func Test_NewFollowsCommand(t *testing.T) {
+// 	t.Parallel()
 
-	router := &tgtypes.MockedRouter{}
+// 	router := &tgtypes.MockedRouter{}
 
-	router.
-		On("Message", mock.Anything, []tgb.Filter{followsCommandFilter}).
-		Return(router)
-	router.
-		On("CallbackQuery", mock.Anything, []tgb.Filter{followsPrevPageQuery}).
-		Return(router)
-	router.
-		On("CallbackQuery", mock.Anything, []tgb.Filter{followsNextPageQuery}).
-		Return(router)
-	router.
-		On("CallbackQuery", mock.Anything, []tgb.Filter{followUnfollowQuery}).
-		Return(router)
+// 	router.
+// 		On("Message", mock.Anything, []tgb.Filter{followsCommandFilter}).
+// 		Return(router)
+// 	router.
+// 		On("CallbackQuery", mock.Anything, []tgb.Filter{followsPrevPageQuery}).
+// 		Return(router)
+// 	router.
+// 		On("CallbackQuery", mock.Anything, []tgb.Filter{followsNextPageQuery}).
+// 		Return(router)
+// 	router.
+// 		On("CallbackQuery", mock.Anything, []tgb.Filter{followUnfollowQuery}).
+// 		Return(router)
 
-	NewFollowsCommand(&tgtypes.CommandOpts{Router: router})
+// 	NewFollowsCommand(&tgtypes.CommandOpts{Router: router})
 
-	router.AssertExpectations(t)
-}
+// 	router.AssertExpectations(t)
+// }

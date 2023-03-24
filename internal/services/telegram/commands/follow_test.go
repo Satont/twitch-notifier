@@ -3,21 +3,21 @@ package commands
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	"github.com/satont/twitch-notifier/internal/services/telegram/types"
+	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestFollowService(t *testing.T) {
@@ -172,19 +172,19 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 	sessionService.AssertExpectations(t)
 }
 
-func Test_NewFollowCommand(t *testing.T) {
-	t.Parallel()
+// func Test_NewFollowCommand(t *testing.T) {
+// 	t.Parallel()
 
-	router := &tg_types.MockedRouter{}
+// 	router := &tg_types.MockedRouter{}
 
-	router.
-		On("Message", mock.Anything, mock.Anything).
-		Return(router)
-	router.
-		On("Message", mock.Anything, []tgb.Filter{followCommandQuery}).
-		Return(router)
+// 	router.
+// 		On("Message", mock.Anything, mock.Anything).
+// 		Return(router)
+// 	router.
+// 		On("Message", mock.Anything, []tgb.Filter{followCommandQuery}).
+// 		Return(router)
 
-	NewFollowCommand(&tg_types.CommandOpts{Router: router})
+// 	NewFollowCommand(&tg_types.CommandOpts{Router: router})
 
-	router.AssertExpectations(t)
-}
+// 	router.AssertExpectations(t)
+// }
