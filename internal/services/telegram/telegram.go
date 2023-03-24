@@ -53,6 +53,7 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 	commands.NewFollowCommand(commandOpts)
 	commands.NewFollowsCommand(commandOpts)
 	commands.NewLiveCommand(commandOpts)
+	commands.NewBroadcastCommand(commandOpts)
 
 	poller := tgb.NewPoller(router, client)
 

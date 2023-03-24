@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	TwitchClientId     string `required:"true" envconfig:"TWITCH_CLIENTID"`
-	TwitchClientSecret string `required:"true" envconfig:"TWITCH_CLIENTSECRET"`
-	TelegramToken      string `required:"true" envconfig:"TELEGRAM_TOKEN"`
-	AppEnv             string `required:"true" envconfig:"APP_ENV" default:"development"`
+	TwitchClientId     string   `required:"true" envconfig:"TWITCH_CLIENTID"`
+	TwitchClientSecret string   `required:"true" envconfig:"TWITCH_CLIENTSECRET"`
+	TelegramToken      string   `required:"true" envconfig:"TELEGRAM_TOKEN"`
+	AppEnv             string   `required:"true" envconfig:"APP_ENV" default:"development"`
+	TelegramBotAdmins  []string `required:"false" envconfig:"TELEGRAM_BOT_ADMINS"`
 }
 
 func NewConfig() (*Config, error) {
