@@ -2,11 +2,14 @@ package commands
 
 import (
 	"context"
+	"fmt"
+	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -20,6 +23,7 @@ type liveChannel struct {
 	StartedAt time.Time
 	Title     string
 	Category  string
+	Viewers   int
 }
 
 func (c *LiveCommand) getList(ctx context.Context) ([]*liveChannel, error) {
@@ -56,6 +60,7 @@ func (c *LiveCommand) getList(ctx context.Context) ([]*liveChannel, error) {
 			StartedAt: stream.StartedAt,
 			Title:     stream.Title,
 			Category:  stream.GameName,
+			Viewers:   stream.ViewerCount,
 		})
 	}
 
@@ -73,10 +78,60 @@ func (c *LiveCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate)
 		return msg.Answer("No one online").DoVoid(ctx)
 	}
 
-	return nil
+	message := make([]string, 0, len(list))
+
+	for _, channel := range list {
+		channelMessage := make([]string, 0)
+
+		channelMessage = append(
+			channelMessage,
+			fmt.Sprintf(
+				"🟢 %s - %v 👁️️",
+				tg.MD.Link(
+					channel.Name,
+					fmt.Sprintf("https://twitch.tv/%s", channel.Login),
+				),
+				channel.Viewers,
+			),
+		)
+
+		if channel.Category != "" {
+			channelMessage = append(channelMessage, fmt.Sprintf("🎮 %s", channel.Category))
+		}
+
+		if channel.Title != "" {
+			channelMessage = append(channelMessage, fmt.Sprintf("📝 %s", channel.Title))
+		}
+
+		since := time.Since(channel.StartedAt)
+		hour := int(since.Seconds() / 3600)
+		minute := int(since.Seconds()/60) % 60
+		second := int(since.Seconds()) % 60
+
+		channelMessage = append(
+			channelMessage,
+			fmt.Sprintf(
+				"⌛ %vh %vm %vs",
+				hour,
+				minute,
+				second,
+			),
+		)
+
+		message = append(
+			message,
+			strings.Join(channelMessage, "\n"),
+		)
+	}
+
+	return msg.
+		Answer(strings.Join(message, "\n\n")).
+		ParseMode(tg.MD).
+		DisableWebPagePreview(true).
+		DoVoid(ctx)
 }
 
-var liveCommandFilter = tgb.Command("follow")
+var liveCommandFilter = tgb.Command("live")
 
 func NewLiveCommand(opts *tgtypes.CommandOpts) {
 	cmd := &LiveCommand{

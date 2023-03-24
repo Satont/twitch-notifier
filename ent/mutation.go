@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
@@ -16,9 +18,6 @@ import (
 	"github.com/satont/twitch-notifier/ent/follow"
 	"github.com/satont/twitch-notifier/ent/predicate"
 	"github.com/satont/twitch-notifier/ent/stream"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 )
 
 const (

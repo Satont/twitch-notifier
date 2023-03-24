@@ -263,10 +263,7 @@ func (cc *ChannelCreate) createSpec() (*Channel, *sqlgraph.CreateSpec) {
 			Columns: []string{channel.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -282,10 +279,7 @@ func (cc *ChannelCreate) createSpec() (*Channel, *sqlgraph.CreateSpec) {
 			Columns: []string{channel.StreamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeString,
-					Column: stream.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(stream.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

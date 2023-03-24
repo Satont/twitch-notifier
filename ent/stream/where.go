@@ -56,6 +56,16 @@ func IDLTE(id string) predicate.Stream {
 	return predicate.Stream(sql.FieldLTE(FieldID, id))
 }
 
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Stream {
+	return predicate.Stream(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Stream {
+	return predicate.Stream(sql.FieldContainsFold(FieldID, id))
+}
+
 // ChannelID applies equality check predicate on the "channel_id" field. It's identical to ChannelIDEQ.
 func ChannelID(v uuid.UUID) predicate.Stream {
 	return predicate.Stream(sql.FieldEQ(FieldChannelID, v))

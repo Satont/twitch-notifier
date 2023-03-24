@@ -3,6 +3,7 @@ package twitch_streams_cheker
 import (
 	"context"
 	"fmt"
+	"github.com/mr-linch/go-tg"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db"
@@ -10,6 +11,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/sourcegraph/conc"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -86,7 +88,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 			})
 
 			// if stream becomes offline
-			if !twitchCurrentStreamOk && currentDBStream != nil {
+			if !twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.EndedAt == nil {
 				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
 					IsLive: lo.ToPtr(false),
 				})
@@ -97,8 +99,24 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 				// send message to all followers
 				for _, follower := range followers {
+					message := t.services.I18N.Translate(
+						"notifications.streams.nowOffline",
+						follower.Chat.Settings.ChatLanguage.String(),
+						map[string]string{
+							"channelLink": tg.MD.Link(
+								twitchChannel.BroadcasterName,
+								fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+							),
+							"categories": strings.Join(currentDBStream.Categories, ", "),
+							"duration": time.Now().UTC().Sub(currentDBStream.StartedAt).
+								Truncate(1 * time.Second).
+								String(),
+						},
+					)
+
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-						Text: fmt.Sprintf("Stream of %s is offline", twitchChannel.BroadcasterName),
+						Text:      message,
+						ParseMode: &tg.MD,
 					})
 					if err != nil {
 						zap.S().Error(err)
@@ -121,8 +139,27 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 
 				for _, follower := range followers {
+					message := t.services.I18N.Translate(
+						"notifications.streams.nowOnline",
+						follower.Chat.Settings.ChatLanguage.String(),
+						map[string]string{
+							"channelLink": tg.MD.Link(
+								twitchChannel.BroadcasterName,
+								fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+							),
+							"category": twitchCurrentStream.GameName,
+							"title":    twitchCurrentStream.Title,
+						},
+					)
+
+					thumbNail := twitchCurrentStream.ThumbnailURL
+					thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+					thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-						Text: fmt.Sprintf("Stream of %s is online", twitchChannel.BroadcasterName),
+						Text:      message,
+						ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						ParseMode: &tg.MD,
 					})
 					if err != nil {
 						zap.S().Error(err)

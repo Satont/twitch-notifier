@@ -162,10 +162,7 @@ func (csu *ChatSettingsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chatsettings.ChatColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chat.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chat.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -178,10 +175,7 @@ func (csu *ChatSettingsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chatsettings.ChatColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chat.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chat.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -372,10 +366,7 @@ func (csuo *ChatSettingsUpdateOne) sqlSave(ctx context.Context) (_node *ChatSett
 			Columns: []string{chatsettings.ChatColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chat.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chat.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -388,10 +379,7 @@ func (csuo *ChatSettingsUpdateOne) sqlSave(ctx context.Context) (_node *ChatSett
 			Columns: []string{chatsettings.ChatColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chat.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chat.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

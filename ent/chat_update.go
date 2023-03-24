@@ -171,10 +171,7 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chat.SettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chatsettings.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chatsettings.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -187,10 +184,7 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chat.SettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chatsettings.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chatsettings.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -206,10 +200,7 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -222,10 +213,7 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -241,10 +229,7 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -443,10 +428,7 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 			Columns: []string{chat.SettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chatsettings.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chatsettings.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -459,10 +441,7 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 			Columns: []string{chat.SettingsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chatsettings.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chatsettings.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -478,10 +457,7 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -494,10 +470,7 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -513,10 +486,7 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 			Columns: []string{chat.FollowsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: follow.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(follow.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

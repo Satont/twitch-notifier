@@ -218,10 +218,7 @@ func (csc *ChatSettingsCreate) createSpec() (*ChatSettings, *sqlgraph.CreateSpec
 			Columns: []string{chatsettings.ChatColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeUUID,
-					Column: chat.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(chat.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -2,12 +2,14 @@ package message_sender
 
 import (
 	"context"
+	"github.com/mr-linch/go-tg"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 )
 
 type MessageOpts struct {
-	Text     string
-	ImageURL string
+	Text      string
+	ImageURL  string
+	ParseMode *tg.ParseMode
 }
 
 type MessageSenderInterface interface {
