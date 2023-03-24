@@ -118,6 +118,28 @@ func (c *chatService) GetByID(
 	return c.convertEntity(ch), nil
 }
 
+func (c *chatService) GetAllByService(
+	ctx context.Context,
+	service db_models.ChatService,
+) ([]*db_models.Chat, error) {
+	chats, err := c.entClient.Chat.
+		Query().
+		Where(chat.ServiceEQ(chat.Service(service))).
+		Order(ent.Desc(chat.FieldChatID)).
+		WithSettings().
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*db_models.Chat
+	for _, ch := range chats {
+		result = append(result, c.convertEntity(ch))
+	}
+
+	return result, nil
+}
+
 func NewChatEntRepository(entClient *ent.Client) ChatInterface {
 	return &chatService{
 		entClient: entClient,

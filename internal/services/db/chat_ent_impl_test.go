@@ -6,6 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	"github.com/stretchr/testify/assert"
+	"strconv"
 	"testing"
 )
 
@@ -220,5 +221,39 @@ func TestChatService_Update(t *testing.T) {
 				assert.Equal(t, tt.newValues.streamStartNotification, newChat.Settings.OfflineNotification)
 			}
 		})
+	}
+}
+
+func TestChatService_GetAllByService(t *testing.T) {
+	t.Parallel()
+
+	entClient, err := setupTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer teardownTest(entClient)
+
+	ctx := context.Background()
+
+	chatService := NewChatEntRepository(entClient)
+
+	var created []*db_models.Chat
+
+	for i := 0; i < 10; i++ {
+		newChat, err := chatService.Create(
+			ctx,
+			strconv.Itoa(i),
+			db_models.ChatServiceTelegram,
+		)
+		assert.NoError(t, err)
+		created = append(created, newChat)
+	}
+
+	chats, err := chatService.GetAllByService(ctx, db_models.ChatServiceTelegram)
+	assert.NoError(t, err)
+	assert.Len(t, chats, 10)
+
+	for _, chat := range chats {
+		assert.Contains(t, created, chat)
 	}
 }

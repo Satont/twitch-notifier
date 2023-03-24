@@ -32,4 +32,5 @@ type ChatInterface interface {
 		service db_models.ChatService,
 		query *ChatUpdateQuery,
 	) (*db_models.Chat, error)
+	GetAllByService(_ context.Context, service db_models.ChatService) ([]*db_models.Chat, error)
 }
