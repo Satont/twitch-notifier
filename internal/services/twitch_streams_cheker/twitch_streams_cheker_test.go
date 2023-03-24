@@ -189,6 +189,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 			twitchMock.ExpectedCalls = nil
 			streamMock.ExpectedCalls = nil
 			senderMock.ExpectedCalls = nil
+			followMock.ExpectedCalls = nil
 		})
 	}
 }
