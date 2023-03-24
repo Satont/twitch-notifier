@@ -2,11 +2,13 @@ package twitch_streams_cheker
 
 import (
 	"context"
+	"fmt"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/sourcegraph/conc"
 	"go.uber.org/zap"
 	"time"
 )
@@ -44,74 +46,129 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 		channelsIDs = append(channelsIDs, channel.ChannelID)
 	}
 
+	twitchChannels, err := t.services.Twitch.GetChannelsByUserIds(channelsIDs)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
 	currentTwitchStreams, err := t.services.Twitch.GetStreamsByUserIds(channelsIDs)
 	if err != nil {
 		zap.S().Error(err)
 		return
 	}
 
+	var wg conc.WaitGroup
 	for _, channel := range channels {
-		currentDBStream, err := t.services.Stream.GetLatestByChannelID(ctx, channel.ID)
-		if err != nil {
-			zap.S().Error(err)
-			continue
-		}
-
-		twitchCurrentStream, twitchCurrentStreamOk := lo.Find(currentTwitchStreams, func(stream helix.Stream) bool {
-			return stream.UserID == channel.ChannelID
-		})
-
-		// if stream becomes offline
-		if !twitchCurrentStreamOk && currentDBStream != nil {
-			_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-				IsLive: lo.ToPtr(false),
+		channel := channel
+		wg.Go(func() {
+			twitchChannel, twitchChannelOk := lo.Find(twitchChannels, func(item helix.ChannelInformation) bool {
+				return item.BroadcasterID == channel.ChannelID
 			})
+			if !twitchChannelOk {
+				return
+			}
+
+			currentDBStream, err := t.services.Stream.GetLatestByChannelID(ctx, channel.ID)
 			if err != nil {
 				zap.S().Error(err)
-				continue
+				return
 			}
-		}
 
-		// if stream becomes online
-		if twitchCurrentStreamOk && currentDBStream == nil {
-			_, err = t.services.Stream.CreateOneByChannelID(ctx, channel.ID, &db.StreamUpdateQuery{
-				StreamID: twitchCurrentStream.ID,
-				IsLive:   lo.ToPtr(true),
-				Category: lo.ToPtr(twitchCurrentStream.GameName),
-				Title:    lo.ToPtr(twitchCurrentStream.Title),
-			})
+			followers, err := t.services.Follow.GetByChannelID(ctx, channel.ID)
 			if err != nil {
 				zap.S().Error(err)
-				continue
+				return
 			}
-		}
 
-		// stream is still online, need to check does we need to update title or category
-		if twitchCurrentStreamOk && currentDBStream != nil {
-			latestTitle := currentDBStream.Titles[len(currentDBStream.Titles)-1]
-			latestCategory := currentDBStream.Categories[len(currentDBStream.Categories)-1]
+			twitchCurrentStream, twitchCurrentStreamOk := lo.Find(currentTwitchStreams, func(stream helix.Stream) bool {
+				return stream.UserID == channel.ChannelID
+			})
 
-			if twitchCurrentStream.GameName != latestCategory {
+			// if stream becomes offline
+			if !twitchCurrentStreamOk && currentDBStream != nil {
 				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
+					IsLive: lo.ToPtr(false),
+				})
+				if err != nil {
+					zap.S().Error(err)
+					return
+				}
+
+				// send message to all followers
+				for _, follower := range followers {
+					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						Text: fmt.Sprintf("Stream of %s is offline", twitchChannel.BroadcasterName),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
+				}
+			}
+
+			// if stream becomes online
+			if twitchCurrentStreamOk && currentDBStream == nil {
+				_, err = t.services.Stream.CreateOneByChannelID(ctx, channel.ID, &db.StreamUpdateQuery{
+					StreamID: twitchCurrentStream.ID,
+					IsLive:   lo.ToPtr(true),
 					Category: lo.ToPtr(twitchCurrentStream.GameName),
+					Title:    lo.ToPtr(twitchCurrentStream.Title),
 				})
 				if err != nil {
 					zap.S().Error(err)
-					continue
+					return
+				}
+
+				for _, follower := range followers {
+					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						Text: fmt.Sprintf("Stream of %s is online", twitchChannel.BroadcasterName),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
 				}
 			}
 
-			if twitchCurrentStream.Title != latestTitle {
-				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-					Title: lo.ToPtr(twitchCurrentStream.Title),
-				})
-				if err != nil {
-					zap.S().Error(err)
-					continue
+			// stream is still online, need to check does we need to update title or category
+			if twitchCurrentStreamOk && currentDBStream != nil {
+				latestTitle := currentDBStream.Titles[len(currentDBStream.Titles)-1]
+				latestCategory := currentDBStream.Categories[len(currentDBStream.Categories)-1]
+
+				if twitchCurrentStream.GameName != latestCategory {
+					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
+						Category: lo.ToPtr(twitchCurrentStream.GameName),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
+
+					for _, follower := range followers {
+						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+							Text: fmt.Sprintf("Changed category %s", twitchChannel.BroadcasterName),
+						})
+						if err != nil {
+							zap.S().Error(err)
+							return
+						}
+					}
+				}
+
+				if twitchCurrentStream.Title != latestTitle {
+					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
+						Title: lo.ToPtr(twitchCurrentStream.Title),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
 				}
 			}
-		}
+		})
 	}
+	wg.Wait()
 
 	return
 }
