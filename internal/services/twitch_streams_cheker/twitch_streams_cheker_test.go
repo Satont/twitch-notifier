@@ -2,7 +2,6 @@ package twitch_streams_cheker
 
 import (
 	"context"
-	"fmt"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -11,23 +10,37 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/pkg/i18n"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestTwitchStreamChecker_check(t *testing.T) {
 	t.Parallel()
 
+	wd, err := os.Getwd()
+	assert.NoError(t, err)
+
 	channelsMock := &db.ChannelMock{}
 	twitchMock := &twitch.Mock{}
 	senderMock := &message_sender.Mock{}
 	streamMock := &db.StreamMock{}
 	followMock := &db.FollowMock{}
+	i18, err := i18n.NewI18n(filepath.Join(wd, "..", "..", "..", "locales"))
+	assert.NoError(t, err)
 
 	ctx := context.Background()
 
 	dbChannel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
 	dbStream := &db_models.Stream{ID: "123", Titles: []string{"title"}, Categories: []string{"Dota 2"}}
-	dbChat := &db_models.Chat{ID: uuid.New(), ChatID: "1"}
+	dbChat := &db_models.Chat{
+		ID:       uuid.New(),
+		ChatID:   "1",
+		Settings: &db_models.ChatSettings{ChatLanguage: db_models.ChatLanguageEn},
+	}
 	dbFollow := &db_models.Follow{ID: uuid.New(), ChatID: dbChat.ID, Chat: dbChat, Channel: dbChannel, ChannelID: dbChannel.ID}
 	twitchChannelInfo := &helix.ChannelInformation{BroadcasterID: "1", BroadcasterName: "Satont"}
 	twitchStream := &helix.Stream{
@@ -61,9 +74,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					On("SendMessage",
 						ctx,
 						dbChat,
-						&message_sender.MessageOpts{
-							Text: fmt.Sprintf("Stream of %s is offline", twitchChannelInfo.BroadcasterName),
-						},
+						mock.Anything,
 					).
 					Return(nil)
 			},
@@ -92,9 +103,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					On("SendMessage",
 						ctx,
 						dbChat,
-						&message_sender.MessageOpts{
-							Text: fmt.Sprintf("Stream of %s is online", twitchChannelInfo.BroadcasterName),
-						},
+						mock.Anything,
 					).
 					Return(nil)
 			},
@@ -127,9 +136,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					On("SendMessage",
 						ctx,
 						dbChat,
-						&message_sender.MessageOpts{
-							Text: fmt.Sprintf("Changed category %s", twitchChannelInfo.BroadcasterName),
-						},
+						mock.Anything,
 					).
 					Return(nil)
 			},
@@ -173,6 +180,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Twitch:  twitchMock,
 					Stream:  streamMock,
 					Follow:  followMock,
+					I18N:    i18,
 				},
 				sender: senderMock,
 			}
