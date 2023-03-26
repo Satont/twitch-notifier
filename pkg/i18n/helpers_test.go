@@ -19,4 +19,8 @@ func TestGetNested(t *testing.T) {
 	res, ok = GetNested[string](data, "bar")
 	assert.False(t, ok, "expected to be false")
 	assert.Equal(t, "", res, "expected to not get a value")
+
+	res, ok = GetNested[string](nil, "foo")
+	assert.False(t, ok, "expected to be false")
+	assert.Equal(t, "", res, "expected to not get a value")
 }
