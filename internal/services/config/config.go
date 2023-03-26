@@ -15,12 +15,15 @@ type Config struct {
 	TelegramBotAdmins  []string `required:"false" envconfig:"TELEGRAM_BOT_ADMINS"`
 }
 
+var getWd = os.Getwd
+var processEnv = envconfig.Process
+
 func NewConfig(customPath *string) (*Config, error) {
 	var newCfg Config
 
 	var err error
 
-	wd, err := os.Getwd()
+	wd, err := getWd()
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +35,7 @@ func NewConfig(customPath *string) (*Config, error) {
 	}
 
 	_ = godotenv.Load(envPath)
-	if err = envconfig.Process("", &newCfg); err != nil {
+	if err = processEnv("", &newCfg); err != nil {
 		return nil, err
 	}
 

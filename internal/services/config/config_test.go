@@ -1,13 +1,14 @@
 package config
 
 import (
+	"github.com/kelseyhightower/envconfig"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
 	"testing"
 )
 
-var config = `
+var strConfig = `
 TWITCH_CLIENTID=1
 TWITCH_CLIENTSECRET=2
 TELEGRAM_TOKEN=3
@@ -17,23 +18,64 @@ TELEGRAM_BOT_ADMINS=4
 func Test_NewConfig(t *testing.T) {
 	t.Parallel()
 
-	file, err := os.CreateTemp("", "notifier-temp-env")
-	if err != nil {
-		log.Fatal(err)
+	table := []struct {
+		name            string
+		wantErr         bool
+		patchWd         bool
+		patchProcessenv bool
+	}{
+		{
+			name:    "wd error",
+			wantErr: true,
+			patchWd: true,
+		},
+		{
+			name:            "process env error",
+			wantErr:         true,
+			patchProcessenv: true,
+		},
+		{
+			name: "success",
+		},
 	}
 
-	filePath := file.Name()
+	for _, tt := range table {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.patchWd {
+				getWd = func() (string, error) {
+					return "", os.ErrNotExist
+				}
+				defer func() { getWd = os.Getwd }()
+			}
 
-	defer os.Remove(filePath)
+			if tt.patchProcessenv {
+				processEnv = func(s string, i interface{}) error {
+					return os.ErrNotExist
+				}
+				defer func() { processEnv = envconfig.Process }()
+			}
 
-	_, err = file.Write([]byte(config))
-	assert.NoError(t, err)
+			file, err := os.CreateTemp("", "notifier-temp-env")
+			if err != nil {
+				log.Fatal(err)
+			}
 
-	config, err := NewConfig(&filePath)
-	assert.NoError(t, err)
+			filePath := file.Name()
 
-	assert.Equal(t, "1", config.TwitchClientId)
-	assert.Equal(t, "2", config.TwitchClientSecret)
-	assert.Equal(t, "3", config.TelegramToken)
-	assert.Contains(t, config.TelegramBotAdmins, "4")
+			_, err = file.Write([]byte(strConfig))
+			defer os.Remove(filePath)
+
+			config, err := NewConfig(&filePath)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+
+				assert.Equal(t, "1", config.TwitchClientId)
+				assert.Equal(t, "2", config.TwitchClientSecret)
+				assert.Equal(t, "3", config.TelegramToken)
+				assert.Contains(t, config.TelegramBotAdmins, "4")
+			}
+		})
+	}
 }
