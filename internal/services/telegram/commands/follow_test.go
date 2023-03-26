@@ -11,21 +11,20 @@ import (
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
-	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFollowService(t *testing.T) {
 	t.Parallel()
 
-	mockedTwitch := &twitch.Mock{}
-	channelsMock := &db.ChannelMock{}
-	followsMock := &db.FollowMock{}
+	mockedTwitch := &mocks.TwitchApiMock{}
+	channelsMock := &mocks.DbChannelMock{}
+	followsMock := &mocks.DbFollowMock{}
 
 	userLogin := "fukushine"
 	user := &helix.User{

@@ -3,9 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/mr-linch/go-tg"
-	"github.com/mr-linch/go-tg/tgb"
-	"github.com/satont/twitch-notifier/internal/test_utils"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -13,12 +10,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mr-linch/go-tg"
+	"github.com/mr-linch/go-tg/tgb"
+	"github.com/satont/twitch-notifier/internal/test_utils"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
+
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	"github.com/satont/twitch-notifier/internal/services/telegram/types"
-	"github.com/satont/twitch-notifier/internal/services/twitch"
+	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -38,8 +38,8 @@ func TestLiveCommand_GetList(t *testing.T) {
 		Chat: chat,
 	})
 
-	followMock := &db.FollowMock{}
-	twitchMock := &twitch.Mock{}
+	followMock := &mocks.DbFollowMock{}
+	twitchMock := &mocks.TwitchApiMock{}
 
 	var now = func() time.Time {
 		return time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -166,8 +166,8 @@ func TestLiveCommand_HandleCommand(t *testing.T) {
 	ctx := context.Background()
 
 	sessionMock := tg_types.NewMockedSessionManager()
-	followMock := &db.FollowMock{}
-	twitchMock := &twitch.Mock{}
+	followMock := &mocks.DbFollowMock{}
+	twitchMock := &mocks.TwitchApiMock{}
 
 	var now = func() time.Time {
 		return time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)

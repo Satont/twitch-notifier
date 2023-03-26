@@ -2,20 +2,20 @@ package twitch_streams_cheker
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	"github.com/satont/twitch-notifier/internal/services/message_sender"
-	"github.com/satont/twitch-notifier/internal/services/twitch"
 	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"os"
-	"path/filepath"
-	"testing"
 )
 
 func TestTwitchStreamChecker_check(t *testing.T) {
@@ -24,11 +24,11 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 	wd, err := os.Getwd()
 	assert.NoError(t, err)
 
-	channelsMock := &db.ChannelMock{}
-	twitchMock := &twitch.Mock{}
-	senderMock := &message_sender.Mock{}
-	streamMock := &db.StreamMock{}
-	followMock := &db.FollowMock{}
+	channelsMock := &mocks.DbChannelMock{}
+	twitchMock := &mocks.TwitchApiMock{}
+	senderMock := &mocks.MessageSenderMock{}
+	streamMock := &mocks.DbStreamMock{}
+	followMock := &mocks.DbFollowMock{}
 	i18, err := i18n.NewI18n(filepath.Join(wd, "..", "..", "..", "locales"))
 	assert.NoError(t, err)
 

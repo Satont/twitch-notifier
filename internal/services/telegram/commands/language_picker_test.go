@@ -3,6 +3,12 @@ package commands
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
@@ -11,14 +17,10 @@ import (
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"testing"
 )
 
 //func TestLanguagePicker_buildKeyboard(t *testing.T) {
@@ -167,7 +169,7 @@ func TestLanguagePicker_handleSetLanguage(t *testing.T) {
 		On("Translate", "language.changed", "ru", map[string]string(nil)).
 		Return("Now russian")
 
-	chatService := &db.ChatMock{}
+	chatService := &mocks.DbChatMock{}
 	chatService.
 		On("Update", ctx, "1", db_models.ChatServiceTelegram, mock.IsType(&db.ChatUpdateQuery{})).
 		Return((*db_models.Chat)(nil), nil)

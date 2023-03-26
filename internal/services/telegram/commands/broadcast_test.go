@@ -3,26 +3,27 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/mr-linch/go-tg"
-	"github.com/mr-linch/go-tg/tgb"
-	"github.com/satont/twitch-notifier/internal/services/db"
-	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
-	"github.com/satont/twitch-notifier/internal/services/types"
-	"github.com/satont/twitch-notifier/internal/test_utils"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/mr-linch/go-tg"
+	"github.com/mr-linch/go-tg/tgb"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
+	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/test_utils"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBroadcastCommand_HandleCommand(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	chatMock := &db.ChatMock{}
+	chatMock := &mocks.DbChatMock{}
 
 	table := []struct {
 		name       string
