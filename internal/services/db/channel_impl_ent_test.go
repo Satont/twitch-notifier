@@ -2,10 +2,13 @@ package db
 
 import (
 	"context"
+	"strconv"
+	"testing"
+
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
+	"github.com/sourcegraph/conc"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestChannelEntService_GetByIdOrCreate(t *testing.T) {
@@ -192,4 +195,33 @@ func TestChannelEntService_Update(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestChannelEntService_GetAll(t *testing.T) {
+	t.Parallel()
+
+	entClient, err := setupTest()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer teardownTest(entClient)
+
+	channelService := NewChannelEntService(entClient)
+
+	ctx := context.Background()
+
+	wg := conc.NewWaitGroup()
+	for i := 0; i < 5; i++ {
+		i := i
+		wg.Go(func() {
+			_, err = channelService.Create(ctx, strconv.Itoa(i), db_models.ChannelServiceTwitch)
+			assert.NoError(t, err)
+		})
+	}
+	wg.Wait()
+
+	channels, err := channelService.GetAll(ctx)
+	assert.NoError(t, err)
+
+	assert.Len(t, channels, 5)
 }
