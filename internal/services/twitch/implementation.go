@@ -57,7 +57,7 @@ func (t *twitchService) GetUser(id, login string) (*helix.User, error) {
 }
 
 func (t *twitchService) GetUsers(ids, logins []string) ([]helix.User, error) {
-	data := lo.If(ids[0] == "", logins).Else(ids)
+	data := lo.If(len(ids) == 0, logins).Else(ids)
 
 	reqData := &chunkedRequestData[*helix.UsersParams, *helix.UsersResponse]{
 		ids:       data,
@@ -66,7 +66,7 @@ func (t *twitchService) GetUsers(ids, logins []string) ([]helix.User, error) {
 			return response.Data.Users
 		},
 		paramFn: func(chunk []string) *helix.UsersParams {
-			if ids[0] != "" {
+			if len(ids) != 0 {
 				return &helix.UsersParams{
 					IDs: chunk,
 				}
