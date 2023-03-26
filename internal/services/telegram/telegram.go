@@ -2,6 +2,8 @@ package telegram
 
 import (
 	"context"
+	"github.com/hashicorp/go-retryablehttp"
+	"time"
 
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
@@ -20,7 +22,15 @@ type TelegramService struct {
 }
 
 func NewTelegram(ctx context.Context, token string, services *types.Services) *TelegramService {
-	client := tg.New(token)
+	retryClient := retryablehttp.NewClient()
+	retryClient.RetryMax = 3
+	retryClient.RetryWaitMax = 3600 * time.Second
+	retryClient.RetryWaitMin = 50 * time.Millisecond
+	retryClient.Logger = nil
+
+	httpClient := retryClient.StandardClient()
+
+	client := tg.New(token, tg.WithClientDoer(httpClient))
 
 	var sessionManager = session.NewManager(tg_types.Session{
 		FollowsMenu: &tg_types.Menu{},

@@ -18,15 +18,6 @@ type BroadcastCommand struct {
 	*tgtypes.CommandOpts
 }
 
-var (
-	broadcastCommandFilter      = tgb.Command("follow")
-	broadcastCommandAdminFilter = func(services *types.Services) tgb.Filter {
-		return tgb.FilterFunc(func(ctx context.Context, update *tgb.Update) (bool, error) {
-			return lo.Contains(services.Config.TelegramBotAdmins, update.Message.Chat.ID.PeerID()), nil
-		})
-	}
-)
-
 func (c *BroadcastCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
 	chats, err := c.Services.Chat.GetAllByService(ctx, db_models.ChatServiceTelegram)
 	if err != nil {
@@ -58,11 +49,19 @@ func (c *BroadcastCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUp
 	return nil
 }
 
+var (
+	broadcastCommandFilter      = tgb.Command("broadcast")
+	broadcastCommandAdminFilter = func(services *types.Services) tgb.Filter {
+		return tgb.FilterFunc(func(ctx context.Context, update *tgb.Update) (bool, error) {
+			return lo.Contains(services.Config.TelegramBotAdmins, update.Message.Chat.ID.PeerID()), nil
+		})
+	}
+)
+
 func NewBroadcastCommand(opts *tgtypes.CommandOpts) {
 	cmd := &BroadcastCommand{
 		CommandOpts: opts,
 	}
-
 	opts.Router.Message(
 		cmd.HandleCommand,
 		broadcastCommandFilter,
