@@ -18,6 +18,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestNewTwitchStreamChecker(t *testing.T) {
+	t.Parallel()
+
+	services := &types.Services{}
+
+	checker := NewTwitchStreamChecker(services, &mocks.MessageSenderMock{}, nil)
+	assert.IsType(t, &TwitchStreamChecker{}, checker)
+}
+
 func TestTwitchStreamChecker_check(t *testing.T) {
 	t.Parallel()
 
