@@ -2,6 +2,14 @@ package commands
 
 import (
 	"context"
+	"fmt"
+	"github.com/mr-linch/go-tg"
+	"github.com/mr-linch/go-tg/tgb"
+	"github.com/satont/twitch-notifier/internal/test_utils"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
@@ -147,14 +155,119 @@ func TestLiveCommand_GetList(t *testing.T) {
 	}
 }
 
-// func Test_NewLiveCommand(t *testing.T) {
-// 	t.Parallel()
+func TestLiveCommand_HandleCommand(t *testing.T) {
+	t.Parallel()
 
-// 	router := &tg_types.MockedRouter{}
+	chat := &db_models.Chat{
+		ID:     uuid.New(),
+		ChatID: "1",
+	}
 
-// 	router.On("Message", mock.Anything, []tgb.Filter{liveCommandFilter}).Return(router)
+	ctx := context.Background()
 
-// 	NewLiveCommand(&tg_types.CommandOpts{Router: router})
+	sessionMock := tg_types.NewMockedSessionManager()
+	followMock := &db.FollowMock{}
+	twitchMock := &twitch.Mock{}
 
-// 	router.AssertExpectations(t)
-// }
+	var now = func() time.Time {
+		return time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
+
+	follows := []*db_models.Follow{
+		{
+			ID:        uuid.UUID{},
+			ChannelID: uuid.UUID{},
+			ChatID:    uuid.UUID{},
+			Channel: &db_models.Channel{
+				ChannelID: "1",
+			},
+			Chat: nil,
+		},
+		{
+			ID:        uuid.UUID{},
+			ChannelID: uuid.UUID{},
+			ChatID:    uuid.UUID{},
+			Channel: &db_models.Channel{
+				ChannelID: "2",
+			},
+			Chat: nil,
+		},
+	}
+
+	sessionMock.On("Get", ctx).Return(&tg_types.Session{
+		Chat: chat,
+	})
+	followMock.On("GetByChatID", ctx, chat.ID, 0, 0).
+		Return(follows, nil)
+	twitchMock.
+		On(
+			"GetStreamsByUserIds",
+			[]string{"1", "2"},
+		).Return([]helix.Stream{
+		{
+			UserID:    "1",
+			UserLogin: "satont",
+			UserName:  "Satont",
+			GameName:  "Dota 2",
+			Title:     "Playing dota",
+			StartedAt: now(),
+		},
+		{
+			UserID:    "2",
+			UserLogin: "sadisnamenya",
+			UserName:  "SadisNaMenya",
+			GameName:  "Dota 2",
+			Title:     "Dotka",
+			StartedAt: now(),
+		},
+	}, nil)
+
+	expectedString1 := "🟢 [Satont](https://twitch.tv/satont) - 0 👁️️\n🎮 Dota 2\n📝 Playing dota\n⌛"
+	expectedString2 := "🟢 [SadisNaMenya](https://twitch.tv/sadisnamenya) - 0 👁️️\n🎮 Dota 2\n📝 Dotka\n"
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		assert.NoError(t, err)
+		query, err := url.ParseQuery(string(body))
+		assert.NoError(t, err)
+
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Equal(
+			t,
+			fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
+			r.URL.Path,
+		)
+		assert.Contains(t, query.Get("text"), expectedString1)
+		assert.Contains(t, query.Get("text"), expectedString2)
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+	}))
+	defer server.Close()
+
+	telegramClient := test_utils.NewTelegramClient(server)
+
+	cmd := &LiveCommand{
+		CommandOpts: &tg_types.CommandOpts{
+			SessionManager: sessionMock,
+			Services: &types.Services{
+				Follow: followMock,
+				Twitch: twitchMock,
+			},
+		},
+	}
+
+	err := cmd.HandleCommand(ctx, &tgb.MessageUpdate{
+		Client: telegramClient,
+		Message: &tg.Message{
+			Chat: tg.Chat{
+				ID: 1,
+			},
+		},
+	})
+	assert.NoError(t, err)
+
+	sessionMock.AssertExpectations(t)
+	followMock.AssertExpectations(t)
+	twitchMock.AssertExpectations(t)
+}
