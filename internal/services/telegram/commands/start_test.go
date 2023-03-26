@@ -3,7 +3,6 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
@@ -108,8 +107,8 @@ func TestStartCommand_HandleCommand(t *testing.T) {
 		body, err := io.ReadAll(r.Body)
 		assert.NoError(t, err)
 		query, err := url.ParseQuery(string(body))
-		spew.Dump(string(body))
 		assert.NoError(t, err)
+
 		assert.Equal(t, http.MethodPost, r.Method)
 		assert.Equal(
 			t,
