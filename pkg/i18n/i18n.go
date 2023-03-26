@@ -2,7 +2,6 @@ package i18n
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,10 +84,7 @@ func (i *I18n) Translate(key, language string, data map[string]string) string {
 	}
 
 	res := &strings.Builder{}
-	err = tmpl.Execute(res, data)
-	if err != nil {
-		log.Fatal(err)
-	}
+	_ = tmpl.Execute(res, data)
 
 	return res.String()
 }

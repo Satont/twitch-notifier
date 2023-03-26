@@ -76,3 +76,15 @@ func TestNewI18n(t *testing.T) {
 		})
 	}
 }
+
+func TestGetLanguagesCodes(t *testing.T) {
+	t.Parallel()
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	i18, err := NewI18n(filepath.Join(wd, "test_locales"))
+
+	assert.Equal(t, []string{"en"}, i18.GetLanguagesCodes())
+}
