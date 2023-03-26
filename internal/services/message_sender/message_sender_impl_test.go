@@ -3,6 +3,8 @@ package message_sender
 import (
 	"context"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/mr-linch/go-tg"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -78,6 +80,38 @@ func TestMessageSender_SendMessage(t *testing.T) {
 					assert.Equal(
 						t,
 						fmt.Sprintf("/bot%s/sendPhoto", test_utils.TelegramClientToken),
+						r.URL.Path,
+					)
+
+					w.WriteHeader(http.StatusOK)
+					_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+				}))
+			},
+		},
+		{
+			name: "should call send message method with parse mode",
+			chat: chat,
+			opts: &MessageOpts{
+				Text:      "test",
+				ParseMode: &tg.MD,
+			},
+			createServer: func(t *testing.T) *httptest.Server {
+				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					body, err := io.ReadAll(r.Body)
+					assert.NoError(t, err)
+					query, err := url.ParseQuery(string(body))
+					assert.NoError(t, err)
+
+					spew.Dump(string(body))
+
+					assert.Equal(t, "test", query.Get("text"))
+					assert.Equal(t, "123", query.Get("chat_id"))
+					assert.Equal(t, "Markdown", query.Get("parse_mode"))
+
+					assert.Equal(t, http.MethodPost, r.Method)
+					assert.Equal(
+						t,
+						fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
 						r.URL.Path,
 					)
 
