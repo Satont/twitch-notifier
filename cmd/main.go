@@ -27,7 +27,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	cfg, err := config.NewConfig()
+	cfg, err := config.NewConfig(nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
