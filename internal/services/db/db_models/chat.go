@@ -14,6 +14,15 @@ func (s ChatService) String() string {
 	return string(s)
 }
 
+func LanguageExists(l ChatLanguage) bool {
+	switch l {
+	case ChatLanguageRu, ChatLanguageEn:
+		return true
+	default:
+		return false
+	}
+}
+
 type Chat struct {
 	ID      uuid.UUID   `json:"id,omitempty"`
 	ChatID  string      `json:"chat_id,omitempty"`
@@ -25,9 +34,9 @@ type Chat struct {
 
 type ChatLanguage string
 
-const DefaultChatLanguage = ChatLanguageEn
+var DefaultChatLanguage = ChatLanguageEn
 
-const (
+var (
 	ChatLanguageRu ChatLanguage = "ru"
 	ChatLanguageEn ChatLanguage = "en"
 )
