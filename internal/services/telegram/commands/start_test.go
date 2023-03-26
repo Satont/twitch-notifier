@@ -3,6 +3,12 @@ package commands
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
@@ -10,14 +16,9 @@ import (
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
-	"github.com/satont/twitch-notifier/pkg/i18n"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
-	"testing"
 )
 
 func TestStartCommand_buildKeyboard(t *testing.T) {
@@ -32,7 +33,7 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 		},
 	}
 
-	i18 := i18n.NewI18nMock()
+	i18 := i18nmocks.NewI18nMock()
 	i18.
 		On("Translate", mock.Anything, mock.Anything, mock.Anything).
 		Return("")
@@ -93,7 +94,7 @@ func TestStartCommand_HandleCommand(t *testing.T) {
 		},
 	}
 
-	i18 := i18n.NewI18nMock()
+	i18 := i18nmocks.NewI18nMock()
 	i18.
 		On("Translate", mock.Anything, mock.Anything, mock.Anything).
 		Return("start command")

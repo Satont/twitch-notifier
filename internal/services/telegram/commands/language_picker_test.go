@@ -18,7 +18,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/types"
 	"github.com/satont/twitch-notifier/internal/test_utils"
 	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
-	"github.com/satont/twitch-notifier/pkg/i18n"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -93,7 +93,7 @@ func TestLanguagePicker_HandleCallback(t *testing.T) {
 
 	ctx := context.Background()
 
-	i18nMock := i18n.NewI18nMock()
+	i18nMock := i18nmocks.NewI18nMock()
 	i18nMock.On("GetLanguagesCodes").Return([]string{"en"})
 
 	englishFlag := "🇬🇧"
@@ -164,7 +164,7 @@ func TestLanguagePicker_handleSetLanguage(t *testing.T) {
 		Chat: chat,
 	})
 
-	i18nMock := i18n.NewI18nMock()
+	i18nMock := i18nmocks.NewI18nMock()
 	i18nMock.
 		On("Translate", "language.changed", "ru", map[string]string(nil)).
 		Return("Now russian")

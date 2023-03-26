@@ -1,4 +1,4 @@
-package i18n
+package i18nmocks
 
 import "github.com/stretchr/testify/mock"
 
