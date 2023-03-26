@@ -62,7 +62,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 			name: "should call send photo method",
 			chat: chat,
 			opts: &MessageOpts{
-				Text:     "test",
+				Text:     "test photo",
 				ImageURL: "https://example.com/image.jpg",
 			},
 			createServer: func(t *testing.T) *httptest.Server {
@@ -72,7 +72,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 					query, err := url.ParseQuery(string(body))
 					assert.NoError(t, err)
 
-					assert.Equal(t, "test", query.Get("caption"))
+					assert.Equal(t, "test photo", query.Get("caption"))
 					assert.Equal(t, "https://example.com/image.jpg", query.Get("photo"))
 					assert.Equal(t, "123", query.Get("chat_id"))
 
@@ -92,7 +92,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 			name: "should call send message method with parse mode",
 			chat: chat,
 			opts: &MessageOpts{
-				Text:      "test",
+				Text:      "test md",
 				ParseMode: &tg.MD,
 			},
 			createServer: func(t *testing.T) *httptest.Server {
@@ -104,7 +104,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 
 					spew.Dump(string(body))
 
-					assert.Equal(t, "test", query.Get("text"))
+					assert.Equal(t, "test md", query.Get("text"))
 					assert.Equal(t, "123", query.Get("chat_id"))
 					assert.Equal(t, "Markdown", query.Get("parse_mode"))
 
@@ -123,16 +123,14 @@ func TestMessageSender_SendMessage(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			server := tt.createServer(t)
+		t.Run(tt.name, func(c *testing.T) {
+			server := tt.createServer(c)
 			tgClient := test_utils.NewTelegramClient(server)
 			sender := NewMessageSender(tgClient)
 
 			err := sender.SendMessage(context.Background(), tt.chat, tt.opts)
-			assert.NoError(t, err)
-			assert.Nil(t, err)
+			assert.NoError(c, err)
+			assert.Nil(c, err)
 		})
 	}
 }
