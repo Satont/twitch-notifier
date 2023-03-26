@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
@@ -10,6 +11,14 @@ import (
 
 type StartCommand struct {
 	*tg_types.CommandOpts
+}
+
+func (c *StartCommand) createCheckMark(value bool) string {
+	if value {
+		return "✅"
+	}
+
+	return "❌"
 }
 
 func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMarkup, error) {
@@ -20,20 +29,31 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMar
 
 	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](1)
 
+	gameChangeNotificationsButton := c.Services.I18N.Translate(
+		"commands.start.game_change_notification_setting.button",
+		chat.Settings.ChatLanguage.String(),
+		nil,
+	)
+	offlineNotificationsButton := c.Services.I18N.Translate(
+		"commands.start.offline_notification.button",
+		chat.Settings.ChatLanguage.String(),
+		nil,
+	)
+
 	layout.Add(
 		tg.NewInlineKeyboardButtonCallback(
-			c.Services.I18N.Translate(
-				"commands.start.game_change_notification_setting.button",
-				chat.Settings.ChatLanguage.String(),
-				nil,
+			fmt.Sprintf(
+				"%s %s",
+				c.createCheckMark(chat.Settings.GameChangeNotification),
+				gameChangeNotificationsButton,
 			),
 			"start_game_change_notification_setting",
 		),
 		tg.NewInlineKeyboardButtonCallback(
-			c.Services.I18N.Translate(
-				"commands.start.offline_notification.button",
-				chat.Settings.ChatLanguage.String(),
-				nil,
+			fmt.Sprintf(
+				"%s %s",
+				c.createCheckMark(chat.Settings.OfflineNotification),
+				offlineNotificationsButton,
 			),
 			"start_offline_notification",
 		),
