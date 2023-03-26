@@ -1,0 +1,4 @@
+{
+  "nowOffline": "{{ channelLink }} теперь оффлайн.\n{{ categories }}\n{{ duration }}",
+  "nowOnline": "\uD83D\uDFE2 {{ channelLink }} теперь онлайн!\nКатегория: {{ category }}\nНазвание: {{ title }}"
+}
