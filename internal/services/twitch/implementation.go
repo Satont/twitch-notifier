@@ -3,6 +3,7 @@ package twitch
 import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/satont/twitch-notifier/internal/services/twitch/helpers"
 	"time"
 )
 
@@ -14,7 +15,7 @@ func NewTwitchService(clientId string, clientSecret string) (Interface, error) {
 	apiClient, err := helix.NewClient(&helix.Options{
 		ClientID:      clientId,
 		ClientSecret:  clientSecret,
-		RateLimitFunc: rateLimitCallback,
+		RateLimitFunc: helpers.RateLimitCallback,
 	})
 
 	if err != nil {

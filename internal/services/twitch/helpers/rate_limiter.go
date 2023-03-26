@@ -1,4 +1,4 @@
-package twitch
+package helpers
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func rateLimitCallback(lastResponse *helix.Response) error {
+func RateLimitCallback(lastResponse *helix.Response) error {
 	if lastResponse.GetRateLimitRemaining() > 0 {
 		return nil
 	}
