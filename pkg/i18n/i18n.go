@@ -9,11 +9,15 @@ import (
 	"text/template"
 )
 
+type Interface interface {
+	Translate(key, language string, data map[string]string) string
+}
+
 type I18n struct {
 	translations map[string]map[string]any
 }
 
-func NewI18n(localesPath string) (*I18n, error) {
+func NewI18n(localesPath string) (Interface, error) {
 	entries, err := os.ReadDir(localesPath)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,11 @@
+{
+  "game_change_notification_setting": {
+    "button": "Game change notification"
+  },
+  "language": {
+    "button": "🌍 Language"
+  },
+  "offline_notification": {
+    "button": "Offline notification"
+  }
+}
