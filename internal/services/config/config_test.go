@@ -74,6 +74,7 @@ func Test_NewConfig(t *testing.T) {
 				assert.Equal(t, "1", config.TwitchClientId)
 				assert.Equal(t, "2", config.TwitchClientSecret)
 				assert.Equal(t, "3", config.TelegramToken)
+				assert.IsType(t, []string{}, config.TelegramBotAdmins)
 				assert.Contains(t, config.TelegramBotAdmins, "4")
 			}
 		})
