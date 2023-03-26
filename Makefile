@@ -1,7 +1,9 @@
-.PHONY: generate migrate-create dev tests
+.PHONY: generate migrate-create dev tests gen
 
 generate:
 	go generate ./...
+
+gen: generate
 
 migrate-create: generate
 	atlas migrate diff $(CLI_ARGS) \
