@@ -11,6 +11,7 @@ import (
 
 type Interface interface {
 	Translate(key, language string, data map[string]string) string
+	GetLanguagesCodes() []string
 }
 
 type I18n struct {
@@ -90,4 +91,12 @@ func (i *I18n) Translate(key, language string, data map[string]string) string {
 	}
 
 	return res.String()
+}
+
+func (i *I18n) GetLanguagesCodes() []string {
+	var codes []string
+	for code, _ := range i.translations {
+		codes = append(codes, code)
+	}
+	return codes
 }

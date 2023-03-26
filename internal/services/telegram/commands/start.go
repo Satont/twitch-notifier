@@ -23,7 +23,7 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMar
 	layout.Add(
 		tg.NewInlineKeyboardButtonCallback(
 			c.Services.I18N.Translate(
-				"commands.start.game_change_notification_setting",
+				"commands.start.game_change_notification_setting.button",
 				chat.Settings.ChatLanguage.String(),
 				nil,
 			),
@@ -31,11 +31,19 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMar
 		),
 		tg.NewInlineKeyboardButtonCallback(
 			c.Services.I18N.Translate(
-				"commands.start.offline_notification",
+				"commands.start.offline_notification.button",
 				chat.Settings.ChatLanguage.String(),
 				nil,
 			),
 			"start_offline_notification",
+		),
+		tg.NewInlineKeyboardButtonCallback(
+			c.Services.I18N.Translate(
+				"commands.start.language.button",
+				chat.Settings.ChatLanguage.String(),
+				nil,
+			),
+			"language_picker",
 		),
 		tg.NewInlineKeyboardButtonURL("Github", "https://github.com/Satont/twitch-notifier"),
 	)
@@ -56,11 +64,26 @@ func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate
 	return msg.Answer(description).ReplyMarkup(keyBoard).DoVoid(ctx)
 }
 
-var startCommandFilter = tgb.Command("start",
-	tgb.WithCommandAlias("help"),
-	tgb.WithCommandAlias("info"),
-	tgb.WithCommandAlias("settings"),
+var (
+	startCommandFilter = tgb.Command("start",
+		tgb.WithCommandAlias("help"),
+		tgb.WithCommandAlias("info"),
+		tgb.WithCommandAlias("settings"),
+	)
+	startMenuFilter = tgb.TextEqual("start_command_menu")
 )
+
+func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+	keyboard, err := c.buildKeyboard(ctx)
+	if err != nil {
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
 
 func NewStartCommand(opts *tg_types.CommandOpts) {
 	cmd := &StartCommand{
@@ -68,4 +91,5 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 	}
 
 	opts.Router.Message(cmd.HandleCommand, startCommandFilter)
+	opts.Router.CallbackQuery(cmd.handleCallback, startMenuFilter)
 }
