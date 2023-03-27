@@ -176,7 +176,7 @@ func TestFollowsCommand_HandleCommand(t *testing.T) {
 	}
 
 	sessionMock.On("Get", ctx).Return(session)
-	followsMock.On("GetByChatID", ctx, chat.ID, 15, 0).Return([]*db_models.Follow{}, nil)
+	followsMock.On("GetByChatID", ctx, chat.ID, 9, 0).Return([]*db_models.Follow{}, nil)
 
 	commandOpts := &tgtypes.CommandOpts{
 		Services: &types.Services{

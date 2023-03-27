@@ -42,7 +42,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
-	defer client.Close()
 	// Run the auto migration tool.
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
@@ -69,7 +68,6 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
@@ -84,4 +82,6 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 	fmt.Println("Closing...")
+	cancel()
+	_ = client.Close()
 }
