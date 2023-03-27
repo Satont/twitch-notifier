@@ -7,6 +7,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/test_utils"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -157,6 +158,7 @@ func TestFollowsCommand_HandleCommand(t *testing.T) {
 
 	sessionMock := tgtypes.NewMockedSessionManager()
 	followsMock := &mocks.DbFollowMock{}
+	i18nMock := i18nmocks.NewI18nMock()
 
 	ctx := context.Background()
 	chat := &db_models.Chat{
@@ -177,10 +179,19 @@ func TestFollowsCommand_HandleCommand(t *testing.T) {
 
 	sessionMock.On("Get", ctx).Return(session)
 	followsMock.On("GetByChatID", ctx, chat.ID, 9, 0).Return([]*db_models.Follow{}, nil)
+	followsMock.On("CountByChatID", ctx, chat.ID).Return(1, nil)
+	i18nMock.
+		On(
+			"Translate",
+			"commands.follows.total",
+			"en",
+			map[string]string{"count": "1"},
+		).Return("Total: 1")
 
 	commandOpts := &tgtypes.CommandOpts{
 		Services: &types.Services{
 			Follow: followsMock,
+			I18N:   i18nMock,
 		},
 		SessionManager: sessionMock,
 	}

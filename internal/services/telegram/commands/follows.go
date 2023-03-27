@@ -110,7 +110,15 @@ func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpda
 		return msg.Answer("internal error").DoVoid(ctx)
 	}
 
-	return msg.Answer("your follows").ReplyMarkup(keyboard).DoVoid(ctx)
+	totalFollows, err := c.Services.Follow.CountByChatID(ctx, session.Chat.ID)
+
+	return msg.
+		Answer(c.Services.I18N.Translate(
+			"commands.follows.total",
+			session.Chat.Settings.ChatLanguage.String(),
+			map[string]string{"count": fmt.Sprintf("%v", totalFollows)},
+		)).
+		ReplyMarkup(keyboard).DoVoid(ctx)
 }
 
 func (c *FollowsCommand) handleUnfollow(ctx context.Context, chat *db_models.Chat, input string) error {

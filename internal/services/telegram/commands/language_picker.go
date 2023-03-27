@@ -100,4 +100,8 @@ func NewLanguagePicker(opts *tgtypes.CommandOpts) {
 	picker := &LanguagePicker{opts}
 
 	opts.Router.CallbackQuery(picker.HandleCallback, tgb.TextEqual("language_picker"))
+	opts.Router.CallbackQuery(
+		picker.handleSetLanguage,
+		tgb.TextHasPrefix("language_picker_set_"),
+	)
 }

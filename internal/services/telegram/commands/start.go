@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
+	"github.com/satont/twitch-notifier/internal/services/db"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tg_types "github.com/satont/twitch-notifier/internal/services/telegram/types"
+	"go.uber.org/zap"
 )
 
 type StartCommand struct {
@@ -77,15 +80,6 @@ func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate
 	return msg.Answer(description).ReplyMarkup(keyBoard).DoVoid(ctx)
 }
 
-var (
-	startCommandFilter = tgb.Command("start",
-		tgb.WithCommandAlias("help"),
-		tgb.WithCommandAlias("info"),
-		tgb.WithCommandAlias("settings"),
-	)
-	startMenuFilter = tgb.TextEqual("start_command_menu")
-)
-
 func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
 	keyboard := c.buildKeyboard(ctx)
 
@@ -95,6 +89,79 @@ func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQuer
 		DoVoid(ctx)
 }
 
+func (c *StartCommand) handleGameNotificationSettings(
+	ctx context.Context,
+	msg *tgb.CallbackQueryUpdate,
+) error {
+	chat := c.SessionManager.Get(ctx).Chat
+
+	chat.Settings.GameChangeNotification = !chat.Settings.GameChangeNotification
+
+	_, err := c.Services.Chat.Update(
+		ctx,
+		chat.ChatID,
+		db_models.ChatServiceTelegram,
+		&db.ChatUpdateQuery{
+			Settings: &db.ChatUpdateSettingsQuery{
+				GameChangeNotification: &chat.Settings.GameChangeNotification,
+			},
+		},
+	)
+	if err != nil {
+		zap.S().Error(err)
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
+	keyboard := c.buildKeyboard(ctx)
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
+func (c *StartCommand) handleOfflineNotificationSettings(
+	ctx context.Context,
+	msg *tgb.CallbackQueryUpdate,
+) error {
+	chat := c.SessionManager.Get(ctx).Chat
+
+	chat.Settings.OfflineNotification = !chat.Settings.OfflineNotification
+
+	_, err := c.Services.Chat.Update(
+		ctx,
+		chat.ChatID,
+		db_models.ChatServiceTelegram,
+		&db.ChatUpdateQuery{
+			Settings: &db.ChatUpdateSettingsQuery{
+				OfflineNotification: &chat.Settings.OfflineNotification,
+			},
+		},
+	)
+	if err != nil {
+		zap.S().Error(err)
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
+	keyboard := c.buildKeyboard(ctx)
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
+var (
+	startCommandFilter = tgb.Command("start",
+		tgb.WithCommandAlias("help"),
+		tgb.WithCommandAlias("info"),
+		tgb.WithCommandAlias("settings"),
+	)
+	startMenuFilter                     = tgb.TextEqual("start_command_menu")
+	gameChangeNotificationSettingFilter = tgb.TextEqual("start_game_change_notification_setting")
+	offlineNotificationSettingFilter    = tgb.TextEqual("start_offline_notification")
+)
+
 func NewStartCommand(opts *tg_types.CommandOpts) {
 	cmd := &StartCommand{
 		CommandOpts: opts,
@@ -102,4 +169,6 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 
 	opts.Router.Message(cmd.HandleCommand, startCommandFilter)
 	opts.Router.CallbackQuery(cmd.handleCallback, startMenuFilter)
+	opts.Router.CallbackQuery(cmd.handleGameNotificationSettings, gameChangeNotificationSettingFilter)
+	opts.Router.CallbackQuery(cmd.handleOfflineNotificationSettings, offlineNotificationSettingFilter)
 }
