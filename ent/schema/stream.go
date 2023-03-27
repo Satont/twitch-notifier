@@ -19,18 +19,18 @@ func (Stream) Fields() []ent.Field {
 
 		field.Strings("titles").
 			Optional().
-			Default([]string{}).
-			SchemaType(map[string]string{
-				"postgres": "text[]",
-				"sqlite":   "text[]",
-			}),
+			Default([]string{}),
+		//SchemaType(map[string]string{
+		//	"postgres": "text[]",
+		//	"sqlite":   "text[]",
+		//}),
 		field.Strings("categories").
 			Optional().
-			Default([]string{}).
-			SchemaType(map[string]string{
-				"postgres": "text[]",
-				"sqlite":   "text[]",
-			}),
+			Default([]string{}),
+		//SchemaType(map[string]string{
+		//	"postgres": "text[]",
+		//	"sqlite":   "text[]",
+		//}),
 
 		field.Time("started_at").Optional().Default(time.Now().UTC),
 		field.Time("updated_at").Nillable().Optional().Default(nil).UpdateDefault(time.Now().UTC),
