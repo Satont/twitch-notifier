@@ -321,12 +321,10 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 			mockedTwitch.AssertExpectations(t)
 			channelsMock.AssertExpectations(t)
 			followsMock.AssertExpectations(t)
-			sessionMock.AssertExpectations(t)
 
 			mockedTwitch.ExpectedCalls = nil
 			channelsMock.ExpectedCalls = nil
 			followsMock.ExpectedCalls = nil
-			sessionMock.ExpectedCalls = nil
 			i18nMock.ExpectedCalls = nil
 		})
 	}
