@@ -8,8 +8,10 @@ require (
 	entgo.io/ent v0.11.10
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.3.0
+	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/lib/pq v1.10.7
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/mr-linch/go-tg v0.8.0
 	github.com/nicklaw5/helix/v2 v2.22.0
@@ -27,7 +29,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.16.2 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

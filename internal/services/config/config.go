@@ -13,6 +13,7 @@ type Config struct {
 	TelegramToken      string   `required:"true" envconfig:"TELEGRAM_TOKEN"`
 	AppEnv             string   `required:"true" envconfig:"APP_ENV" default:"development"`
 	TelegramBotAdmins  []string `required:"false" envconfig:"TELEGRAM_BOT_ADMINS"`
+	DatabaseUrl        string   `required:"true" envconfig:"DATABASE_URL"`
 }
 
 var getWd = os.Getwd

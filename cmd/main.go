@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/services/config"
 	"github.com/satont/twitch-notifier/internal/services/db"
@@ -38,14 +38,14 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	client, err := ent.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	client, err := ent.Open("postgres", cfg.DatabaseUrl)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
 	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background()); err != nil {
-		log.Fatalf("failed creating schema resources: %v", err)
-	}
+	//if err := client.Schema.Create(context.Background()); err != nil {
+	//	log.Fatalf("failed creating schema resources: %v", err)
+	//}
 
 	twitchService, err := twitch.NewTwitchService(cfg.TwitchClientId, cfg.TwitchClientSecret)
 	if err != nil {
