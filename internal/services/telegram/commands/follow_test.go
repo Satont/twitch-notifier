@@ -2,7 +2,9 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -171,19 +173,161 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 	sessionService.AssertExpectations(t)
 }
 
-// func Test_NewFollowCommand(t *testing.T) {
-// 	t.Parallel()
+func TestFollowCommand_HandleScene(t *testing.T) {
+	t.Parallel()
 
-// 	router := &tg_types.MockedRouter{}
+	mockedTwitch := &mocks.TwitchApiMock{}
+	channelsMock := &mocks.DbChannelMock{}
+	followsMock := &mocks.DbFollowMock{}
+	i18nMock := i18nmocks.NewI18nMock()
+	sessionMock := tg_types.NewMockedSessionManager()
 
-// 	router.
-// 		On("Message", mock.Anything, mock.Anything).
-// 		Return(router)
-// 	router.
-// 		On("Message", mock.Anything, []tgb.Filter{followCommandQuery}).
-// 		Return(router)
+	ctx := context.Background()
 
-// 	NewFollowCommand(&tg_types.CommandOpts{Router: router})
+	userLogin := "satont"
+	helixUser := &helix.User{
+		ID:          "1",
+		Login:       userLogin,
+		DisplayName: "Satont",
+	}
 
-// 	router.AssertExpectations(t)
-// }
+	dbChat := &db_models.Chat{
+		ID: uuid.New(),
+		Settings: &db_models.ChatSettings{
+			ChatLanguage: db_models.ChatLanguageEn,
+		},
+	}
+	dbChannel := &db_models.Channel{
+		ID:        uuid.New(),
+		ChannelID: "1",
+	}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Equal(
+			t,
+			fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
+			r.URL.Path,
+		)
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+	}))
+	defer server.Close()
+	tgMockedServer := test_utils.NewTelegramClient(server)
+
+	tgMsg := &tgb.MessageUpdate{
+		Client: tgMockedServer,
+		Message: &tg.Message{
+			Chat: tg.Chat{ID: 1},
+			Text: userLogin,
+		},
+	}
+
+	sessionMock.On("Get", ctx).Return(&tg_types.Session{
+		Chat: dbChat,
+	})
+
+	table := []struct {
+		name       string
+		input      string
+		setupMocks func()
+	}{
+		{
+			name:  "Should fail because of GetUser error",
+			input: "",
+			setupMocks: func() {
+				mockedTwitch.
+					On("GetUser", "", userLogin).
+					Return((*helix.User)(nil), nil)
+				i18nMock.On(
+					"Translate",
+					"commands.follow.errors.streamerNotFound",
+					"en",
+					map[string]string{"streamer": userLogin},
+				).Return("")
+			},
+		},
+		{
+			name:  "Should fail because db follow exists",
+			input: userLogin,
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
+					Return(dbChannel, nil)
+				followsMock.
+					On("Create", ctx, dbChannel.ID, dbChat.ID).
+					Return((*db_models.Follow)(nil), db_models.FollowAlreadyExistsError)
+				i18nMock.On(
+					"Translate",
+					"commands.follow.alreadyFollowed",
+					"en",
+					map[string]string{"streamer": userLogin},
+				).Return("")
+			},
+		},
+		{
+			name:  "Should fail because db channel cannot be created",
+			input: userLogin,
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
+					Return(dbChannel, errors.New("some error"))
+			},
+		},
+		{
+			name:  "Should success",
+			input: userLogin,
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
+					Return(dbChannel, nil)
+				followsMock.
+					On("Create", ctx, dbChannel.ID, dbChat.ID).
+					Return((*db_models.Follow)(nil), nil)
+				i18nMock.On(
+					"Translate",
+					"commands.follow.success",
+					"en",
+					map[string]string{"streamer": userLogin},
+				).Return("")
+			},
+		},
+	}
+
+	for _, tt := range table {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setupMocks()
+
+			followCommand := &FollowCommand{
+				&tg_types.CommandOpts{
+					SessionManager: sessionMock,
+					Services: &types.Services{
+						Twitch:  mockedTwitch,
+						Channel: channelsMock,
+						Follow:  followsMock,
+						I18N:    i18nMock,
+					},
+				},
+			}
+
+			err := followCommand.handleScene(ctx, tgMsg)
+			assert.NoError(t, err)
+
+			i18nMock.AssertExpectations(t)
+			mockedTwitch.AssertExpectations(t)
+			channelsMock.AssertExpectations(t)
+			followsMock.AssertExpectations(t)
+			sessionMock.AssertExpectations(t)
+
+			mockedTwitch.ExpectedCalls = nil
+			channelsMock.ExpectedCalls = nil
+			followsMock.ExpectedCalls = nil
+			sessionMock.ExpectedCalls = nil
+			i18nMock.ExpectedCalls = nil
+		})
+	}
+}
