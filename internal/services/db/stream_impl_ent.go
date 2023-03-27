@@ -128,8 +128,9 @@ func (s *StreamEntService) CreateOneByChannelID(
 	channelEntityID uuid.UUID,
 	data *StreamUpdateQuery,
 ) (*db_models.Stream, error) {
-	query := s.entClient.Stream.Create().
-		SetChannelID(channelEntityID)
+	query := s.entClient.Stream.Create()
+
+	query.SetChannelID(channelEntityID)
 
 	query.SetStartedAt(time.Now().UTC())
 	query.SetID(data.StreamID)

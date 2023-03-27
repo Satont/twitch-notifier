@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/services/config"
 	"github.com/satont/twitch-notifier/internal/services/db"
@@ -38,9 +38,14 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	client, err := ent.Open("postgres", cfg.DatabaseUrl)
+	pgConnectionUrl, err := pq.ParseURL(cfg.DatabaseUrl)
 	if err != nil {
-		log.Fatalf("failed opening connection to sqlite: %v", err)
+		log.Fatalln(err)
+	}
+
+	client, err := ent.Open("postgres", pgConnectionUrl)
+	if err != nil {
+		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
 	// Run the auto migration tool.
 	//if err := client.Schema.Create(context.Background()); err != nil {
