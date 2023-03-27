@@ -2,6 +2,13 @@ package commands
 
 import (
 	"context"
+	"github.com/mr-linch/go-tg"
+	"github.com/mr-linch/go-tg/tgb"
+	"github.com/satont/twitch-notifier/internal/test_utils"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/google/uuid"
@@ -600,4 +607,61 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 			channelsMock.ExpectedCalls = nil
 		})
 	}
+}
+
+func TestFollowsCommand_HandleCommand(t *testing.T) {
+	t.Parallel()
+
+	sessionMock := tgtypes.NewMockedSessionManager()
+	followsMock := &mocks.DbFollowMock{}
+
+	ctx := context.Background()
+	chat := &db_models.Chat{
+		ID:     uuid.New(),
+		ChatID: "1",
+		Settings: &db_models.ChatSettings{
+			ChatLanguage: db_models.ChatLanguageEn,
+		},
+	}
+
+	session := &tgtypes.Session{
+		Chat: chat,
+		FollowsMenu: &tgtypes.Menu{
+			CurrentPage: 5,
+			TotalPages:  10,
+		},
+	}
+
+	sessionMock.On("Get", ctx).Return(session)
+	followsMock.On("GetByChatID", ctx, chat.ID, 15, 0).Return([]*db_models.Follow{}, nil)
+
+	commandOpts := &tgtypes.CommandOpts{
+		Services: &types.Services{
+			Follow: followsMock,
+		},
+		SessionManager: sessionMock,
+	}
+
+	cmd := &FollowsCommand{CommandOpts: commandOpts}
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		query, _ := url.ParseQuery(string(body))
+
+		assert.Greater(t, len(query.Get("text")), 1)
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+	}))
+	defer server.Close()
+
+	msg := &tgb.MessageUpdate{
+		Client: test_utils.NewTelegramClient(server),
+		Message: &tg.Message{
+			Chat: tg.Chat{ID: 1},
+		},
+	}
+
+	err := cmd.HandleCommand(ctx, msg)
+	assert.NoError(t, err)
 }

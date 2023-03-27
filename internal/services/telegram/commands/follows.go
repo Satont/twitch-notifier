@@ -25,6 +25,8 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 	limit := maxRows * perRow
 	offset := (session.FollowsMenu.CurrentPage - 1) * limit
 
+	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](perRow)
+
 	follows, err := c.Services.Follow.GetByChatID(
 		ctx,
 		session.Chat.ID,
@@ -35,6 +37,10 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 		zap.S().Error(err)
 		return nil, err
 	}
+	if len(follows) == 0 {
+		markup := tg.NewInlineKeyboardMarkup(layout.Keyboard()...)
+		return &markup, nil
+	}
 
 	totalFollows, err := c.Services.Follow.CountByChatID(ctx, session.Chat.ID)
 	if err != nil {
@@ -43,8 +49,6 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 	}
 
 	session.FollowsMenu.TotalPages = totalFollows / limit
-
-	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](perRow)
 
 	channelsIds := lo.Map(follows, func(follow *db_models.Follow, _ int) string {
 		return follow.Channel.ChannelID
