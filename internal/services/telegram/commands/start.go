@@ -2,7 +2,6 @@ package commands
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
@@ -23,9 +22,6 @@ func (c *StartCommand) createCheckMark(value bool) string {
 
 func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMarkup, error) {
 	chat := c.SessionManager.Get(ctx).Chat
-	if chat == nil {
-		return nil, errors.New("chat is nil")
-	}
 
 	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](1)
 
