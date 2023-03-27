@@ -174,3 +174,39 @@ func TestTwitchService_GetChannelsByUserId(t *testing.T) {
 		{BroadcasterID: "2", BroadcasterName: "test2", GameName: "Dota 3", Title: "tiitle2"},
 	}, channels)
 }
+
+func TestTwitchService_GetChunkerError(t *testing.T) {
+	t.Parallel()
+
+	table := []struct {
+		name                 string
+		server               *httptest.Server
+		expectedErrorMessage string
+	}{
+		{
+			name: "fail because twitch returns error code",
+			server: httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusForbidden)
+				data := `{
+					"error": "Forbidden",
+					"status": 403,
+					"message": "test"
+				}`
+				_, _ = w.Write([]byte(data))
+			})),
+			expectedErrorMessage: "test",
+		},
+	}
+
+	for _, tt := range table {
+		t.Run(tt.name, func(t *testing.T) {
+			twitchService, err := newMockedApi(tt.server)
+			assert.NoError(t, err)
+
+			_, err = twitchService.GetChannelByUserId("1")
+			assert.Error(t, err)
+			assert.Equal(t, tt.expectedErrorMessage, err.Error())
+		})
+	}
+
+}
