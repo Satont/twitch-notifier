@@ -1,9 +1,9 @@
+.PHONY: generate migrate-create dev tests gen
+
 ifneq (,$(wildcard ./.env))
     include .env
     export
 endif
-
-.PHONY: generate migrate-create dev tests gen
 
 generate:
 	go generate ./...

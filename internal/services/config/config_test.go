@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"os"
 	"testing"
 )
@@ -56,14 +55,14 @@ func Test_NewConfig(t *testing.T) {
 			}
 
 			file, err := os.CreateTemp("", "notifier-temp-env")
-			if err != nil {
-				log.Fatal(err)
-			}
+			assert.NoError(t, err)
 
 			filePath := file.Name()
 
 			_, err = file.Write([]byte(strConfig))
+			assert.NoError(t, err)
 			defer os.Remove(filePath)
+			defer file.Close()
 
 			config, err := NewConfig(&filePath)
 			if tt.wantErr {

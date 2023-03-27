@@ -34,7 +34,7 @@ func NewConfig(customPath *string) (*Config, error) {
 		envPath = *customPath
 	}
 
-	_ = godotenv.Load(envPath)
+	_ = godotenv.Overload(envPath)
 	if err = processEnv("", &newCfg); err != nil {
 		return nil, err
 	}

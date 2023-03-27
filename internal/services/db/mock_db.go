@@ -15,6 +15,7 @@ func setupTest() (*ent.Client, error) {
 		return nil, err
 	}
 	if err := entClient.Schema.Create(context.Background()); err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	return entClient, nil
