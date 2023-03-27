@@ -8,7 +8,7 @@ Bot for sending twitch streams notifications in telegram.
 
 ### Requirements
 
-- Goland 1.20+
+- Golang 1.20+
 
 ### Testing
 
@@ -35,6 +35,7 @@ All schemas located in `./ent/schema` directory.
 #### Requirements
 
 - [atlasgo cli](https://atlasgo.io/getting-started#installation)
+- Docker
 
 ### Create
 
