@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"go.uber.org/zap"
+	"math"
 	"strings"
 )
 
@@ -48,7 +49,10 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 		return nil, err
 	}
 
-	session.FollowsMenu.TotalPages = totalFollows / limit
+	session.FollowsMenu.TotalPages = int(math.Ceil(float64(totalFollows) / float64(limit)))
+	//spew.Dump(totalFollows)
+	//spew.Dump(session.FollowsMenu)
+	//spew.Dump(session.FollowsMenu.CurrentPage)
 
 	channelsIds := lo.Map(follows, func(follow *db_models.Follow, _ int) string {
 		return follow.Channel.ChannelID
@@ -71,21 +75,22 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 
 	if session.FollowsMenu.CurrentPage > 1 || session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
 		paginationRow = layout.Row()
-	}
 
-	fmt.Println(session.FollowsMenu.CurrentPage, session.FollowsMenu.TotalPages)
-	if session.FollowsMenu.CurrentPage > 1 && paginationRow != nil {
-		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
-			"«",
-			"channels_unfollow_prev_page",
-		))
-	}
+		// Add "Prev" button
+		if session.FollowsMenu.CurrentPage > 1 {
+			paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
+				"«",
+				"channels_unfollow_prev_page",
+			))
+		}
 
-	if session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages && paginationRow != nil {
-		paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
-			"»",
-			"channels_unfollow_next_page",
-		))
+		// Add "Next" button
+		if session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
+			paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
+				"»",
+				"channels_unfollow_next_page",
+			))
+		}
 	}
 
 	markup := tg.NewInlineKeyboardMarkup(layout.Keyboard()...)
@@ -96,7 +101,7 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
 	session := c.SessionManager.Get(ctx)
 
-	session.FollowsMenu.TotalPages = 0
+	session.FollowsMenu.TotalPages = 1
 	session.FollowsMenu.CurrentPage = 1
 
 	keyboard, err := c.newKeyboard(ctx, followsMaxRows, followsPerRow)
