@@ -12,6 +12,7 @@ TWITCH_CLIENTID=1
 TWITCH_CLIENTSECRET=2
 TELEGRAM_TOKEN=3
 TELEGRAM_BOT_ADMINS=4
+DATABASE_URL=5
 `
 
 func Test_NewConfig(t *testing.T) {
@@ -75,6 +76,7 @@ func Test_NewConfig(t *testing.T) {
 				assert.Equal(t, "3", config.TelegramToken)
 				assert.IsType(t, []string{}, config.TelegramBotAdmins)
 				assert.Contains(t, config.TelegramBotAdmins, "4")
+				assert.Equal(t, "5", config.DatabaseUrl)
 			}
 		})
 	}
