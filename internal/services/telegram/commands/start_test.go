@@ -52,8 +52,7 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 		},
 	}
 
-	keyboard, err := cmd.buildKeyboard(ctx)
-	assert.NoError(t, err)
+	keyboard := cmd.buildKeyboard(ctx)
 
 	const buttons = 4
 	assert.Equal(t, buttons, len(keyboard.InlineKeyboard))
