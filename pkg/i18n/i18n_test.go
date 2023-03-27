@@ -18,12 +18,14 @@ func TestNewI18n(t *testing.T) {
 	localesPath := filepath.Join(wd, "test_locales")
 
 	table := []struct {
-		translation string
-		lang        string
-		data        map[string]string
-		expected    string
-		expectErr   bool
-		localesPath string
+		translation   string
+		lang          string
+		data          map[string]string
+		expected      string
+		expectErr     bool
+		localesPath   string
+		patchReadFile bool
+		patchReadDir  bool
 	}{
 		{
 			translation: "hello",
@@ -60,10 +62,34 @@ func TestNewI18n(t *testing.T) {
 			expectErr:   true,
 			localesPath: "/tmp/somefreakingstupidnotifierlocalespath",
 		},
+		{
+			translation:   "expect readFile error",
+			expectErr:     true,
+			patchReadFile: true,
+		},
+		{
+			translation:  "expect readDir error",
+			expectErr:    true,
+			patchReadDir: true,
+		},
 	}
 
 	for _, tt := range table {
 		t.Run(tt.translation, func(t *testing.T) {
+			if tt.patchReadFile {
+				readFile = func(string) ([]byte, error) {
+					return nil, os.ErrNotExist
+				}
+				defer func() { readFile = os.ReadFile }()
+			}
+
+			if tt.patchReadDir {
+				readDir = func(string) ([]os.DirEntry, error) {
+					return nil, os.ErrNotExist
+				}
+				defer func() { readDir = os.ReadDir }()
+			}
+
 			i18, err := NewI18n(tt.localesPath)
 			if tt.expectErr {
 				assert.Error(t, err)
