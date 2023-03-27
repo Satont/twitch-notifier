@@ -140,3 +140,12 @@ func TestStartCommand_HandleCommand(t *testing.T) {
 	})
 	assert.NoError(t, err)
 }
+
+func TestStartCommand_createCheckMark(t *testing.T) {
+	t.Parallel()
+
+	cmd := &StartCommand{}
+
+	assert.Equal(t, "✅", cmd.createCheckMark(true))
+	assert.Equal(t, "❌", cmd.createCheckMark(false))
+}
