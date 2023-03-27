@@ -20,7 +20,7 @@ func (c *StartCommand) createCheckMark(value bool) string {
 	return "❌"
 }
 
-func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMarkup, error) {
+func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMarkup {
 	chat := c.SessionManager.Get(ctx).Chat
 
 	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](1)
@@ -66,14 +66,11 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) (*tg.InlineKeyboardMar
 
 	markup := tg.NewInlineKeyboardMarkup(layout.Keyboard()...)
 
-	return &markup, nil
+	return &markup
 }
 
 func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
-	keyBoard, err := c.buildKeyboard(ctx)
-	if err != nil {
-		return msg.Answer("internal error").DoVoid(ctx)
-	}
+	keyBoard := c.buildKeyboard(ctx)
 
 	description := c.Services.I18N.Translate("bot.description", "en", nil)
 
@@ -90,10 +87,7 @@ var (
 )
 
 func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
-	keyboard, err := c.buildKeyboard(ctx)
-	if err != nil {
-		return msg.Answer().Text("internal error").DoVoid(ctx)
-	}
+	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
 		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
