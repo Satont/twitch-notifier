@@ -2,7 +2,6 @@ package twitch
 
 import (
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/twitch/helpers"
 	"time"
 )
@@ -58,7 +57,15 @@ func (t *twitchService) GetUser(id, login string) (*helix.User, error) {
 }
 
 func (t *twitchService) GetUsers(ids, logins []string) ([]helix.User, error) {
-	data := lo.If(len(ids) == 0, logins).Else(ids)
+	var data []string
+
+	isById := len(ids) > 0 && ids[0] != ""
+
+	if isById {
+		data = ids
+	} else {
+		data = logins
+	}
 
 	reqData := &chunkedRequestData[*helix.UsersParams, *helix.UsersResponse]{
 		ids:       data,
@@ -67,7 +74,7 @@ func (t *twitchService) GetUsers(ids, logins []string) ([]helix.User, error) {
 			return response.Data.Users
 		},
 		paramFn: func(chunk []string) *helix.UsersParams {
-			if len(ids) != 0 {
+			if isById {
 				return &helix.UsersParams{
 					IDs: chunk,
 				}

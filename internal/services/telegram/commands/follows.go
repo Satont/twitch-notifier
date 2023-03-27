@@ -18,7 +18,7 @@ type FollowsCommand struct {
 }
 
 const followsMaxRows = 3
-const followsPerRow = 5
+const followsPerRow = 3
 
 func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (*tg.InlineKeyboardMarkup, error) {
 	session := c.SessionManager.Get(ctx)

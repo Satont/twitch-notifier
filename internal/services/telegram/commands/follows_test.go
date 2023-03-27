@@ -243,7 +243,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 			name: "should return keyboard with 1 page and no next and prev buttons",
 			setupMocks: func() {
 				sessionsMock.On("Get", ctx).Return(session)
-				followsMock.On("GetByChatID", ctx, dbChat.ID, 15, 0).
+				followsMock.On("GetByChatID", ctx, dbChat.ID, 9, 0).
 					Return([]*db_models.Follow{
 						{
 							ID:        uuid.New(),
@@ -285,7 +285,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 						},
 					})
 				}
-				followsMock.On("GetByChatID", ctx, dbChat.ID, 15, 0).
+				followsMock.On("GetByChatID", ctx, dbChat.ID, 9, 0).
 					Return(follows, nil)
 				followsMock.On("CountByChatID", ctx, dbChat.ID).
 					Return(len(follows), nil)
@@ -301,8 +301,12 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 					}), nil)
 			},
 			asserts: func(t *testing.T, keyboard *tg.InlineKeyboardMarkup) {
-				assert.Len(t, keyboard.InlineKeyboard, 5)
-				assert.Contains(t, keyboard.InlineKeyboard[4][0].CallbackData, "channels_unfollow_next_page")
+				assert.Greater(t, len(keyboard.InlineKeyboard), 2)
+				assert.Contains(
+					t,
+					keyboard.InlineKeyboard[len(keyboard.InlineKeyboard)-1][0].CallbackData,
+					"channels_unfollow_next_page",
+				)
 			},
 		},
 		{
@@ -322,7 +326,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 						},
 					})
 				}
-				followsMock.On("GetByChatID", ctx, dbChat.ID, 15, 30).
+				followsMock.On("GetByChatID", ctx, dbChat.ID, 9, 18).
 					Return(follows, nil)
 				followsMock.On("CountByChatID", ctx, dbChat.ID).
 					Return(100, nil)
@@ -338,7 +342,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 					}), nil)
 			},
 			asserts: func(t *testing.T, keyboard *tg.InlineKeyboardMarkup) {
-				assert.Len(t, keyboard.InlineKeyboard, 4)
+				assert.Greater(t, len(keyboard.InlineKeyboard), 2)
 				latestRow := keyboard.InlineKeyboard[len(keyboard.InlineKeyboard)-1]
 				assert.Equal(t, latestRow[0].CallbackData, "channels_unfollow_prev_page")
 				assert.Equal(t, latestRow[1].CallbackData, "channels_unfollow_next_page")

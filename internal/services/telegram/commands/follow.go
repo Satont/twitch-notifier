@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/services/telegram/types"
 	"go.uber.org/zap"
+	"strings"
 )
 
 type FollowCommand struct {
@@ -82,9 +83,16 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 }
 
 func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
-	c.SessionManager.Get(ctx).Scene = "follow"
+	text := strings.ReplaceAll(msg.Text, "/follow", "")
+	text = strings.TrimSpace(text)
 
-	return msg.Answer("Enter name").DoVoid(ctx)
+	if text != "" {
+		msg.Text = text
+		return c.handleScene(ctx, msg)
+	} else {
+		c.SessionManager.Get(ctx).Scene = "follow"
+		return msg.Answer("Enter name").DoVoid(ctx)
+	}
 }
 
 var (
