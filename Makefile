@@ -21,6 +21,10 @@ migrate-apply:
       --dir "file://ent/migrate/migrations" \
       --url $(DATABASE_URL)
 
+migrate-hash:
+	atlas migrate hash \
+			--dir "file://ent/migrate/migrations"
+
 dev:
 	go run ./cmd/main.go
 
