@@ -27,6 +27,7 @@ func TestFollowService(t *testing.T) {
 	mockedTwitch := &mocks.TwitchApiMock{}
 	channelsMock := &mocks.DbChannelMock{}
 	followsMock := &mocks.DbFollowMock{}
+	i18nMock := i18nmocks.NewI18nMock()
 
 	userLogin := "fukushine"
 	user := &helix.User{
@@ -52,6 +53,7 @@ func TestFollowService(t *testing.T) {
 				Twitch:  mockedTwitch,
 				Channel: channelsMock,
 				Follow:  followsMock,
+				I18N:    i18nMock,
 			},
 		},
 	}
@@ -134,7 +136,12 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 	sessionService := tg_types.NewMockedSessionManager()
 
 	sessionService.On("Get", ctx).Return(&tg_types.Session{
-		Chat: &db_models.Chat{ChatID: "123"},
+		Chat: &db_models.Chat{
+			ChatID: "123",
+			Settings: &db_models.ChatSettings{
+				ChatLanguage: db_models.ChatLanguageEn,
+			},
+		},
 	})
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -151,10 +158,22 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 
 	tgClient := test_utils.NewTelegramClient(server)
 
+	i18nMock := i18nmocks.NewI18nMock()
+	i18nMock.
+		On(
+			"Translate",
+			"commands.follow.enter",
+			"en",
+			(map[string]string)(nil),
+		).
+		Return("test")
+
 	followCommand := &FollowCommand{
 		&tg_types.CommandOpts{
 			SessionManager: sessionService,
-			Services:       &types.Services{},
+			Services: &types.Services{
+				I18N: i18nMock,
+			},
 		},
 	}
 
@@ -171,6 +190,7 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 	assert.Equal(t, "follow", sessionService.Get(ctx).Scene)
 
 	sessionService.AssertExpectations(t)
+	i18nMock.AssertExpectations(t)
 }
 
 func TestFollowCommand_HandleScene(t *testing.T) {
@@ -261,7 +281,7 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 					Return((*db_models.Follow)(nil), db_models.FollowAlreadyExistsError)
 				i18nMock.On(
 					"Translate",
-					"commands.follow.alreadyFollowed",
+					"commands.follow.errors.alreadyFollowed",
 					"en",
 					map[string]string{"streamer": userLogin},
 				).Return("")
