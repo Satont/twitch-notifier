@@ -118,6 +118,7 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 			wantNil:        true,
 			wantedStreamID: "2",
 			clearTable:     true,
+			before:         func() {},
 		},
 		{
 			name:      "Should return correct stream",

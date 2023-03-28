@@ -2,10 +2,6 @@ package twitch_streams_cheker
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"testing"
-
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -16,6 +12,9 @@ import (
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"os"
+	"path/filepath"
+	"testing"
 )
 
 func TestNewTwitchStreamChecker(t *testing.T) {
@@ -200,7 +199,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
 					*newHelixStream,
 				}, nil)
-				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
+				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
 					StreamID: newHelixStream.ID,
 					IsLive:   lo.ToPtr(true),
