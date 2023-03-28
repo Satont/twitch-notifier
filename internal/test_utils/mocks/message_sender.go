@@ -2,9 +2,9 @@ package mocks
 
 import (
 	"context"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/message_sender"
 
-	"github.com/satont/twitch-notifier/internal/services/db/db_models"
-	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/stretchr/testify/mock"
 )
 

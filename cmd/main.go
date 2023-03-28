@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
-	"github.com/satont/twitch-notifier/internal/services/config"
-	"github.com/satont/twitch-notifier/internal/services/db"
-	"github.com/satont/twitch-notifier/internal/services/message_sender"
-	"github.com/satont/twitch-notifier/internal/services/telegram"
-	"github.com/satont/twitch-notifier/internal/services/twitch"
-	"github.com/satont/twitch-notifier/internal/services/twitch_streams_cheker"
-	"github.com/satont/twitch-notifier/internal/services/types"
+	"github.com/satont/twitch-notifier/internal/config"
+	db2 "github.com/satont/twitch-notifier/internal/db"
+	"github.com/satont/twitch-notifier/internal/message_sender"
+	"github.com/satont/twitch-notifier/internal/telegram"
+	"github.com/satont/twitch-notifier/internal/twitch"
+	"github.com/satont/twitch-notifier/internal/twitch_streams_cheker"
+	"github.com/satont/twitch-notifier/internal/types"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"go.uber.org/zap"
 	"log"
@@ -65,10 +65,10 @@ func main() {
 	services := &types.Services{
 		Config:  cfg,
 		Twitch:  twitchService,
-		Chat:    db.NewChatEntRepository(client),
-		Channel: db.NewChannelEntService(client),
-		Follow:  db.NewFollowService(client),
-		Stream:  db.NewStreamEntService(client),
+		Chat:    db2.NewChatEntRepository(client),
+		Channel: db2.NewChannelEntService(client),
+		Follow:  db2.NewFollowService(client),
+		Stream:  db2.NewStreamEntService(client),
 		I18N:    i18,
 	}
 
