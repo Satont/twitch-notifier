@@ -26,6 +26,10 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 	limit := maxRows * perRow
 	offset := (session.FollowsMenu.CurrentPage - 1) * limit
 
+	if offset < 0 {
+		offset = 0
+	}
+
 	layout := tg.NewButtonLayout[tg.InlineKeyboardButton](perRow)
 
 	follows, err := c.Services.Follow.GetByChatID(
