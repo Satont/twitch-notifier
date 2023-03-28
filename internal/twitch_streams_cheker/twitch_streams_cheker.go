@@ -90,6 +90,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				return stream.UserID == channel.ChannelID
 			})
 
+			if twitchCurrentStreamOk && twitchCurrentStream.Type != "live" {
+				return
+			}
+
 			// if stream becomes offline
 			if !twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.EndedAt == nil {
 				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
