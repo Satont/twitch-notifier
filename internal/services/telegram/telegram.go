@@ -73,15 +73,19 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 		zap.S().Fatalw("failed to get bot info", "err", err)
 	}
 
-	zap.S().Infow("Telegram bot started", "id", me.ID, "username", me.Username)
-
-	return &TelegramService{
+	service := &TelegramService{
 		poller:   poller,
 		services: services,
 		Client:   client,
 	}
+
+	service.setMyCommands(ctx)
+
+	zap.S().Infow("Telegram bot started", "id", me.ID, "username", me.Username)
+
+	return service
 }
 
-func (t *TelegramService) StartPolling(ctx context.Context) {
-	go t.poller.Run(ctx)
+func (c *TelegramService) StartPolling(ctx context.Context) {
+	go c.poller.Run(ctx)
 }

@@ -15,12 +15,18 @@ type FollowCommand struct {
 }
 
 var (
-	channelNotFoundError = errors.New("channel not found")
+	twitchInvalidNamesString = "Invalid login names, emails or IDs in request"
+	channelNotFoundError     = errors.New("channel not found")
+	invalidNameError         = errors.New(twitchInvalidNamesString)
 )
 
 func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, input string) (*db_models.Follow, error) {
 	twitchChannel, err := c.Services.Twitch.GetUser("", input)
 	if err != nil {
+		if err.Error() == twitchInvalidNamesString {
+			return nil, invalidNameError
+		}
+
 		return nil, err
 	}
 
@@ -46,8 +52,6 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 
 	_, err := c.createFollow(ctx, chat, msg.Text)
 
-	c.SessionManager.Get(ctx).Scene = ""
-
 	if errors.Is(err, channelNotFoundError) {
 		message := c.Services.I18N.Translate(
 			"commands.follow.errors.streamerNotFound",
@@ -59,7 +63,16 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 		return msg.Answer(message).DoVoid(ctx)
 	} else if errors.Is(err, db_models.FollowAlreadyExistsError) {
 		message := c.Services.I18N.Translate(
-			"commands.follow.alreadyFollowed",
+			"commands.follow.errors.alreadyFollowed",
+			chat.Settings.ChatLanguage.String(),
+			map[string]string{
+				"streamer": msg.Text,
+			},
+		)
+		return msg.Answer(message).DoVoid(ctx)
+	} else if errors.Is(err, invalidNameError) {
+		message := c.Services.I18N.Translate(
+			"commands.follow.errors.badUsername",
 			chat.Settings.ChatLanguage.String(),
 			map[string]string{
 				"streamer": msg.Text,
@@ -70,6 +83,8 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 		zap.S().Error(err)
 		return msg.Answer("Internal error").DoVoid(ctx)
 	}
+
+	c.SessionManager.Get(ctx).Scene = ""
 
 	message := c.Services.I18N.Translate(
 		"commands.follow.success",
@@ -83,6 +98,8 @@ func (c *FollowCommand) handleScene(ctx context.Context, msg *tgb.MessageUpdate)
 }
 
 func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
+	session := c.SessionManager.Get(ctx)
+
 	text := strings.ReplaceAll(msg.Text, "/follow", "")
 	text = strings.TrimSpace(text)
 
@@ -91,7 +108,13 @@ func (c *FollowCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdat
 		return c.handleScene(ctx, msg)
 	} else {
 		c.SessionManager.Get(ctx).Scene = "follow"
-		return msg.Answer("Enter name").DoVoid(ctx)
+		return msg.
+			Answer(c.Services.I18N.Translate(
+				"commands.follow.enter",
+				session.Chat.Settings.ChatLanguage.String(),
+				nil,
+			)).
+			DoVoid(ctx)
 	}
 }
 
