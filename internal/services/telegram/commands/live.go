@@ -108,15 +108,20 @@ func (c *LiveCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate)
 		minute := int(since.Seconds()/60) % 60
 		second := int(since.Seconds()) % 60
 
-		channelMessage = append(
-			channelMessage,
-			fmt.Sprintf(
-				"⌛ %vh %vm %vs",
-				hour,
-				minute,
-				second,
-			),
-		)
+		uptime := "⌛ "
+		if hour > 0 {
+			uptime += fmt.Sprintf("%vh ", hour)
+		}
+
+		if minute > 0 {
+			uptime += fmt.Sprintf("%vm ", minute)
+		}
+
+		if second > 0 {
+			uptime += fmt.Sprintf("%vs ", second)
+		}
+
+		channelMessage = append(channelMessage, uptime)
 
 		message = append(
 			message,

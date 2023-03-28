@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
 	"github.com/satont/twitch-notifier/ent/chatsettings"
@@ -2446,22 +2447,20 @@ func (m *FollowMutation) ResetEdge(name string) error {
 // StreamMutation represents an operation that mutates the Stream nodes in the graph.
 type StreamMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *string
-	titles           *[]string
-	appendtitles     []string
-	categories       *[]string
-	appendcategories []string
-	started_at       *time.Time
-	updated_at       *time.Time
-	ended_at         *time.Time
-	clearedFields    map[string]struct{}
-	channel          *uuid.UUID
-	clearedchannel   bool
-	done             bool
-	oldValue         func(context.Context) (*Stream, error)
-	predicates       []predicate.Stream
+	op             Op
+	typ            string
+	id             *string
+	titles         *pq.StringArray
+	categories     *pq.StringArray
+	started_at     *time.Time
+	updated_at     *time.Time
+	ended_at       *time.Time
+	clearedFields  map[string]struct{}
+	channel        *uuid.UUID
+	clearedchannel bool
+	done           bool
+	oldValue       func(context.Context) (*Stream, error)
+	predicates     []predicate.Stream
 }
 
 var _ ent.Mutation = (*StreamMutation)(nil)
@@ -2605,13 +2604,12 @@ func (m *StreamMutation) ResetChannelID() {
 }
 
 // SetTitles sets the "titles" field.
-func (m *StreamMutation) SetTitles(s []string) {
-	m.titles = &s
-	m.appendtitles = nil
+func (m *StreamMutation) SetTitles(pa pq.StringArray) {
+	m.titles = &pa
 }
 
 // Titles returns the value of the "titles" field in the mutation.
-func (m *StreamMutation) Titles() (r []string, exists bool) {
+func (m *StreamMutation) Titles() (r pq.StringArray, exists bool) {
 	v := m.titles
 	if v == nil {
 		return
@@ -2622,7 +2620,7 @@ func (m *StreamMutation) Titles() (r []string, exists bool) {
 // OldTitles returns the old "titles" field's value of the Stream entity.
 // If the Stream object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StreamMutation) OldTitles(ctx context.Context) (v []string, err error) {
+func (m *StreamMutation) OldTitles(ctx context.Context) (v pq.StringArray, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTitles is only allowed on UpdateOne operations")
 	}
@@ -2636,23 +2634,9 @@ func (m *StreamMutation) OldTitles(ctx context.Context) (v []string, err error) 
 	return oldValue.Titles, nil
 }
 
-// AppendTitles adds s to the "titles" field.
-func (m *StreamMutation) AppendTitles(s []string) {
-	m.appendtitles = append(m.appendtitles, s...)
-}
-
-// AppendedTitles returns the list of values that were appended to the "titles" field in this mutation.
-func (m *StreamMutation) AppendedTitles() ([]string, bool) {
-	if len(m.appendtitles) == 0 {
-		return nil, false
-	}
-	return m.appendtitles, true
-}
-
 // ClearTitles clears the value of the "titles" field.
 func (m *StreamMutation) ClearTitles() {
 	m.titles = nil
-	m.appendtitles = nil
 	m.clearedFields[stream.FieldTitles] = struct{}{}
 }
 
@@ -2665,18 +2649,16 @@ func (m *StreamMutation) TitlesCleared() bool {
 // ResetTitles resets all changes to the "titles" field.
 func (m *StreamMutation) ResetTitles() {
 	m.titles = nil
-	m.appendtitles = nil
 	delete(m.clearedFields, stream.FieldTitles)
 }
 
 // SetCategories sets the "categories" field.
-func (m *StreamMutation) SetCategories(s []string) {
-	m.categories = &s
-	m.appendcategories = nil
+func (m *StreamMutation) SetCategories(pa pq.StringArray) {
+	m.categories = &pa
 }
 
 // Categories returns the value of the "categories" field in the mutation.
-func (m *StreamMutation) Categories() (r []string, exists bool) {
+func (m *StreamMutation) Categories() (r pq.StringArray, exists bool) {
 	v := m.categories
 	if v == nil {
 		return
@@ -2687,7 +2669,7 @@ func (m *StreamMutation) Categories() (r []string, exists bool) {
 // OldCategories returns the old "categories" field's value of the Stream entity.
 // If the Stream object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *StreamMutation) OldCategories(ctx context.Context) (v []string, err error) {
+func (m *StreamMutation) OldCategories(ctx context.Context) (v pq.StringArray, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCategories is only allowed on UpdateOne operations")
 	}
@@ -2701,23 +2683,9 @@ func (m *StreamMutation) OldCategories(ctx context.Context) (v []string, err err
 	return oldValue.Categories, nil
 }
 
-// AppendCategories adds s to the "categories" field.
-func (m *StreamMutation) AppendCategories(s []string) {
-	m.appendcategories = append(m.appendcategories, s...)
-}
-
-// AppendedCategories returns the list of values that were appended to the "categories" field in this mutation.
-func (m *StreamMutation) AppendedCategories() ([]string, bool) {
-	if len(m.appendcategories) == 0 {
-		return nil, false
-	}
-	return m.appendcategories, true
-}
-
 // ClearCategories clears the value of the "categories" field.
 func (m *StreamMutation) ClearCategories() {
 	m.categories = nil
-	m.appendcategories = nil
 	m.clearedFields[stream.FieldCategories] = struct{}{}
 }
 
@@ -2730,7 +2698,6 @@ func (m *StreamMutation) CategoriesCleared() bool {
 // ResetCategories resets all changes to the "categories" field.
 func (m *StreamMutation) ResetCategories() {
 	m.categories = nil
-	m.appendcategories = nil
 	delete(m.clearedFields, stream.FieldCategories)
 }
 
@@ -3018,14 +2985,14 @@ func (m *StreamMutation) SetField(name string, value ent.Value) error {
 		m.SetChannelID(v)
 		return nil
 	case stream.FieldTitles:
-		v, ok := value.([]string)
+		v, ok := value.(pq.StringArray)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTitles(v)
 		return nil
 	case stream.FieldCategories:
-		v, ok := value.([]string)
+		v, ok := value.(pq.StringArray)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

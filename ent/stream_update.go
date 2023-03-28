@@ -10,9 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/predicate"
 	"github.com/satont/twitch-notifier/ent/stream"
@@ -38,14 +38,8 @@ func (su *StreamUpdate) SetChannelID(u uuid.UUID) *StreamUpdate {
 }
 
 // SetTitles sets the "titles" field.
-func (su *StreamUpdate) SetTitles(s []string) *StreamUpdate {
-	su.mutation.SetTitles(s)
-	return su
-}
-
-// AppendTitles appends s to the "titles" field.
-func (su *StreamUpdate) AppendTitles(s []string) *StreamUpdate {
-	su.mutation.AppendTitles(s)
+func (su *StreamUpdate) SetTitles(pa pq.StringArray) *StreamUpdate {
+	su.mutation.SetTitles(pa)
 	return su
 }
 
@@ -56,14 +50,8 @@ func (su *StreamUpdate) ClearTitles() *StreamUpdate {
 }
 
 // SetCategories sets the "categories" field.
-func (su *StreamUpdate) SetCategories(s []string) *StreamUpdate {
-	su.mutation.SetCategories(s)
-	return su
-}
-
-// AppendCategories appends s to the "categories" field.
-func (su *StreamUpdate) AppendCategories(s []string) *StreamUpdate {
-	su.mutation.AppendCategories(s)
+func (su *StreamUpdate) SetCategories(pa pq.StringArray) *StreamUpdate {
+	su.mutation.SetCategories(pa)
 	return su
 }
 
@@ -198,26 +186,16 @@ func (su *StreamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := su.mutation.Titles(); ok {
-		_spec.SetField(stream.FieldTitles, field.TypeJSON, value)
-	}
-	if value, ok := su.mutation.AppendedTitles(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, stream.FieldTitles, value)
-		})
+		_spec.SetField(stream.FieldTitles, field.TypeOther, value)
 	}
 	if su.mutation.TitlesCleared() {
-		_spec.ClearField(stream.FieldTitles, field.TypeJSON)
+		_spec.ClearField(stream.FieldTitles, field.TypeOther)
 	}
 	if value, ok := su.mutation.Categories(); ok {
-		_spec.SetField(stream.FieldCategories, field.TypeJSON, value)
-	}
-	if value, ok := su.mutation.AppendedCategories(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, stream.FieldCategories, value)
-		})
+		_spec.SetField(stream.FieldCategories, field.TypeOther, value)
 	}
 	if su.mutation.CategoriesCleared() {
-		_spec.ClearField(stream.FieldCategories, field.TypeJSON)
+		_spec.ClearField(stream.FieldCategories, field.TypeOther)
 	}
 	if value, ok := su.mutation.StartedAt(); ok {
 		_spec.SetField(stream.FieldStartedAt, field.TypeTime, value)
@@ -293,14 +271,8 @@ func (suo *StreamUpdateOne) SetChannelID(u uuid.UUID) *StreamUpdateOne {
 }
 
 // SetTitles sets the "titles" field.
-func (suo *StreamUpdateOne) SetTitles(s []string) *StreamUpdateOne {
-	suo.mutation.SetTitles(s)
-	return suo
-}
-
-// AppendTitles appends s to the "titles" field.
-func (suo *StreamUpdateOne) AppendTitles(s []string) *StreamUpdateOne {
-	suo.mutation.AppendTitles(s)
+func (suo *StreamUpdateOne) SetTitles(pa pq.StringArray) *StreamUpdateOne {
+	suo.mutation.SetTitles(pa)
 	return suo
 }
 
@@ -311,14 +283,8 @@ func (suo *StreamUpdateOne) ClearTitles() *StreamUpdateOne {
 }
 
 // SetCategories sets the "categories" field.
-func (suo *StreamUpdateOne) SetCategories(s []string) *StreamUpdateOne {
-	suo.mutation.SetCategories(s)
-	return suo
-}
-
-// AppendCategories appends s to the "categories" field.
-func (suo *StreamUpdateOne) AppendCategories(s []string) *StreamUpdateOne {
-	suo.mutation.AppendCategories(s)
+func (suo *StreamUpdateOne) SetCategories(pa pq.StringArray) *StreamUpdateOne {
+	suo.mutation.SetCategories(pa)
 	return suo
 }
 
@@ -483,26 +449,16 @@ func (suo *StreamUpdateOne) sqlSave(ctx context.Context) (_node *Stream, err err
 		}
 	}
 	if value, ok := suo.mutation.Titles(); ok {
-		_spec.SetField(stream.FieldTitles, field.TypeJSON, value)
-	}
-	if value, ok := suo.mutation.AppendedTitles(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, stream.FieldTitles, value)
-		})
+		_spec.SetField(stream.FieldTitles, field.TypeOther, value)
 	}
 	if suo.mutation.TitlesCleared() {
-		_spec.ClearField(stream.FieldTitles, field.TypeJSON)
+		_spec.ClearField(stream.FieldTitles, field.TypeOther)
 	}
 	if value, ok := suo.mutation.Categories(); ok {
-		_spec.SetField(stream.FieldCategories, field.TypeJSON, value)
-	}
-	if value, ok := suo.mutation.AppendedCategories(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, stream.FieldCategories, value)
-		})
+		_spec.SetField(stream.FieldCategories, field.TypeOther, value)
 	}
 	if suo.mutation.CategoriesCleared() {
-		_spec.ClearField(stream.FieldCategories, field.TypeJSON)
+		_spec.ClearField(stream.FieldCategories, field.TypeOther)
 	}
 	if value, ok := suo.mutation.StartedAt(); ok {
 		_spec.SetField(stream.FieldStartedAt, field.TypeTime, value)

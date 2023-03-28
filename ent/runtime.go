@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
 	"github.com/satont/twitch-notifier/ent/chatsettings"
@@ -63,11 +64,11 @@ func init() {
 	// streamDescTitles is the schema descriptor for titles field.
 	streamDescTitles := streamFields[2].Descriptor()
 	// stream.DefaultTitles holds the default value on creation for the titles field.
-	stream.DefaultTitles = streamDescTitles.Default.([]string)
+	stream.DefaultTitles = streamDescTitles.Default.(pq.StringArray)
 	// streamDescCategories is the schema descriptor for categories field.
 	streamDescCategories := streamFields[3].Descriptor()
 	// stream.DefaultCategories holds the default value on creation for the categories field.
-	stream.DefaultCategories = streamDescCategories.Default.([]string)
+	stream.DefaultCategories = streamDescCategories.Default.(pq.StringArray)
 	// streamDescStartedAt is the schema descriptor for started_at field.
 	streamDescStartedAt := streamFields[4].Descriptor()
 	// stream.DefaultStartedAt holds the default value on creation for the started_at field.

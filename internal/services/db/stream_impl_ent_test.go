@@ -89,61 +89,80 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 	newChannel, err := channelsService.Create(ctx, "1", db_models.ChannelServiceTwitch)
 	assert.NoError(t, err)
 
-	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   nil,
-		Category: nil,
-		Title:    nil,
-	})
-	assert.NoError(t, err)
-
-	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "321",
-		IsLive:   lo.ToPtr(true),
-		Category: lo.ToPtr("Category"),
-		Title:    lo.ToPtr("Title"),
-	})
-	assert.NoError(t, err)
-
 	table := []struct {
-		name       string
-		channelID  string
-		wantNil    bool
-		streamID   string
-		clearTable bool
+		name           string
+		channelID      string
+		wantNil        bool
+		wantedStreamID string
+		clearTable     bool
+		before         func()
 	}{
 		{
-			name:      "Get latest stream by channel id",
-			channelID: newChannel.ChannelID,
-			wantNil:   false,
-			streamID:  "321",
+			name:           "Get latest stream by channel id",
+			channelID:      newChannel.ChannelID,
+			wantNil:        false,
+			wantedStreamID: "321",
+			clearTable:     true,
+			before: func() {
+				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
+					StreamID: "321",
+					IsLive:   lo.ToPtr(true),
+					Category: lo.ToPtr("Category"),
+					Title:    lo.ToPtr("Title"),
+				})
+			},
 		},
 		{
-			name:       "Should return nil if stream not found",
-			channelID:  newChannel.ChannelID,
-			wantNil:    true,
-			streamID:   "2",
-			clearTable: true,
+			name:           "Should return nil if stream not found",
+			channelID:      newChannel.ChannelID,
+			wantNil:        true,
+			wantedStreamID: "2",
+			clearTable:     true,
+		},
+		{
+			name:      "Should return correct stream",
+			channelID: newChannel.ChannelID,
+			wantNil:   false,
+			before: func() {
+				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
+					StreamID: "321",
+					IsLive:   lo.ToPtr(false),
+					Category: lo.ToPtr("Category"),
+					Title:    lo.ToPtr("Title"),
+				})
+				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
+					StreamID: "4321",
+					IsLive:   lo.ToPtr(true),
+					Category: lo.ToPtr("Category"),
+					Title:    lo.ToPtr("Title"),
+				})
+			},
+			wantedStreamID: "4321",
+			clearTable:     true,
 		},
 	}
 
 	for _, tt := range table {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.clearTable {
-				_, err = entClient.Stream.Delete().Exec(ctx)
-				assert.NoError(t, err)
-			}
+			tt.before()
 
 			stream, err := service.GetLatestByChannelID(ctx, newChannel.ID)
+			assert.NoError(t, err)
+
 			if tt.wantNil {
 				assert.Nil(t, stream)
 			} else {
-				assert.NoError(t, err)
+				assert.NotNil(t, stream)
 				assert.Equal(t, newChannel.ID, stream.ChannelID, "Expects channel_id to be equal.")
-				assert.Equal(t, tt.streamID, stream.ID, "Expects stream_id to be equal.")
+				assert.Equal(t, tt.wantedStreamID, stream.ID, "Expects stream_id to be equal.")
 				assert.Nil(t, stream.EndedAt, "Expects is_live to be equal.")
 				assert.Contains(t, stream.Categories, "Category", "Expects category to be equal.")
 				assert.Contains(t, stream.Titles, "Title", "Expects title to be equal.")
+			}
+
+			if tt.clearTable {
+				_, err = entClient.Stream.Delete().Exec(ctx)
+				assert.NoError(t, err)
 			}
 		})
 	}

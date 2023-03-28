@@ -2,9 +2,11 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -17,16 +19,25 @@ func (Stream) Fields() []ent.Field {
 		field.String("id").Unique().Immutable(),
 		field.UUID("channel_id", uuid.UUID{}),
 
-		field.Strings("titles").
-			Optional().
-			Default([]string{}),
+		field.Other("titles", pq.StringArray{}).
+			SchemaType(map[string]string{
+				dialect.Postgres: "text[]",
+				dialect.SQLite:   "JSON",
+			}).
+			Default(pq.StringArray{}).
+			Optional(),
 		//SchemaType(map[string]string{
 		//	"postgres": "text[]",
 		//	"sqlite":   "text[]",
 		//}),
-		field.Strings("categories").
-			Optional().
-			Default([]string{}),
+		field.Other("categories", pq.StringArray{}).
+			SchemaType(map[string]string{
+				dialect.Postgres: "text[]",
+				dialect.SQLite:   "JSON",
+			}).
+			Default(pq.StringArray{}).
+			Optional(),
+
 		//SchemaType(map[string]string{
 		//	"postgres": "text[]",
 		//	"sqlite":   "text[]",

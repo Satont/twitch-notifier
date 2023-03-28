@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/predicate"
 )
 
@@ -71,6 +72,16 @@ func ChannelID(v uuid.UUID) predicate.Stream {
 	return predicate.Stream(sql.FieldEQ(FieldChannelID, v))
 }
 
+// Titles applies equality check predicate on the "titles" field. It's identical to TitlesEQ.
+func Titles(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldEQ(FieldTitles, v))
+}
+
+// Categories applies equality check predicate on the "categories" field. It's identical to CategoriesEQ.
+func Categories(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldEQ(FieldCategories, v))
+}
+
 // StartedAt applies equality check predicate on the "started_at" field. It's identical to StartedAtEQ.
 func StartedAt(v time.Time) predicate.Stream {
 	return predicate.Stream(sql.FieldEQ(FieldStartedAt, v))
@@ -106,6 +117,46 @@ func ChannelIDNotIn(vs ...uuid.UUID) predicate.Stream {
 	return predicate.Stream(sql.FieldNotIn(FieldChannelID, vs...))
 }
 
+// TitlesEQ applies the EQ predicate on the "titles" field.
+func TitlesEQ(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldEQ(FieldTitles, v))
+}
+
+// TitlesNEQ applies the NEQ predicate on the "titles" field.
+func TitlesNEQ(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldNEQ(FieldTitles, v))
+}
+
+// TitlesIn applies the In predicate on the "titles" field.
+func TitlesIn(vs ...pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldIn(FieldTitles, vs...))
+}
+
+// TitlesNotIn applies the NotIn predicate on the "titles" field.
+func TitlesNotIn(vs ...pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldNotIn(FieldTitles, vs...))
+}
+
+// TitlesGT applies the GT predicate on the "titles" field.
+func TitlesGT(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldGT(FieldTitles, v))
+}
+
+// TitlesGTE applies the GTE predicate on the "titles" field.
+func TitlesGTE(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldGTE(FieldTitles, v))
+}
+
+// TitlesLT applies the LT predicate on the "titles" field.
+func TitlesLT(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldLT(FieldTitles, v))
+}
+
+// TitlesLTE applies the LTE predicate on the "titles" field.
+func TitlesLTE(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldLTE(FieldTitles, v))
+}
+
 // TitlesIsNil applies the IsNil predicate on the "titles" field.
 func TitlesIsNil() predicate.Stream {
 	return predicate.Stream(sql.FieldIsNull(FieldTitles))
@@ -114,6 +165,46 @@ func TitlesIsNil() predicate.Stream {
 // TitlesNotNil applies the NotNil predicate on the "titles" field.
 func TitlesNotNil() predicate.Stream {
 	return predicate.Stream(sql.FieldNotNull(FieldTitles))
+}
+
+// CategoriesEQ applies the EQ predicate on the "categories" field.
+func CategoriesEQ(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldEQ(FieldCategories, v))
+}
+
+// CategoriesNEQ applies the NEQ predicate on the "categories" field.
+func CategoriesNEQ(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldNEQ(FieldCategories, v))
+}
+
+// CategoriesIn applies the In predicate on the "categories" field.
+func CategoriesIn(vs ...pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldIn(FieldCategories, vs...))
+}
+
+// CategoriesNotIn applies the NotIn predicate on the "categories" field.
+func CategoriesNotIn(vs ...pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldNotIn(FieldCategories, vs...))
+}
+
+// CategoriesGT applies the GT predicate on the "categories" field.
+func CategoriesGT(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldGT(FieldCategories, v))
+}
+
+// CategoriesGTE applies the GTE predicate on the "categories" field.
+func CategoriesGTE(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldGTE(FieldCategories, v))
+}
+
+// CategoriesLT applies the LT predicate on the "categories" field.
+func CategoriesLT(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldLT(FieldCategories, v))
+}
+
+// CategoriesLTE applies the LTE predicate on the "categories" field.
+func CategoriesLTE(v pq.StringArray) predicate.Stream {
+	return predicate.Stream(sql.FieldLTE(FieldCategories, v))
 }
 
 // CategoriesIsNil applies the IsNil predicate on the "categories" field.

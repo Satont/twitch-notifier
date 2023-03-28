@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/stream"
 )
@@ -29,14 +30,14 @@ func (sc *StreamCreate) SetChannelID(u uuid.UUID) *StreamCreate {
 }
 
 // SetTitles sets the "titles" field.
-func (sc *StreamCreate) SetTitles(s []string) *StreamCreate {
-	sc.mutation.SetTitles(s)
+func (sc *StreamCreate) SetTitles(pa pq.StringArray) *StreamCreate {
+	sc.mutation.SetTitles(pa)
 	return sc
 }
 
 // SetCategories sets the "categories" field.
-func (sc *StreamCreate) SetCategories(s []string) *StreamCreate {
-	sc.mutation.SetCategories(s)
+func (sc *StreamCreate) SetCategories(pa pq.StringArray) *StreamCreate {
+	sc.mutation.SetCategories(pa)
 	return sc
 }
 
@@ -186,11 +187,11 @@ func (sc *StreamCreate) createSpec() (*Stream, *sqlgraph.CreateSpec) {
 		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.Titles(); ok {
-		_spec.SetField(stream.FieldTitles, field.TypeJSON, value)
+		_spec.SetField(stream.FieldTitles, field.TypeOther, value)
 		_node.Titles = value
 	}
 	if value, ok := sc.mutation.Categories(); ok {
-		_spec.SetField(stream.FieldCategories, field.TypeJSON, value)
+		_spec.SetField(stream.FieldCategories, field.TypeOther, value)
 		_node.Categories = value
 	}
 	if value, ok := sc.mutation.StartedAt(); ok {

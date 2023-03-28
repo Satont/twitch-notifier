@@ -4,6 +4,8 @@ package stream
 
 import (
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const (
@@ -59,9 +61,9 @@ func ValidColumn(column string) bool {
 
 var (
 	// DefaultTitles holds the default value on creation for the "titles" field.
-	DefaultTitles []string
+	DefaultTitles pq.StringArray
 	// DefaultCategories holds the default value on creation for the "categories" field.
-	DefaultCategories []string
+	DefaultCategories pq.StringArray
 	// DefaultStartedAt holds the default value on creation for the "started_at" field.
 	DefaultStartedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.

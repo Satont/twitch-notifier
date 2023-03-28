@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/stream"
@@ -46,7 +47,7 @@ func (s *StreamEntService) GetLatestByChannelID(
 ) (*db_models.Stream, error) {
 	str, err := s.entClient.Stream.
 		Query().
-		Where(stream.HasChannelWith(channel.IDEQ(channelEntityID))).
+		Where(stream.ChannelIDEQ(channelEntityID), stream.EndedAtIsNil()).
 		Order(ent.Desc(stream.FieldStartedAt)).
 		First(ctx)
 	if err != nil {
@@ -108,11 +109,13 @@ func (s *StreamEntService) UpdateOneByStreamID(
 	}
 
 	if updateQuery.Category != nil {
-		query.AppendCategories([]string{*updateQuery.Category})
+		str.Categories = append(str.Categories, *updateQuery.Category)
+		query.SetCategories(str.Categories)
 	}
 
 	if updateQuery.Title != nil {
-		query.AppendTitles([]string{*updateQuery.Title})
+		str.Titles = append(str.Titles, *updateQuery.Title)
+		query.SetTitles(str.Titles)
 	}
 
 	newStream, err := query.Save(ctx)
@@ -136,11 +139,11 @@ func (s *StreamEntService) CreateOneByChannelID(
 	query.SetID(data.StreamID)
 
 	if data.Title != nil {
-		query.SetTitles([]string{*data.Title})
+		query.SetTitles(pq.StringArray{*data.Title})
 	}
 
 	if data.Category != nil {
-		query.SetCategories([]string{*data.Category})
+		query.SetCategories(pq.StringArray{*data.Category})
 	}
 
 	str, err := query.Save(ctx)

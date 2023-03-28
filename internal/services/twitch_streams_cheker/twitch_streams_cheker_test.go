@@ -46,9 +46,13 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 	dbChannel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
 	dbStream := &db_models.Stream{ID: "123", Titles: []string{"title"}, Categories: []string{"Dota 2"}}
 	dbChat := &db_models.Chat{
-		ID:       uuid.New(),
-		ChatID:   "1",
-		Settings: &db_models.ChatSettings{ChatLanguage: db_models.ChatLanguageEn},
+		ID:     uuid.New(),
+		ChatID: "1",
+		Settings: &db_models.ChatSettings{
+			ChatLanguage:           db_models.ChatLanguageEn,
+			GameChangeNotification: true,
+			OfflineNotification:    true,
+		},
 	}
 	dbFollow := &db_models.Follow{ID: uuid.New(), ChatID: dbChat.ID, Chat: dbChat, Channel: dbChannel, ChannelID: dbChannel.ID}
 	twitchChannelInfo := &helix.ChannelInformation{BroadcasterID: "1", BroadcasterName: "Satont"}
@@ -174,6 +178,42 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					Title: lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
+			},
+		},
+		{
+			name: "we have record in database with some stream, and got new one. We should call send message",
+			setupMocks: func() {
+				newHelixStream := &helix.Stream{
+					ID:       "123456",
+					GameName: "Dota 2",
+					Title:    "title1",
+					UserID:   "1",
+				}
+
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
+					*twitchChannelInfo,
+				}, nil)
+				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
+					dbChannel,
+				}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
+					*newHelixStream,
+				}, nil)
+				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
+				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
+					StreamID: newHelixStream.ID,
+					IsLive:   lo.ToPtr(true),
+					Category: lo.ToPtr("Dota 2"),
+					Title:    lo.ToPtr("title1"),
+				}).Return((*db_models.Stream)(nil), nil)
+				senderMock.
+					On("SendMessage",
+						ctx,
+						dbChat,
+						mock.Anything,
+					).
+					Return(nil)
 			},
 		},
 	}

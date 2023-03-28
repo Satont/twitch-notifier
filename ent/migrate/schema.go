@@ -108,8 +108,8 @@ var (
 	// StreamsColumns holds the columns for the "streams" table.
 	StreamsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true},
-		{Name: "titles", Type: field.TypeJSON, Nullable: true},
-		{Name: "categories", Type: field.TypeJSON, Nullable: true},
+		{Name: "titles", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "text[]", "sqlite3": "JSON"}},
+		{Name: "categories", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "text[]", "sqlite3": "JSON"}},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "ended_at", Type: field.TypeTime, Nullable: true},

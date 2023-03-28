@@ -7,11 +7,12 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/services/db"
+	"github.com/satont/twitch-notifier/internal/services/db/db_models"
 	"github.com/satont/twitch-notifier/internal/services/message_sender"
 	"github.com/satont/twitch-notifier/internal/services/types"
-	"github.com/sourcegraph/conc"
 	"go.uber.org/zap"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -60,10 +61,12 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 		return
 	}
 
-	var wg conc.WaitGroup
+	wg := &sync.WaitGroup{}
 	for _, channel := range channels {
-		channel := channel
-		wg.Go(func() {
+		wg.Add(1)
+
+		go func(channel *db_models.Channel) {
+			defer wg.Done()
 			twitchChannel, twitchChannelOk := lo.Find(twitchChannels, func(item helix.ChannelInformation) bool {
 				return item.BroadcasterID == channel.ChannelID
 			})
@@ -99,6 +102,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 				// send message to all followers
 				for _, follower := range followers {
+					if !follower.Chat.Settings.OfflineNotification {
+						continue
+					}
+
 					message := t.services.I18N.Translate(
 						"notifications.streams.nowOffline",
 						follower.Chat.Settings.ChatLanguage.String(),
@@ -107,7 +114,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								twitchChannel.BroadcasterName,
 								fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
 							),
-							"categories": strings.Join(currentDBStream.Categories, ", "),
+							"categories": strings.Join(currentDBStream.Categories, " -> "),
 							"duration": time.Now().UTC().Sub(currentDBStream.StartedAt).
 								Truncate(1 * time.Second).
 								String(),
@@ -127,6 +134,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 			// if stream becomes online
 			if twitchCurrentStreamOk && currentDBStream == nil {
+				//if currentDBStream != nil && currentDBStream.ID == twitchCurrentStream.ID {
+				//	return
+				//}
+
 				_, err = t.services.Stream.CreateOneByChannelID(ctx, channel.ID, &db.StreamUpdateQuery{
 					StreamID: twitchCurrentStream.ID,
 					IsLive:   lo.ToPtr(true),
@@ -168,10 +179,16 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 			}
 
-			// stream is still online, need to check does we need to update title or category
-			if twitchCurrentStreamOk && currentDBStream != nil {
-				latestTitle := currentDBStream.Titles[len(currentDBStream.Titles)-1]
-				latestCategory := currentDBStream.Categories[len(currentDBStream.Categories)-1]
+			// stream is still online, need to check do we need to update title or category
+			if twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.ID == twitchCurrentStream.ID {
+				latestTitle := ""
+				if len(currentDBStream.Titles) > 0 {
+					latestTitle = currentDBStream.Titles[len(currentDBStream.Titles)-1]
+				}
+				latestCategory := ""
+				if len(currentDBStream.Categories) > 0 {
+					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1]
+				}
 
 				if twitchCurrentStream.GameName != latestCategory {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
@@ -183,8 +200,28 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					}
 
 					for _, follower := range followers {
+						if !follower.Chat.Settings.GameChangeNotification {
+							continue
+						}
+
+						thumbNail := twitchCurrentStream.ThumbnailURL
+						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-							Text: fmt.Sprintf("Changed category %s", twitchChannel.BroadcasterName),
+							Text: t.services.I18N.Translate(
+								"notifications.streams.newCategory",
+								follower.Chat.Settings.ChatLanguage.String(),
+								map[string]string{
+									"channelLink": tg.MD.Link(
+										twitchChannel.BroadcasterName,
+										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+									),
+									"category": tg.MD.Bold(twitchCurrentStream.GameName),
+								},
+							),
+							ParseMode: &tg.MD,
+							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 						})
 						if err != nil {
 							zap.S().Error(err)
@@ -203,7 +240,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					}
 				}
 			}
-		})
+		}(channel)
 	}
 	wg.Wait()
 
@@ -220,6 +257,8 @@ func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
 			Else(1 * time.Minute),
 		)
 	ticker := time.NewTicker(tickTime)
+
+	t.check(ctx)
 
 	go func() {
 		for {

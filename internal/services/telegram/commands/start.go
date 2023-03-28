@@ -73,9 +73,15 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 }
 
 func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate) error {
+	session := c.SessionManager.Get(ctx)
+
 	keyBoard := c.buildKeyboard(ctx)
 
-	description := c.Services.I18N.Translate("bot.description", "en", nil)
+	description := c.Services.I18N.Translate(
+		"bot.description",
+		session.Chat.Settings.ChatLanguage.String(),
+		nil,
+	)
 
 	return msg.Answer(description).ReplyMarkup(keyBoard).DoVoid(ctx)
 }

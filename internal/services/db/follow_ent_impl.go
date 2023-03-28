@@ -35,9 +35,11 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
 		convertedFollow.ChatID = follow.Edges.Chat.ID
 
 		chatSettings := &db_models.ChatSettings{
-			ID:           follow.Edges.Chat.Edges.Settings.ID,
-			ChatID:       follow.Edges.Chat.Edges.Settings.ChatID,
-			ChatLanguage: db_models.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
+			ID:                     follow.Edges.Chat.Edges.Settings.ID,
+			ChatID:                 follow.Edges.Chat.Edges.Settings.ChatID,
+			ChatLanguage:           db_models.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
+			GameChangeNotification: true,
+			OfflineNotification:    follow.Edges.Chat.Edges.Settings.OfflineNotification,
 		}
 
 		convertedFollow.Chat = &db_models.Chat{

@@ -3,13 +3,13 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/stream"
 )
@@ -22,9 +22,9 @@ type Stream struct {
 	// ChannelID holds the value of the "channel_id" field.
 	ChannelID uuid.UUID `json:"channel_id,omitempty"`
 	// Titles holds the value of the "titles" field.
-	Titles []string `json:"titles,omitempty"`
+	Titles pq.StringArray `json:"titles,omitempty"`
 	// Categories holds the value of the "categories" field.
-	Categories []string `json:"categories,omitempty"`
+	Categories pq.StringArray `json:"categories,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -64,7 +64,7 @@ func (*Stream) scanValues(columns []string) ([]any, error) {
 	for i := range columns {
 		switch columns[i] {
 		case stream.FieldTitles, stream.FieldCategories:
-			values[i] = new([]byte)
+			values[i] = new(pq.StringArray)
 		case stream.FieldID:
 			values[i] = new(sql.NullString)
 		case stream.FieldStartedAt, stream.FieldUpdatedAt, stream.FieldEndedAt:
@@ -99,20 +99,16 @@ func (s *Stream) assignValues(columns []string, values []any) error {
 				s.ChannelID = *value
 			}
 		case stream.FieldTitles:
-			if value, ok := values[i].(*[]byte); !ok {
+			if value, ok := values[i].(*pq.StringArray); !ok {
 				return fmt.Errorf("unexpected type %T for field titles", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &s.Titles); err != nil {
-					return fmt.Errorf("unmarshal field titles: %w", err)
-				}
+			} else if value != nil {
+				s.Titles = *value
 			}
 		case stream.FieldCategories:
-			if value, ok := values[i].(*[]byte); !ok {
+			if value, ok := values[i].(*pq.StringArray); !ok {
 				return fmt.Errorf("unexpected type %T for field categories", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &s.Categories); err != nil {
-					return fmt.Errorf("unmarshal field categories: %w", err)
-				}
+			} else if value != nil {
+				s.Categories = *value
 			}
 		case stream.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
