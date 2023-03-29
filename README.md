@@ -21,7 +21,7 @@ go mod download
 
 
 ```bash
-make test
+make tests
 ```
 
 ### Running
