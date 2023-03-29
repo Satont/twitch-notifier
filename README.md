@@ -1,5 +1,6 @@
 # Twitch Notifier
 
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/satont/twitch-notifier)
 [![Coverage Status](https://coveralls.io/repos/github/Satont/twitch-notifier/badge.svg)](https://coveralls.io/github/Satont/twitch-notifier)
 
 Bot for sending twitch streams notifications in telegram.
@@ -14,7 +15,7 @@ go mod download
 
 ### Requirements
 
-- Golang 1.20+
+- Golang `1.19+`
 
 ### Testing
 
