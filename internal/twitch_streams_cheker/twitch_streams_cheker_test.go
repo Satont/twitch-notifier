@@ -58,6 +58,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 		GameName: "Dota 2",
 		Title:    "title",
 		UserID:   "1",
+		Type:     "live",
 	}
 
 	table := []struct {
@@ -126,6 +127,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					GameName: "Just Chatting",
 					Title:    "title",
 					UserID:   "1",
+					Type:     "live",
 				}
 
 				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
@@ -159,6 +161,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					GameName: "Dota 2",
 					Title:    "title1",
 					UserID:   "1",
+					Type:     "live",
 				}
 
 				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
@@ -185,6 +188,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					GameName: "Dota 2",
 					Title:    "title1",
 					UserID:   "1",
+					Type:     "live",
 				}
 
 				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
@@ -238,7 +242,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 			senderMock.AssertExpectations(t)
 			streamMock.AssertExpectations(t)
 			followMock.AssertExpectations(t)
-			i18nMock.AssertExpectations(t)
 
 			channelsMock.ExpectedCalls = nil
 			twitchMock.ExpectedCalls = nil
