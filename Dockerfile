@@ -25,7 +25,8 @@ WORKDIR /app
 
 COPY --from=builder /app/build-out/ /app/
 COPY --from=builder /app/docker-entrypoint.sh /app/
+COPY --from=builder /app/Makefile /app/
 
 RUN chmod +x /app/docker-entrypoint.sh
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
