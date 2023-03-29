@@ -55,7 +55,7 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "game_change_notification", Type: field.TypeBool, Default: true},
 		{Name: "offline_notification", Type: field.TypeBool, Default: true},
-		{Name: "chat_language", Type: field.TypeEnum, Enums: []string{"ru", "en"}, Default: "en"},
+		{Name: "chat_language", Type: field.TypeEnum, Enums: []string{"ru", "en", "ua"}, Default: "en"},
 		{Name: "chat_id", Type: field.TypeUUID, Unique: true},
 	}
 	// ChatSettingsTable holds the schema information for the "chat_settings" table.

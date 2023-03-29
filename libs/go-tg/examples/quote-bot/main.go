@@ -36,7 +36,7 @@ func main() {
 		query := strings.TrimSpace(iq.Query)
 
 		language := "en"
-		if iq.From.LanguageCode == "ru" {
+		if iq.From.LanguageCode == "ru" || iq.From.LanguageCode == "ua" {
 			language = iq.From.LanguageCode
 		}
 

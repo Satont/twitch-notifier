@@ -3,15 +3,16 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twitch-notifier/internal/db"
-	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"github.com/satont/twitch-notifier/internal/telegram/types"
-	"github.com/satont/twitch-notifier/internal/types"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/satont/twitch-notifier/internal/db"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
+	tg_types "github.com/satont/twitch-notifier/internal/telegram/types"
+	"github.com/satont/twitch-notifier/internal/types"
 
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
@@ -36,7 +37,7 @@ import (
 //		},
 //	}
 //
-//	i18nMock.On("GetLanguagesCodes").Return([]string{"en", "ru"})
+//	i18nMock.On("GetLanguagesCodes").Return([]string{"en", "ru", "ua"})
 //
 //	englishFlag := "🇬🇧"
 //	englishName := "English"
@@ -44,12 +45,22 @@ import (
 //	russianFlag := "🇷🇺"
 //	russianName := "Русский"
 //
+//	ukrainianFlag := "🇺🇦"
+//	ukrainianName := "Український"
+//
 //	i18nMock.
 //		On("Translate", "language.emoji", "en", map[string]string(nil)).
 //		Return(englishFlag)
 //	i18nMock.
 //		On("Translate", "language.name", "en", map[string]string(nil)).
 //		Return(englishName)
+//
+//	i18nMock.
+//		On("Translate", "language.emoji", "ua", map[string]string(nil)).
+//		Return(ukrainianFlag)
+//	i18nMock.
+//		On("Translate", "language.name", "ua", map[string]string(nil)).
+//		Return(ukrainianName)
 //
 //	i18nMock.
 //		On("Translate", "language.emoji", "ru", map[string]string(nil)).

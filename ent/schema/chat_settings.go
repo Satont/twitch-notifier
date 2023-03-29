@@ -16,6 +16,7 @@ type ChatLanguage string
 const (
 	ChatLanguageRu ChatLanguage = "ru"
 	ChatLanguageEn ChatLanguage = "en"
+	ChatLanguageUa ChatLanguage = "ua"
 )
 
 func (c ChatLanguage) String() string {

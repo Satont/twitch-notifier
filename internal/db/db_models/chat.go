@@ -39,6 +39,7 @@ var DefaultChatLanguage = ChatLanguageEn
 var (
 	ChatLanguageRu ChatLanguage = "ru"
 	ChatLanguageEn ChatLanguage = "en"
+	ChatLanguageUa ChatLanguage = "ua"
 )
 
 func (cl ChatLanguage) String() string {
