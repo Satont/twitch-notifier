@@ -16,7 +16,7 @@ func (s ChatService) String() string {
 
 func LanguageExists(l ChatLanguage) bool {
 	switch l {
-	case ChatLanguageRu, ChatLanguageEn:
+	case ChatLanguageRu, ChatLanguageEn, ChatLanguageUa:
 		return true
 	default:
 		return false

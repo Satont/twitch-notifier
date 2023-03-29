@@ -82,7 +82,7 @@ func (cl ChatLanguage) String() string {
 // ChatLanguageValidator is a validator for the "chat_language" field enum values. It is called by the builders before save.
 func ChatLanguageValidator(cl ChatLanguage) error {
 	switch cl {
-	case ChatLanguageRu, ChatLanguageEn:
+	case ChatLanguageRu, ChatLanguageEn, ChatLanguageUa:
 		return nil
 	default:
 		return fmt.Errorf("chatsettings: invalid enum value for chat_language field: %q", cl)
