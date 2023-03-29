@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	db_models2 "github.com/satont/twitch-notifier/internal/db/db_models"
-	tg_types2 "github.com/satont/twitch-notifier/internal/telegram/types"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/telegram/types"
 	"github.com/satont/twitch-notifier/internal/types"
-	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
+	"github.com/satont/twitch-notifier/pkg/i18n/mocks"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -38,17 +39,17 @@ func TestFollowService(t *testing.T) {
 
 	ctx := context.Background()
 
-	chat := &db_models2.Chat{
+	chat := &db_models.Chat{
 		ID: uuid.New(),
 	}
-	chann := &db_models2.Channel{
+	chann := &db_models.Channel{
 		ID:        uuid.New(),
 		ChannelID: "1",
 	}
-	f := &db_models2.Follow{}
+	f := &db_models.Follow{}
 
 	follow := &FollowCommand{
-		&tg_types2.CommandOpts{
+		&tg_types.CommandOpts{
 			Services: &types.Services{
 				Twitch:  mockedTwitch,
 				Channel: channelsMock,
@@ -62,7 +63,7 @@ func TestFollowService(t *testing.T) {
 	table := []struct {
 		name       string
 		input      string
-		want       *db_models2.Follow
+		want       *db_models.Follow
 		wantErr    bool
 		setupMocks func()
 	}{
@@ -84,7 +85,7 @@ func TestFollowService(t *testing.T) {
 				mockedTwitch.
 					On("GetUser", "", userLogin).Return(user, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, user.ID, db_models2.ChannelServiceTwitch).Return(chann, nil)
+					On("GetByIdOrCreate", ctx, user.ID, db_models.ChannelServiceTwitch).Return(chann, nil)
 				followsMock.
 					On("Create", ctx, chann.ID, chat.ID).Return(f, nil)
 			},
@@ -98,9 +99,9 @@ func TestFollowService(t *testing.T) {
 				mockedTwitch.
 					On("GetUser", "", userLogin).Return(user, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, user.ID, db_models2.ChannelServiceTwitch).Return(chann, nil)
+					On("GetByIdOrCreate", ctx, user.ID, db_models.ChannelServiceTwitch).Return(chann, nil)
 				followsMock.
-					On("Create", ctx, chann.ID, chat.ID).Return((*db_models2.Follow)(nil), db_models2.FollowAlreadyExistsError)
+					On("Create", ctx, chann.ID, chat.ID).Return((*db_models.Follow)(nil), db_models.FollowAlreadyExistsError)
 			},
 		},
 	}
@@ -133,13 +134,13 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 
 	ctx := context.Background()
 
-	sessionService := tg_types2.NewMockedSessionManager()
+	sessionService := tg_types.NewMockedSessionManager()
 
-	sessionService.On("Get", ctx).Return(&tg_types2.Session{
-		Chat: &db_models2.Chat{
+	sessionService.On("Get", ctx).Return(&tg_types.Session{
+		Chat: &db_models.Chat{
 			ChatID: "123",
-			Settings: &db_models2.ChatSettings{
-				ChatLanguage: db_models2.ChatLanguageEn,
+			Settings: &db_models.ChatSettings{
+				ChatLanguage: db_models.ChatLanguageEn,
 			},
 		},
 	})
@@ -169,7 +170,7 @@ func TestFollowCommand_HandleCommand(t *testing.T) {
 		Return("test")
 
 	followCommand := &FollowCommand{
-		&tg_types2.CommandOpts{
+		&tg_types.CommandOpts{
 			SessionManager: sessionService,
 			Services: &types.Services{
 				I18N: i18nMock,
@@ -200,7 +201,7 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 	channelsMock := &mocks.DbChannelMock{}
 	followsMock := &mocks.DbFollowMock{}
 	i18nMock := i18nmocks.NewI18nMock()
-	sessionMock := tg_types2.NewMockedSessionManager()
+	sessionMock := tg_types.NewMockedSessionManager()
 
 	ctx := context.Background()
 
@@ -211,13 +212,13 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 		DisplayName: "Satont",
 	}
 
-	dbChat := &db_models2.Chat{
+	dbChat := &db_models.Chat{
 		ID: uuid.New(),
-		Settings: &db_models2.ChatSettings{
-			ChatLanguage: db_models2.ChatLanguageEn,
+		Settings: &db_models.ChatSettings{
+			ChatLanguage: db_models.ChatLanguageEn,
 		},
 	}
-	dbChannel := &db_models2.Channel{
+	dbChannel := &db_models.Channel{
 		ID:        uuid.New(),
 		ChannelID: "1",
 	}
@@ -236,26 +237,31 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 	defer server.Close()
 	tgMockedServer := test_utils.NewTelegramClient(server)
 
-	tgMsg := &tgb.MessageUpdate{
-		Client: tgMockedServer,
-		Message: &tg.Message{
-			Chat: tg.Chat{ID: 1},
-			Text: userLogin,
-		},
-	}
-
-	sessionMock.On("Get", ctx).Return(&tg_types2.Session{
+	sessionMock.On("Get", ctx).Return(&tg_types.Session{
 		Chat: dbChat,
 	})
+
+	var clearMocks = func() {
+		mockedTwitch.ExpectedCalls = nil
+		channelsMock.ExpectedCalls = nil
+		followsMock.ExpectedCalls = nil
+		i18nMock.ExpectedCalls = nil
+
+		mockedTwitch.Calls = nil
+		channelsMock.Calls = nil
+		followsMock.Calls = nil
+		i18nMock.Calls = nil
+	}
 
 	table := []struct {
 		name       string
 		input      string
 		setupMocks func()
+		asserts    func(t *testing.T, err error)
 	}{
 		{
 			name:  "Should fail because of GetUser error",
-			input: "",
+			input: "satont",
 			setupMocks: func() {
 				mockedTwitch.
 					On("GetUser", "", userLogin).
@@ -267,6 +273,16 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 					map[string]string{"streamer": userLogin},
 				).Return("")
 			},
+			asserts: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+
+				i18nMock.AssertExpectations(t)
+				mockedTwitch.AssertExpectations(t)
+				channelsMock.AssertExpectations(t)
+				followsMock.AssertExpectations(t)
+
+				clearMocks()
+			},
 		},
 		{
 			name:  "Should fail because db follow exists",
@@ -274,17 +290,27 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 			setupMocks: func() {
 				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, helixUser.ID, db_models2.ChannelServiceTwitch).
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
 					Return(dbChannel, nil)
 				followsMock.
 					On("Create", ctx, dbChannel.ID, dbChat.ID).
-					Return((*db_models2.Follow)(nil), db_models2.FollowAlreadyExistsError)
+					Return((*db_models.Follow)(nil), db_models.FollowAlreadyExistsError)
 				i18nMock.On(
 					"Translate",
 					"commands.follow.errors.alreadyFollowed",
 					"en",
 					map[string]string{"streamer": userLogin},
 				).Return("")
+			},
+			asserts: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+
+				i18nMock.AssertExpectations(t)
+				mockedTwitch.AssertExpectations(t)
+				channelsMock.AssertExpectations(t)
+				followsMock.AssertExpectations(t)
+
+				clearMocks()
 			},
 		},
 		{
@@ -293,8 +319,18 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 			setupMocks: func() {
 				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, helixUser.ID, db_models2.ChannelServiceTwitch).
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
 					Return(dbChannel, errors.New("some error"))
+			},
+			asserts: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+
+				i18nMock.AssertExpectations(t)
+				mockedTwitch.AssertExpectations(t)
+				channelsMock.AssertExpectations(t)
+				followsMock.AssertExpectations(t)
+
+				clearMocks()
 			},
 		},
 		{
@@ -303,17 +339,56 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 			setupMocks: func() {
 				mockedTwitch.On("GetUser", "", userLogin).Return(helixUser, nil)
 				channelsMock.
-					On("GetByIdOrCreate", ctx, helixUser.ID, db_models2.ChannelServiceTwitch).
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
 					Return(dbChannel, nil)
 				followsMock.
 					On("Create", ctx, dbChannel.ID, dbChat.ID).
-					Return((*db_models2.Follow)(nil), nil)
+					Return((*db_models.Follow)(nil), nil)
 				i18nMock.On(
 					"Translate",
 					"commands.follow.success",
 					"en",
 					map[string]string{"streamer": userLogin},
 				).Return("")
+			},
+			asserts: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+
+				i18nMock.AssertExpectations(t)
+				mockedTwitch.AssertExpectations(t)
+				channelsMock.AssertExpectations(t)
+				followsMock.AssertExpectations(t)
+
+				clearMocks()
+			},
+		},
+		{
+			name:  "Should create multiple follows",
+			input: "https://www.twitch.tv/satont, https://www.twitch.tv/satont2",
+			setupMocks: func() {
+				mockedTwitch.On("GetUser", mock.Anything, mock.Anything).Return(helixUser, nil)
+				channelsMock.
+					On("GetByIdOrCreate", ctx, helixUser.ID, db_models.ChannelServiceTwitch).
+					Return(dbChannel, nil)
+				followsMock.
+					On("Create", ctx, dbChannel.ID, dbChat.ID).
+					Return((*db_models.Follow)(nil), nil)
+				i18nMock.On(
+					"Translate",
+					"commands.follow.success",
+					"en",
+					mock.Anything,
+				).Return("")
+			},
+			asserts: func(t *testing.T, err error) {
+				assert.NoError(t, err)
+
+				mockedTwitch.AssertNumberOfCalls(t, "GetUser", 2)
+				channelsMock.AssertNumberOfCalls(t, "GetByIdOrCreate", 2)
+				followsMock.AssertNumberOfCalls(t, "Create", 2)
+				i18nMock.AssertNumberOfCalls(t, "Translate", 2)
+
+				clearMocks()
 			},
 		},
 	}
@@ -323,7 +398,7 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 			tt.setupMocks()
 
 			followCommand := &FollowCommand{
-				&tg_types2.CommandOpts{
+				&tg_types.CommandOpts{
 					SessionManager: sessionMock,
 					Services: &types.Services{
 						Twitch:  mockedTwitch,
@@ -334,18 +409,16 @@ func TestFollowCommand_HandleScene(t *testing.T) {
 				},
 			}
 
+			tgMsg := &tgb.MessageUpdate{
+				Client: tgMockedServer,
+				Message: &tg.Message{
+					Chat: tg.Chat{ID: 1},
+					Text: tt.input,
+				},
+			}
+
 			err := followCommand.handleScene(ctx, tgMsg)
-			assert.NoError(t, err)
-
-			i18nMock.AssertExpectations(t)
-			mockedTwitch.AssertExpectations(t)
-			channelsMock.AssertExpectations(t)
-			followsMock.AssertExpectations(t)
-
-			mockedTwitch.ExpectedCalls = nil
-			channelsMock.ExpectedCalls = nil
-			followsMock.ExpectedCalls = nil
-			i18nMock.ExpectedCalls = nil
+			tt.asserts(t, err)
 		})
 	}
 }
