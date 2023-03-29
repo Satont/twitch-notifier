@@ -6,11 +6,18 @@ Bot for sending twitch streams notifications in telegram.
 
 # Development
 
+Download dependencies
+
+```bash
+go mod download
+```
+
 ### Requirements
 
 - Golang 1.20+
 
 ### Testing
+
 
 ```bash
 make test
