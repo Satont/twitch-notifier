@@ -27,6 +27,7 @@ COPY --from=builder /app/build-out /app/
 COPY --from=builder /app/docker-entrypoint.sh /app/
 COPY --from=builder /app/Makefile /app/
 COPY --from=builder /app/locales /app/locales
+COPY --from=builder /app/ent/migrate /app/ent/migrate
 
 RUN chmod +x /app/docker-entrypoint.sh
 
