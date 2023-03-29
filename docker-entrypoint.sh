@@ -2,4 +2,4 @@
 cd /app
 
 make migrate-apply
-exec "$@"
+./build-out

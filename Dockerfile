@@ -30,5 +30,4 @@ COPY --from=builder /app/locales /app/locales
 
 RUN chmod +x /app/docker-entrypoint.sh
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["/app/build-out"]
+CMD ["sh", "/app/docker-entrypoint.sh"]
