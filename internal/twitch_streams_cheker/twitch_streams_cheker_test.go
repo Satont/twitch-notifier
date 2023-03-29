@@ -238,6 +238,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 			senderMock.AssertExpectations(t)
 			streamMock.AssertExpectations(t)
 			followMock.AssertExpectations(t)
+			i18nMock.AssertExpectations(t)
 
 			channelsMock.ExpectedCalls = nil
 			twitchMock.ExpectedCalls = nil
