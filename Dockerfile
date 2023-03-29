@@ -1,19 +1,31 @@
-FROM node:16-alpine
+FROM alpine:latest as builder
 
-RUN apk add --no-cache bash
-
-
-EXPOSE 3000
-EXPOSE 9229
+COPY --from=golang:alpine /usr/local/go/ /usr/local/go/
+ENV PATH="$PATH:/usr/local/go/bin"
+ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN npm i -g pnpm && pnpm install
+RUN apk add --no-cache git curl wget upx make
 
-COPY . /app
-RUN pnpm run build
+COPY libs libs
+COPY go.mod go.sum /app/
+RUN go mod download
 
-COPY docker.sh /
-RUN chmod +x /docker.sh
-ENTRYPOINT ["/docker.sh"]
+COPY . .
+
+RUN make build
+
+FROM alpine:latest
+RUN apk add --no-cache make curl && \
+    curl -sSf https://atlasgo.sh | sh && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+COPY --from=builder /app/build-out/ /app/
+COPY --from=builder /app/docker-entrypoint.sh /app/
+
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]

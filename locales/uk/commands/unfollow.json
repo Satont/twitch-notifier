@@ -1,8 +1,0 @@
-{
-  "errors": {
-    "badUsername": "Ім'я користувача може містити лише символи \"a-z\", \"0-9\" та \"_\".",
-    "streamerNotFound": "Користувач {{ streamer }} не знайдений."
-  },
-  "notFollowed": "Ви не підписані на {{ streamer }}.",
-  "success": "Ви відписалися від {{ streamer }}."
-}

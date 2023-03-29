@@ -1,20 +1,57 @@
 # Twitch Notifier
-![](https://img.shields.io/github/workflow/status/satont/twitch-notifier/Docker%20Image%20CI%20-%20latest?style=for-the-badge) ![](https://img.shields.io/david/satont/twitch-notifier?style=for-the-badge)
 
-## About
-Bot for track twitch channels going live and notify followed users about that!
+[![Coverage Status](https://coveralls.io/repos/github/Satont/twitch-notifier/badge.svg)](https://coveralls.io/github/Satont/twitch-notifier)
 
-## Features
+Bot for sending twitch streams notifications in telegram.
 
-1. Messengers
-    + Telegram
-2. Stream preview
-3. Game and title in golive message
-4. Online streamers list
+# Development
 
-## Setup
+Download dependencies
 
-1. Install deps: `npm i`
-2. Build app: `npm run build`
-3. Rename `.env.example` to `.env` and fill it by data
-4. You are ready to start the app: `npm start`
+```bash
+go mod download
+```
+
+### Requirements
+
+- Golang 1.20+
+
+### Testing
+
+
+```bash
+make test
+```
+
+### Running
+
+```bash
+make dev
+```
+
+## Database schemas and migrations
+
+We're using [ent](https://entgo.io/) for database schemas.
+
+### Writing schemas
+
+All schemas located in `./ent/schema` directory.
+
+### Migrations
+
+#### Requirements
+
+- [atlasgo cli](https://atlasgo.io/getting-started#installation)
+- Docker
+
+### Create
+
+```bash
+make migrate-create somecoolname
+```
+
+### Apply
+
+```bash
+make migrate-apply
+```

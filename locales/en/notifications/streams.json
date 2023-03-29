@@ -1,0 +1,5 @@
+{
+	"nowOffline": "\uD83D\uDD34 {{ channelLink }} now offline.\n{{ categories }}\n{{ duration }}",
+	"nowOnline": "\uD83D\uDFE2 {{ channelLink }} now online.\nCategory: {{ category }}\nTitle: {{ title }}",
+	"newCategory": "\uD83D\uDD04 {{ channelLink }} now streaming {{ category }}"
+}

@@ -1,11 +1,4 @@
-node_modules
-dist
-start.sh
-token
-test.ts
-config.js
+coverage.out
+.idea
 .env
-logs
-.env*
-!!.env.example
-.pnpm-debug.log
+build-out*

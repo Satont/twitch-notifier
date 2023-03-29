@@ -7,20 +7,6 @@
   "bot": {
     "description": "Hello! I will notify you when Twitch broadcasts start."
   },
-  "settings": {
-    "game_change_notification_setting": {
-      "button": "Game change notification"
-    },
-    "language": {
-      "button": "🌍 Language"
-    },
-    "offline_notification": {
-      "button": "Offline notification"
-    }
-  },
-  "errors": {
-    "translateNotFound": "Translate for {{ string }} not found."
-  },
   "enable": "Enable",
   "disable": "Disable",
   "enabled": "Enabled",
