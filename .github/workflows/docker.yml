@@ -28,6 +28,7 @@ jobs:
         with:
           context: .
           push: true
+          pull: true
           tags: |
             quay.io/satont/twitch-notifier:latest
             quay.io/satont/twitch-notifier:${{ github.sha }}

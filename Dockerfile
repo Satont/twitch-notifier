@@ -23,11 +23,12 @@ RUN apk add --no-cache make curl && \
 
 WORKDIR /app
 
-COPY --from=builder /app/build-out /app
-COPY --from=builder /app/docker-entrypoint.sh /app
-COPY --from=builder /app/Makefile /app
-COPY --from=builder /app/locales /app
+COPY --from=builder /app/build-out /app/
+COPY --from=builder /app/docker-entrypoint.sh /app/
+COPY --from=builder /app/Makefile /app/
+COPY --from=builder /app/locales /app/
 
 RUN chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["/app/build-out"]
