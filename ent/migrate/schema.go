@@ -54,6 +54,7 @@ var (
 	ChatSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "game_change_notification", Type: field.TypeBool, Default: true},
+		{Name: "title_change_notification", Type: field.TypeBool, Default: false},
 		{Name: "offline_notification", Type: field.TypeBool, Default: true},
 		{Name: "chat_language", Type: field.TypeEnum, Enums: []string{"ru", "en"}, Default: "en"},
 		{Name: "chat_id", Type: field.TypeUUID, Unique: true},
@@ -66,7 +67,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "chat_settings_chats_settings",
-				Columns:    []*schema.Column{ChatSettingsColumns[4]},
+				Columns:    []*schema.Column{ChatSettingsColumns[5]},
 				RefColumns: []*schema.Column{ChatsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

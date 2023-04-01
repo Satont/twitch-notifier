@@ -59,6 +59,11 @@ func GameChangeNotification(v bool) predicate.ChatSettings {
 	return predicate.ChatSettings(sql.FieldEQ(FieldGameChangeNotification, v))
 }
 
+// TitleChangeNotification applies equality check predicate on the "title_change_notification" field. It's identical to TitleChangeNotificationEQ.
+func TitleChangeNotification(v bool) predicate.ChatSettings {
+	return predicate.ChatSettings(sql.FieldEQ(FieldTitleChangeNotification, v))
+}
+
 // OfflineNotification applies equality check predicate on the "offline_notification" field. It's identical to OfflineNotificationEQ.
 func OfflineNotification(v bool) predicate.ChatSettings {
 	return predicate.ChatSettings(sql.FieldEQ(FieldOfflineNotification, v))
@@ -77,6 +82,16 @@ func GameChangeNotificationEQ(v bool) predicate.ChatSettings {
 // GameChangeNotificationNEQ applies the NEQ predicate on the "game_change_notification" field.
 func GameChangeNotificationNEQ(v bool) predicate.ChatSettings {
 	return predicate.ChatSettings(sql.FieldNEQ(FieldGameChangeNotification, v))
+}
+
+// TitleChangeNotificationEQ applies the EQ predicate on the "title_change_notification" field.
+func TitleChangeNotificationEQ(v bool) predicate.ChatSettings {
+	return predicate.ChatSettings(sql.FieldEQ(FieldTitleChangeNotification, v))
+}
+
+// TitleChangeNotificationNEQ applies the NEQ predicate on the "title_change_notification" field.
+func TitleChangeNotificationNEQ(v bool) predicate.ChatSettings {
+	return predicate.ChatSettings(sql.FieldNEQ(FieldTitleChangeNotification, v))
 }
 
 // OfflineNotificationEQ applies the EQ predicate on the "offline_notification" field.

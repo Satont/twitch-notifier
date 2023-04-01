@@ -194,6 +194,22 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1]
 				}
 
+				if twitchCurrentStream.Title != latestTitle {
+					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
+						Title: lo.ToPtr(twitchCurrentStream.Title),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
+
+					for _, follower := range followers {
+						if !follower.Chat.Settings {
+							continue
+						}
+					}
+				}
+
 				if twitchCurrentStream.GameName != latestCategory {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
 						Category: lo.ToPtr(twitchCurrentStream.GameName),

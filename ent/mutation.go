@@ -1416,18 +1416,19 @@ func (m *ChatMutation) ResetEdge(name string) error {
 // ChatSettingsMutation represents an operation that mutates the ChatSettings nodes in the graph.
 type ChatSettingsMutation struct {
 	config
-	op                       Op
-	typ                      string
-	id                       *uuid.UUID
-	game_change_notification *bool
-	offline_notification     *bool
-	chat_language            *chatsettings.ChatLanguage
-	clearedFields            map[string]struct{}
-	chat                     *uuid.UUID
-	clearedchat              bool
-	done                     bool
-	oldValue                 func(context.Context) (*ChatSettings, error)
-	predicates               []predicate.ChatSettings
+	op                        Op
+	typ                       string
+	id                        *uuid.UUID
+	game_change_notification  *bool
+	title_change_notification *bool
+	offline_notification      *bool
+	chat_language             *chatsettings.ChatLanguage
+	clearedFields             map[string]struct{}
+	chat                      *uuid.UUID
+	clearedchat               bool
+	done                      bool
+	oldValue                  func(context.Context) (*ChatSettings, error)
+	predicates                []predicate.ChatSettings
 }
 
 var _ ent.Mutation = (*ChatSettingsMutation)(nil)
@@ -1568,6 +1569,42 @@ func (m *ChatSettingsMutation) OldGameChangeNotification(ctx context.Context) (v
 // ResetGameChangeNotification resets all changes to the "game_change_notification" field.
 func (m *ChatSettingsMutation) ResetGameChangeNotification() {
 	m.game_change_notification = nil
+}
+
+// SetTitleChangeNotification sets the "title_change_notification" field.
+func (m *ChatSettingsMutation) SetTitleChangeNotification(b bool) {
+	m.title_change_notification = &b
+}
+
+// TitleChangeNotification returns the value of the "title_change_notification" field in the mutation.
+func (m *ChatSettingsMutation) TitleChangeNotification() (r bool, exists bool) {
+	v := m.title_change_notification
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitleChangeNotification returns the old "title_change_notification" field's value of the ChatSettings entity.
+// If the ChatSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatSettingsMutation) OldTitleChangeNotification(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitleChangeNotification is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitleChangeNotification requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitleChangeNotification: %w", err)
+	}
+	return oldValue.TitleChangeNotification, nil
+}
+
+// ResetTitleChangeNotification resets all changes to the "title_change_notification" field.
+func (m *ChatSettingsMutation) ResetTitleChangeNotification() {
+	m.title_change_notification = nil
 }
 
 // SetOfflineNotification sets the "offline_notification" field.
@@ -1738,9 +1775,12 @@ func (m *ChatSettingsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ChatSettingsMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.game_change_notification != nil {
 		fields = append(fields, chatsettings.FieldGameChangeNotification)
+	}
+	if m.title_change_notification != nil {
+		fields = append(fields, chatsettings.FieldTitleChangeNotification)
 	}
 	if m.offline_notification != nil {
 		fields = append(fields, chatsettings.FieldOfflineNotification)
@@ -1761,6 +1801,8 @@ func (m *ChatSettingsMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case chatsettings.FieldGameChangeNotification:
 		return m.GameChangeNotification()
+	case chatsettings.FieldTitleChangeNotification:
+		return m.TitleChangeNotification()
 	case chatsettings.FieldOfflineNotification:
 		return m.OfflineNotification()
 	case chatsettings.FieldChatLanguage:
@@ -1778,6 +1820,8 @@ func (m *ChatSettingsMutation) OldField(ctx context.Context, name string) (ent.V
 	switch name {
 	case chatsettings.FieldGameChangeNotification:
 		return m.OldGameChangeNotification(ctx)
+	case chatsettings.FieldTitleChangeNotification:
+		return m.OldTitleChangeNotification(ctx)
 	case chatsettings.FieldOfflineNotification:
 		return m.OldOfflineNotification(ctx)
 	case chatsettings.FieldChatLanguage:
@@ -1799,6 +1843,13 @@ func (m *ChatSettingsMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetGameChangeNotification(v)
+		return nil
+	case chatsettings.FieldTitleChangeNotification:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitleChangeNotification(v)
 		return nil
 	case chatsettings.FieldOfflineNotification:
 		v, ok := value.(bool)
@@ -1872,6 +1923,9 @@ func (m *ChatSettingsMutation) ResetField(name string) error {
 	switch name {
 	case chatsettings.FieldGameChangeNotification:
 		m.ResetGameChangeNotification()
+		return nil
+	case chatsettings.FieldTitleChangeNotification:
+		m.ResetTitleChangeNotification()
 		return nil
 	case chatsettings.FieldOfflineNotification:
 		m.ResetOfflineNotification()

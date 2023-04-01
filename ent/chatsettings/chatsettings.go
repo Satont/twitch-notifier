@@ -15,6 +15,8 @@ const (
 	FieldID = "id"
 	// FieldGameChangeNotification holds the string denoting the game_change_notification field in the database.
 	FieldGameChangeNotification = "game_change_notification"
+	// FieldTitleChangeNotification holds the string denoting the title_change_notification field in the database.
+	FieldTitleChangeNotification = "title_change_notification"
 	// FieldOfflineNotification holds the string denoting the offline_notification field in the database.
 	FieldOfflineNotification = "offline_notification"
 	// FieldChatLanguage holds the string denoting the chat_language field in the database.
@@ -38,6 +40,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldGameChangeNotification,
+	FieldTitleChangeNotification,
 	FieldOfflineNotification,
 	FieldChatLanguage,
 	FieldChatID,
@@ -56,6 +59,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultGameChangeNotification holds the default value on creation for the "game_change_notification" field.
 	DefaultGameChangeNotification bool
+	// DefaultTitleChangeNotification holds the default value on creation for the "title_change_notification" field.
+	DefaultTitleChangeNotification bool
 	// DefaultOfflineNotification holds the default value on creation for the "offline_notification" field.
 	DefaultOfflineNotification bool
 	// DefaultID holds the default value on creation for the "id" field.

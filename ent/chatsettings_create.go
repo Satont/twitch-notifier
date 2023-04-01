@@ -35,6 +35,20 @@ func (csc *ChatSettingsCreate) SetNillableGameChangeNotification(b *bool) *ChatS
 	return csc
 }
 
+// SetTitleChangeNotification sets the "title_change_notification" field.
+func (csc *ChatSettingsCreate) SetTitleChangeNotification(b bool) *ChatSettingsCreate {
+	csc.mutation.SetTitleChangeNotification(b)
+	return csc
+}
+
+// SetNillableTitleChangeNotification sets the "title_change_notification" field if the given value is not nil.
+func (csc *ChatSettingsCreate) SetNillableTitleChangeNotification(b *bool) *ChatSettingsCreate {
+	if b != nil {
+		csc.SetTitleChangeNotification(*b)
+	}
+	return csc
+}
+
 // SetOfflineNotification sets the "offline_notification" field.
 func (csc *ChatSettingsCreate) SetOfflineNotification(b bool) *ChatSettingsCreate {
 	csc.mutation.SetOfflineNotification(b)
@@ -127,6 +141,10 @@ func (csc *ChatSettingsCreate) defaults() {
 		v := chatsettings.DefaultGameChangeNotification
 		csc.mutation.SetGameChangeNotification(v)
 	}
+	if _, ok := csc.mutation.TitleChangeNotification(); !ok {
+		v := chatsettings.DefaultTitleChangeNotification
+		csc.mutation.SetTitleChangeNotification(v)
+	}
 	if _, ok := csc.mutation.OfflineNotification(); !ok {
 		v := chatsettings.DefaultOfflineNotification
 		csc.mutation.SetOfflineNotification(v)
@@ -145,6 +163,9 @@ func (csc *ChatSettingsCreate) defaults() {
 func (csc *ChatSettingsCreate) check() error {
 	if _, ok := csc.mutation.GameChangeNotification(); !ok {
 		return &ValidationError{Name: "game_change_notification", err: errors.New(`ent: missing required field "ChatSettings.game_change_notification"`)}
+	}
+	if _, ok := csc.mutation.TitleChangeNotification(); !ok {
+		return &ValidationError{Name: "title_change_notification", err: errors.New(`ent: missing required field "ChatSettings.title_change_notification"`)}
 	}
 	if _, ok := csc.mutation.OfflineNotification(); !ok {
 		return &ValidationError{Name: "offline_notification", err: errors.New(`ent: missing required field "ChatSettings.offline_notification"`)}
@@ -201,6 +222,10 @@ func (csc *ChatSettingsCreate) createSpec() (*ChatSettings, *sqlgraph.CreateSpec
 	if value, ok := csc.mutation.GameChangeNotification(); ok {
 		_spec.SetField(chatsettings.FieldGameChangeNotification, field.TypeBool, value)
 		_node.GameChangeNotification = value
+	}
+	if value, ok := csc.mutation.TitleChangeNotification(); ok {
+		_spec.SetField(chatsettings.FieldTitleChangeNotification, field.TypeBool, value)
+		_node.TitleChangeNotification = value
 	}
 	if value, ok := csc.mutation.OfflineNotification(); ok {
 		_spec.SetField(chatsettings.FieldOfflineNotification, field.TypeBool, value)

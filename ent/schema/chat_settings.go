@@ -26,6 +26,7 @@ func (ChatSettings) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.Bool("game_change_notification").Default(true),
+		field.Bool("title_change_notification").Default(false),
 		field.Bool("offline_notification").Default(true),
 		field.Enum("chat_language").Values(ChatLanguageRu.String(), ChatLanguageEn.String()).Default(ChatLanguageEn.String()),
 		field.UUID("chat_id", uuid.UUID{}),

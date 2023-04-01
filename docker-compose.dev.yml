@@ -11,7 +11,13 @@ services:
       POSTGRES_DB: test
     volumes:
       - postgres:/var/lib/postgresql/data
-
+  adminer:
+    image: adminer
+    ports:
+      - "8085:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres:5432
+      - ADMINER_PLUGINS=enum-types enum-option json-column
 volumes:
   postgres:
     driver: local
