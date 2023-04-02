@@ -195,47 +195,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1]
 				}
 
-				if twitchCurrentStream.Title != latestTitle {
-					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Title: lo.ToPtr(twitchCurrentStream.Title),
-					})
-					if err != nil {
-						zap.S().Error(err)
-						return
-					}
-
-					for _, follower := range followers {
-						if !follower.Chat.Settings.TitleChangeNotification {
-							continue
-						}
-
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-							Text: t.services.I18N.Translate(
-								"notifications.streams.titleChanged",
-								follower.Chat.Settings.ChatLanguage.String(),
-								map[string]string{
-									"channelLink": tg.MD.Link(
-										twitchChannel.BroadcasterName,
-										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
-									),
-									"category": twitchCurrentStream.GameName,
-									"title":    twitchCurrentStream.Title,
-								},
-							),
-							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
-						})
-						if err != nil {
-							zap.S().Error(err)
-							return
-						}
-					}
-				}
-
 				if twitchCurrentStream.GameName != latestCategory {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
 						Category: lo.ToPtr(twitchCurrentStream.GameName),
@@ -274,6 +233,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							return
 						}
 					}
+					return
 				}
 
 				if twitchCurrentStream.Title != latestTitle {
@@ -284,7 +244,40 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						zap.S().Error(err)
 						return
 					}
+
+					for _, follower := range followers {
+						fmt.Println(follower.Chat.Settings.TitleChangeNotification)
+						if !follower.Chat.Settings.TitleChangeNotification {
+							continue
+						}
+
+						thumbNail := twitchCurrentStream.ThumbnailURL
+						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
+						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+							Text: t.services.I18N.Translate(
+								"notifications.streams.titleChanged",
+								follower.Chat.Settings.ChatLanguage.String(),
+								map[string]string{
+									"channelLink": tg.MD.Link(
+										twitchChannel.BroadcasterName,
+										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+									),
+									"category": twitchCurrentStream.GameName,
+									"title":    twitchCurrentStream.Title,
+								},
+							),
+							ParseMode: &tg.MD,
+							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						})
+						if err != nil {
+							zap.S().Error(err)
+							return
+						}
+					}
 				}
+
 			}
 		}(channel)
 	}

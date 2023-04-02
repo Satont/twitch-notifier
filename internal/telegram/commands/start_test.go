@@ -3,14 +3,15 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"github.com/satont/twitch-notifier/internal/telegram/types"
-	"github.com/satont/twitch-notifier/internal/types"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/satont/twitch-notifier/internal/db/db_models"
+	tg_types "github.com/satont/twitch-notifier/internal/telegram/types"
+	"github.com/satont/twitch-notifier/internal/types"
 
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
@@ -54,7 +55,7 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 
 	keyboard := cmd.buildKeyboard(ctx)
 
-	const buttons = 4
+	const buttons = 5
 	assert.Equal(t, buttons, len(keyboard.InlineKeyboard))
 
 	assert.Equal(
@@ -71,12 +72,18 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"language_picker",
+		"start_title_change_notification_setting",
 		keyboard.InlineKeyboard[2][0].CallbackData,
 	)
 
-	assert.Equal(t, "Github", keyboard.InlineKeyboard[3][0].Text)
-	assert.Equal(t, "https://github.com/Satont/twitch-notifier", keyboard.InlineKeyboard[3][0].URL)
+	assert.Equal(
+		t,
+		"language_picker",
+		keyboard.InlineKeyboard[3][0].CallbackData,
+	)
+
+	assert.Equal(t, "Github", keyboard.InlineKeyboard[4][0].Text)
+	assert.Equal(t, "https://github.com/Satont/twitch-notifier", keyboard.InlineKeyboard[4][0].URL)
 
 	sessionManager.AssertExpectations(t)
 	i18.AssertNumberOfCalls(t, "Translate", buttons-1)
