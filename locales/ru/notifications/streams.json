@@ -1,5 +1,6 @@
 {
 	"nowOffline": "\uD83D\uDD34 {{ channelLink }} теперь оффлайн.\n{{ categories }}\n{{ duration }}",
 	"nowOnline": "\uD83D\uDFE2 {{ channelLink }} теперь онлайн.\nКатегория: {{ category }}\nНазвание: {{ title }}",
-	"newCategory": "\uD83D\uDD04 {{ channelLink }} теперь стримит {{ category }}"
+	"newCategory": "\uD83D\uDD04 {{ channelLink }} теперь стримит {{ category }}",
+	"titleChanged":  "\uD83D\uDD04 {{ channelLink }} поменял название на {{ title }}"
 }

@@ -43,6 +43,20 @@ func (csu *ChatSettingsUpdate) SetNillableGameChangeNotification(b *bool) *ChatS
 	return csu
 }
 
+// SetTitleChangeNotification sets the "title_change_notification" field.
+func (csu *ChatSettingsUpdate) SetTitleChangeNotification(b bool) *ChatSettingsUpdate {
+	csu.mutation.SetTitleChangeNotification(b)
+	return csu
+}
+
+// SetNillableTitleChangeNotification sets the "title_change_notification" field if the given value is not nil.
+func (csu *ChatSettingsUpdate) SetNillableTitleChangeNotification(b *bool) *ChatSettingsUpdate {
+	if b != nil {
+		csu.SetTitleChangeNotification(*b)
+	}
+	return csu
+}
+
 // SetOfflineNotification sets the "offline_notification" field.
 func (csu *ChatSettingsUpdate) SetOfflineNotification(b bool) *ChatSettingsUpdate {
 	csu.mutation.SetOfflineNotification(b)
@@ -148,6 +162,9 @@ func (csu *ChatSettingsUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := csu.mutation.GameChangeNotification(); ok {
 		_spec.SetField(chatsettings.FieldGameChangeNotification, field.TypeBool, value)
 	}
+	if value, ok := csu.mutation.TitleChangeNotification(); ok {
+		_spec.SetField(chatsettings.FieldTitleChangeNotification, field.TypeBool, value)
+	}
 	if value, ok := csu.mutation.OfflineNotification(); ok {
 		_spec.SetField(chatsettings.FieldOfflineNotification, field.TypeBool, value)
 	}
@@ -213,6 +230,20 @@ func (csuo *ChatSettingsUpdateOne) SetGameChangeNotification(b bool) *ChatSettin
 func (csuo *ChatSettingsUpdateOne) SetNillableGameChangeNotification(b *bool) *ChatSettingsUpdateOne {
 	if b != nil {
 		csuo.SetGameChangeNotification(*b)
+	}
+	return csuo
+}
+
+// SetTitleChangeNotification sets the "title_change_notification" field.
+func (csuo *ChatSettingsUpdateOne) SetTitleChangeNotification(b bool) *ChatSettingsUpdateOne {
+	csuo.mutation.SetTitleChangeNotification(b)
+	return csuo
+}
+
+// SetNillableTitleChangeNotification sets the "title_change_notification" field if the given value is not nil.
+func (csuo *ChatSettingsUpdateOne) SetNillableTitleChangeNotification(b *bool) *ChatSettingsUpdateOne {
+	if b != nil {
+		csuo.SetTitleChangeNotification(*b)
 	}
 	return csuo
 }
@@ -351,6 +382,9 @@ func (csuo *ChatSettingsUpdateOne) sqlSave(ctx context.Context) (_node *ChatSett
 	}
 	if value, ok := csuo.mutation.GameChangeNotification(); ok {
 		_spec.SetField(chatsettings.FieldGameChangeNotification, field.TypeBool, value)
+	}
+	if value, ok := csuo.mutation.TitleChangeNotification(); ok {
+		_spec.SetField(chatsettings.FieldTitleChangeNotification, field.TypeBool, value)
 	}
 	if value, ok := csuo.mutation.OfflineNotification(); ok {
 		_spec.SetField(chatsettings.FieldOfflineNotification, field.TypeBool, value)

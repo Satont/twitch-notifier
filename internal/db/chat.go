@@ -2,13 +2,15 @@ package db
 
 import (
 	"context"
+
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 )
 
 type ChatUpdateSettingsQuery struct {
-	GameChangeNotification *bool
-	OfflineNotification    *bool
-	ChatLanguage           *db_models.ChatLanguage
+	GameChangeNotification  *bool
+	OfflineNotification     *bool
+	TitleChangeNotification *bool
+	ChatLanguage            *db_models.ChatLanguage
 }
 
 type ChatUpdateQuery struct {

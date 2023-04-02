@@ -45,8 +45,12 @@ func init() {
 	chatsettingsDescGameChangeNotification := chatsettingsFields[1].Descriptor()
 	// chatsettings.DefaultGameChangeNotification holds the default value on creation for the game_change_notification field.
 	chatsettings.DefaultGameChangeNotification = chatsettingsDescGameChangeNotification.Default.(bool)
+	// chatsettingsDescTitleChangeNotification is the schema descriptor for title_change_notification field.
+	chatsettingsDescTitleChangeNotification := chatsettingsFields[2].Descriptor()
+	// chatsettings.DefaultTitleChangeNotification holds the default value on creation for the title_change_notification field.
+	chatsettings.DefaultTitleChangeNotification = chatsettingsDescTitleChangeNotification.Default.(bool)
 	// chatsettingsDescOfflineNotification is the schema descriptor for offline_notification field.
-	chatsettingsDescOfflineNotification := chatsettingsFields[2].Descriptor()
+	chatsettingsDescOfflineNotification := chatsettingsFields[3].Descriptor()
 	// chatsettings.DefaultOfflineNotification holds the default value on creation for the offline_notification field.
 	chatsettings.DefaultOfflineNotification = chatsettingsDescOfflineNotification.Default.(bool)
 	// chatsettingsDescID is the schema descriptor for id field.

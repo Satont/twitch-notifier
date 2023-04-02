@@ -2,12 +2,13 @@ package db
 
 import (
 	"context"
+	"strconv"
+	"testing"
+
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/stretchr/testify/assert"
-	"strconv"
-	"testing"
 )
 
 func TestChatService_GetByID(t *testing.T) {
@@ -38,6 +39,7 @@ func TestChatService_GetByID(t *testing.T) {
 			language                db_models.ChatLanguage
 			gameChangeNotification  bool
 			streamStartNotification bool
+			titleChangeNotification bool
 		}
 	}{
 		{
@@ -50,12 +52,14 @@ func TestChatService_GetByID(t *testing.T) {
 				language                db_models.ChatLanguage
 				gameChangeNotification  bool
 				streamStartNotification bool
+				titleChangeNotification bool
 			}{
 				chatID:                  "123",
 				service:                 db_models.ChatServiceTelegram,
 				language:                db_models.ChatLanguageEn,
 				gameChangeNotification:  true,
 				streamStartNotification: true,
+				titleChangeNotification: false,
 			},
 		},
 		{
@@ -82,6 +86,7 @@ func TestChatService_GetByID(t *testing.T) {
 				assert.Equal(t, tt.expects.service, chat.Service)
 				assert.Equal(t, tt.expects.language, chat.Settings.ChatLanguage)
 				assert.Equal(t, tt.expects.gameChangeNotification, chat.Settings.GameChangeNotification)
+				assert.Equal(t, tt.expects.titleChangeNotification, chat.Settings.TitleChangeNotification)
 				assert.Equal(t, tt.expects.streamStartNotification, chat.Settings.OfflineNotification)
 				assert.Equal(t, chat.ID, chat.Settings.ChatID)
 			}
@@ -135,6 +140,7 @@ func TestChatService_Create(t *testing.T) {
 				assert.Equal(t, db_models.ChatLanguageEn, chat.Settings.ChatLanguage)
 				assert.Equal(t, true, chat.Settings.GameChangeNotification)
 				assert.Equal(t, true, chat.Settings.OfflineNotification)
+				assert.Equal(t, false, chat.Settings.TitleChangeNotification)
 				assert.Equal(t, chat.ID, chat.Settings.ChatID)
 			}
 		})
@@ -161,6 +167,7 @@ func TestChatService_Update(t *testing.T) {
 			language                db_models.ChatLanguage
 			gameChangeNotification  bool
 			streamStartNotification bool
+			titleChaneNotification  bool
 		}
 	}{
 		{
@@ -172,10 +179,12 @@ func TestChatService_Update(t *testing.T) {
 				language                db_models.ChatLanguage
 				gameChangeNotification  bool
 				streamStartNotification bool
+				titleChaneNotification  bool
 			}{
 				language:                db_models.ChatLanguageRu,
 				gameChangeNotification:  false,
 				streamStartNotification: false,
+				titleChaneNotification:  true,
 			},
 		},
 		{
@@ -203,9 +212,10 @@ func TestChatService_Update(t *testing.T) {
 				db_models.ChatServiceTelegram,
 				&ChatUpdateQuery{
 					Settings: &ChatUpdateSettingsQuery{
-						GameChangeNotification: lo.ToPtr(false),
-						OfflineNotification:    lo.ToPtr(false),
-						ChatLanguage:           lo.ToPtr(db_models.ChatLanguageRu),
+						GameChangeNotification:  lo.ToPtr(false),
+						OfflineNotification:     lo.ToPtr(false),
+						TitleChangeNotification: lo.ToPtr(true),
+						ChatLanguage:            lo.ToPtr(db_models.ChatLanguageRu),
 					},
 				},
 			)
@@ -219,6 +229,7 @@ func TestChatService_Update(t *testing.T) {
 				assert.Equal(t, tt.newValues.language, newChat.Settings.ChatLanguage)
 				assert.Equal(t, tt.newValues.gameChangeNotification, newChat.Settings.GameChangeNotification)
 				assert.Equal(t, tt.newValues.streamStartNotification, newChat.Settings.OfflineNotification)
+				assert.Equal(t, tt.newValues.titleChaneNotification, newChat.Settings.TitleChangeNotification)
 			}
 		})
 	}

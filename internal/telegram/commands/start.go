@@ -3,11 +3,12 @@ package commands
 import (
 	"context"
 	"fmt"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/satont/twitch-notifier/internal/db"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"github.com/satont/twitch-notifier/internal/telegram/types"
+	tg_types "github.com/satont/twitch-notifier/internal/telegram/types"
 	"go.uber.org/zap"
 )
 
@@ -39,6 +40,12 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 		nil,
 	)
 
+	titleChangeNotificationsButton := c.Services.I18N.Translate(
+		"commands.start.title_change_notification_setting.button",
+		chat.Settings.ChatLanguage.String(),
+		nil,
+	)
+
 	layout.Add(
 		tg.NewInlineKeyboardButtonCallback(
 			fmt.Sprintf(
@@ -55,6 +62,14 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 				offlineNotificationsButton,
 			),
 			"start_offline_notification",
+		),
+		tg.NewInlineKeyboardButtonCallback(
+			fmt.Sprintf(
+				"%s %s",
+				c.createCheckMark(chat.Settings.TitleChangeNotification),
+				titleChangeNotificationsButton,
+			),
+			"start_title_change_notification_setting",
 		),
 		tg.NewInlineKeyboardButtonCallback(
 			c.Services.I18N.Translate(
@@ -87,6 +102,34 @@ func (c *StartCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate
 }
 
 func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+	keyboard := c.buildKeyboard(ctx)
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
+func (c *StartCommand) handleTitleNotificationSettings(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+	chat := c.SessionManager.Get(ctx).Chat
+	chat.Settings.TitleChangeNotification = !chat.Settings.TitleChangeNotification
+
+	_, err := c.Services.Chat.Update(
+		ctx,
+		chat.ChatID,
+		db_models.ChatServiceTelegram,
+		&db.ChatUpdateQuery{
+			Settings: &db.ChatUpdateSettingsQuery{
+				TitleChangeNotification: &chat.Settings.TitleChangeNotification,
+			},
+		},
+	)
+
+	if err != nil {
+		zap.S().Error(err)
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
@@ -166,6 +209,7 @@ var (
 	startMenuFilter                     = tgb.TextEqual("start_command_menu")
 	gameChangeNotificationSettingFilter = tgb.TextEqual("start_game_change_notification_setting")
 	offlineNotificationSettingFilter    = tgb.TextEqual("start_offline_notification")
+	titleNotifcationSettingFilter       = tgb.TextEqual("start_title_change_notification_setting")
 )
 
 func NewStartCommand(opts *tg_types.CommandOpts) {
@@ -177,4 +221,5 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 	opts.Router.CallbackQuery(cmd.handleCallback, startMenuFilter)
 	opts.Router.CallbackQuery(cmd.handleGameNotificationSettings, gameChangeNotificationSettingFilter)
 	opts.Router.CallbackQuery(cmd.handleOfflineNotificationSettings, offlineNotificationSettingFilter)
+	opts.Router.CallbackQuery(cmd.handleTitleNotificationSettings, titleNotifcationSettingFilter)
 }

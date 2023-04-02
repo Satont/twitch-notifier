@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/chat"
 	"github.com/satont/twitch-notifier/ent/chatsettings"
@@ -14,11 +15,12 @@ type chatService struct {
 
 func (c *chatService) convertEntity(entity *ent.Chat) *db_models.Chat {
 	settings := &db_models.ChatSettings{
-		ID:                     entity.Edges.Settings.ID,
-		GameChangeNotification: entity.Edges.Settings.GameChangeNotification,
-		OfflineNotification:    entity.Edges.Settings.OfflineNotification,
-		ChatLanguage:           db_models.ChatLanguage(entity.Edges.Settings.ChatLanguage),
-		ChatID:                 entity.Edges.Settings.ChatID,
+		ID:                      entity.Edges.Settings.ID,
+		GameChangeNotification:  entity.Edges.Settings.GameChangeNotification,
+		OfflineNotification:     entity.Edges.Settings.OfflineNotification,
+		TitleChangeNotification: entity.Edges.Settings.TitleChangeNotification,
+		ChatLanguage:            db_models.ChatLanguage(entity.Edges.Settings.ChatLanguage),
+		ChatID:                  entity.Edges.Settings.ChatID,
 	}
 
 	return &db_models.Chat{
@@ -57,6 +59,10 @@ func (c *chatService) Update(
 
 		if settings.Settings.OfflineNotification != nil {
 			updater.SetOfflineNotification(*settings.Settings.OfflineNotification)
+		}
+
+		if settings.Settings.TitleChangeNotification != nil {
+			updater.SetTitleChangeNotification(*settings.Settings.TitleChangeNotification)
 		}
 
 		_, err = updater.Save(ctx)

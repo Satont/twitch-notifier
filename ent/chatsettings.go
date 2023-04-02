@@ -19,6 +19,8 @@ type ChatSettings struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// GameChangeNotification holds the value of the "game_change_notification" field.
 	GameChangeNotification bool `json:"game_change_notification,omitempty"`
+	// TitleChangeNotification holds the value of the "title_change_notification" field.
+	TitleChangeNotification bool `json:"title_change_notification,omitempty"`
 	// OfflineNotification holds the value of the "offline_notification" field.
 	OfflineNotification bool `json:"offline_notification,omitempty"`
 	// ChatLanguage holds the value of the "chat_language" field.
@@ -57,7 +59,7 @@ func (*ChatSettings) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case chatsettings.FieldGameChangeNotification, chatsettings.FieldOfflineNotification:
+		case chatsettings.FieldGameChangeNotification, chatsettings.FieldTitleChangeNotification, chatsettings.FieldOfflineNotification:
 			values[i] = new(sql.NullBool)
 		case chatsettings.FieldChatLanguage:
 			values[i] = new(sql.NullString)
@@ -89,6 +91,12 @@ func (cs *ChatSettings) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field game_change_notification", values[i])
 			} else if value.Valid {
 				cs.GameChangeNotification = value.Bool
+			}
+		case chatsettings.FieldTitleChangeNotification:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field title_change_notification", values[i])
+			} else if value.Valid {
+				cs.TitleChangeNotification = value.Bool
 			}
 		case chatsettings.FieldOfflineNotification:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -143,6 +151,9 @@ func (cs *ChatSettings) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", cs.ID))
 	builder.WriteString("game_change_notification=")
 	builder.WriteString(fmt.Sprintf("%v", cs.GameChangeNotification))
+	builder.WriteString(", ")
+	builder.WriteString("title_change_notification=")
+	builder.WriteString(fmt.Sprintf("%v", cs.TitleChangeNotification))
 	builder.WriteString(", ")
 	builder.WriteString("offline_notification=")
 	builder.WriteString(fmt.Sprintf("%v", cs.OfflineNotification))
