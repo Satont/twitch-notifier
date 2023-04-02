@@ -246,7 +246,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					}
 
 					for _, follower := range followers {
-						fmt.Println(follower.Chat.Settings.TitleChangeNotification)
 						if !follower.Chat.Settings.TitleChangeNotification {
 							continue
 						}
