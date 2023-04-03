@@ -264,7 +264,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
 									),
 									"category": twitchCurrentStream.GameName,
-									"title":    twitchCurrentStream.Title,
+									"title":    tg.MD.Bold(twitchCurrentStream.Title),
 								},
 							),
 							ParseMode: &tg.MD,
