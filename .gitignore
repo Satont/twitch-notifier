@@ -6,3 +6,4 @@ ent/**/*
 !ent/schema
 !ent/migrate/migrations
 !ent/generate.go
+.vscode
