@@ -17,8 +17,15 @@ go mod download
 
 - Golang `1.19+`
 
-### Testing
+### Generate
 
+After clone/on first setup/on schema change - you should run 
+
+```bash
+make generate
+```
+
+### Testing
 
 ```bash
 make tests
@@ -32,11 +39,11 @@ make dev
 
 ## Database schemas and migrations
 
-We're using [ent](https://entgo.io/) for database schemas.
-
 ### Writing schemas
 
-All schemas located in `./ent/schema` directory.
+All schemas located in `./ent/schema` directory, but also we are using internal structures. Internal structures located in `internal/db/db_models`. So you should change both of them.
+
+After changing any schema in `/ent/schema` folder, you should regenerate data via `make generate`
 
 ### Migrations
 
