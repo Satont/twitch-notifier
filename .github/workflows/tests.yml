@@ -24,6 +24,9 @@ jobs:
       - name: Intall goveralls
         run: |
           go install github.com/mattn/goveralls@latest
+      - name: Generate ent
+        run: |
+          make generate
       - name: Test
         run: |
           make tests
