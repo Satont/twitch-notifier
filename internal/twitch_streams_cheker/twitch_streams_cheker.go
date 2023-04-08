@@ -111,6 +111,27 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						continue
 					}
 
+					categories := make([]string, len(currentDBStream.Categories))
+
+					for i, category := range currentDBStream.Categories {
+						timeForCompare := lo.If(i == 0, currentDBStream.StartedAt).ElseF(func() time.Time {
+							if i+1 == len(currentDBStream.Categories) {
+								// that's end time
+								return time.Now().UTC()
+							} else {
+								return currentDBStream.Categories[i-1].SettedAt
+							}
+						})
+
+						categories = append(categories, fmt.Sprintf(
+							"%s (%s)",
+							category.Name,
+							timeForCompare.UTC().Sub(category.SettedAt).
+								Truncate(1*time.Second).
+								String(),
+						))
+					}
+
 					message := t.services.I18N.Translate(
 						"notifications.streams.nowOffline",
 						follower.Chat.Settings.ChatLanguage.String(),
@@ -119,7 +140,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								twitchChannel.BroadcasterName,
 								fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
 							),
-							"categories": strings.Join(currentDBStream.Categories, " -> "),
+							"categories": strings.Join(categories, " -> "),
 							"duration": time.Now().UTC().Sub(currentDBStream.StartedAt).
 								Truncate(1 * time.Second).
 								String(),
@@ -168,13 +189,9 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						},
 					)
 
-					thumbNail := twitchCurrentStream.ThumbnailURL
-					thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-					thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 						Text:      message,
-						ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						ImageURL:  fmt.Sprintf("%s?%d", t.buildThumbNail(twitchCurrentStream.ThumbnailURL), time.Now().Unix()),
 						ParseMode: &tg.MD,
 					})
 					if err != nil {
@@ -192,7 +209,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 				latestCategory := ""
 				if len(currentDBStream.Categories) > 0 {
-					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1]
+					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1].Name
 				}
 
 				if twitchCurrentStream.GameName != latestCategory {
@@ -209,10 +226,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.newCategory",
@@ -226,7 +239,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							ImageURL:  fmt.Sprintf("%s?%d", t.buildThumbNail(twitchCurrentStream.ThumbnailURL), time.Now().Unix()),
 						})
 						if err != nil {
 							zap.S().Error(err)
@@ -250,10 +263,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.titleChanged",
@@ -268,7 +277,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							ImageURL:  fmt.Sprintf("%s?%d", t.buildThumbNail(twitchCurrentStream.ThumbnailURL), time.Now().Unix()),
 						})
 						if err != nil {
 							zap.S().Error(err)
@@ -310,4 +319,11 @@ func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+func (t *TwitchStreamChecker) buildThumbNail(src string) string {
+	thumbNail := src
+	thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+	thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+	return thumbNail
 }

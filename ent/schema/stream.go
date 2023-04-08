@@ -30,13 +30,6 @@ func (Stream) Fields() []ent.Field {
 		//	"postgres": "text[]",
 		//	"sqlite":   "text[]",
 		//}),
-		field.Other("categories", pq.StringArray{}).
-			SchemaType(map[string]string{
-				dialect.Postgres: "text[]",
-				dialect.SQLite:   "JSON",
-			}).
-			Default(pq.StringArray{}).
-			Optional(),
 
 		//SchemaType(map[string]string{
 		//	"postgres": "text[]",
@@ -56,5 +49,6 @@ func (Stream) Edges() []ent.Edge {
 			Required().
 			Unique().
 			Field("channel_id"),
+		edge.To("stream_categories", StreamCategory.Type),
 	}
 }

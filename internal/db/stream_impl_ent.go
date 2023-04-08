@@ -3,13 +3,15 @@ package db
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/stream"
+	"github.com/satont/twitch-notifier/ent/streamcategory"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"time"
 )
 
 type StreamEntService struct {
@@ -17,11 +19,20 @@ type StreamEntService struct {
 }
 
 func (s *StreamEntService) convertEntity(stream *ent.Stream) *db_models.Stream {
+	categories := make([]*db_models.StreamCategory, len(stream.Edges.StreamCategories))
+
+	for _, category := range stream.Edges.StreamCategories {
+		categories = append(categories, &db_models.StreamCategory{
+			Name:     category.Name,
+			SettedAt: category.SettedAt,
+		})
+	}
+
 	return &db_models.Stream{
 		ID:         stream.ID,
 		ChannelID:  stream.ChannelID,
 		Titles:     stream.Titles,
-		Categories: stream.Categories,
+		Categories: categories,
 		StartedAt:  stream.StartedAt,
 		UpdatedAt:  stream.UpdatedAt,
 		EndedAt:    stream.EndedAt,
@@ -29,7 +40,12 @@ func (s *StreamEntService) convertEntity(stream *ent.Stream) *db_models.Stream {
 }
 
 func (s *StreamEntService) GetByID(ctx context.Context, streamID string) (*db_models.Stream, error) {
-	str, err := s.entClient.Stream.Query().Where(stream.IDEQ(streamID)).Only(ctx)
+	str, err := s.entClient.Stream.Query().
+		Where(stream.IDEQ(streamID)).
+		WithStreamCategories(func(scq *ent.StreamCategoryQuery) {
+			scq.Order(ent.Desc(streamcategory.FieldSettedAt))
+		}).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, nil
@@ -48,6 +64,9 @@ func (s *StreamEntService) GetLatestByChannelID(
 	str, err := s.entClient.Stream.
 		Query().
 		Where(stream.ChannelIDEQ(channelEntityID), stream.EndedAtIsNil()).
+		WithStreamCategories(func(scq *ent.StreamCategoryQuery) {
+			scq.Order(ent.Desc(streamcategory.FieldSettedAt))
+		}).
 		Order(ent.Desc(stream.FieldStartedAt)).
 		First(ctx)
 	if err != nil {
@@ -69,6 +88,9 @@ func (s *StreamEntService) GetManyByChannelID(
 	streams, err := s.entClient.Stream.
 		Query().
 		Where(stream.HasChannelWith(channel.IDEQ(channelEntityID))).
+		WithStreamCategories(func(scq *ent.StreamCategoryQuery) {
+			scq.Order(ent.Desc(streamcategory.FieldSettedAt))
+		}).
 		Order(ent.Desc(stream.FieldStartedAt)).
 		Limit(limit).
 		All(ctx)
@@ -109,8 +131,10 @@ func (s *StreamEntService) UpdateOneByStreamID(
 	}
 
 	if updateQuery.Category != nil {
-		str.Categories = append(str.Categories, *updateQuery.Category)
-		query.SetCategories(str.Categories)
+		_, err = s.entClient.StreamCategory.Create().SetStreamID(str.ID).SetName(*updateQuery.Category).Save(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if updateQuery.Title != nil {
@@ -118,12 +142,7 @@ func (s *StreamEntService) UpdateOneByStreamID(
 		query.SetTitles(str.Titles)
 	}
 
-	newStream, err := query.Save(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return s.convertEntity(newStream), nil
+	return s.GetByID(ctx, streamID)
 }
 
 func (s *StreamEntService) CreateOneByChannelID(
@@ -142,16 +161,19 @@ func (s *StreamEntService) CreateOneByChannelID(
 		query.SetTitles(pq.StringArray{*data.Title})
 	}
 
-	if data.Category != nil {
-		query.SetCategories(pq.StringArray{*data.Category})
-	}
-
 	str, err := query.Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.convertEntity(str), nil
+	if data.Category != nil {
+		_, err = s.entClient.StreamCategory.Create().SetStreamID(str.ID).SetName(*data.Category).Save(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return s.GetByID(ctx, str.ID)
 }
 
 func NewStreamEntService(entClient *ent.Client) *StreamEntService {
