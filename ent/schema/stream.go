@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -49,6 +50,8 @@ func (Stream) Edges() []ent.Edge {
 			Required().
 			Unique().
 			Field("channel_id"),
-		edge.To("stream_categories", StreamCategory.Type),
+		edge.To("stream_categories", StreamCategory.Type).Annotations(entsql.Annotation{
+			OnDelete: entsql.Cascade,
+		}),
 	}
 }
