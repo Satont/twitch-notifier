@@ -6,7 +6,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/config"
-	db2 "github.com/satont/twitch-notifier/internal/db"
+	"github.com/satont/twitch-notifier/internal/db"
 	"github.com/satont/twitch-notifier/internal/message_sender"
 	"github.com/satont/twitch-notifier/internal/telegram"
 	"github.com/satont/twitch-notifier/internal/twitch"
@@ -65,10 +65,10 @@ func main() {
 	services := &types.Services{
 		Config:  cfg,
 		Twitch:  twitchService,
-		Chat:    db2.NewChatEntRepository(client),
-		Channel: db2.NewChannelEntService(client),
-		Follow:  db2.NewFollowService(client),
-		Stream:  db2.NewStreamEntService(client),
+		Chat:    db.NewChatEntRepository(client),
+		Channel: db.NewChannelEntService(client),
+		Follow:  db.NewFollowService(client),
+		Stream:  db.NewStreamEntService(client),
 		I18N:    i18,
 	}
 
