@@ -255,6 +255,7 @@ func TestStreamEntService_UpdateOneByStreamID(t *testing.T) {
 	assert.Equal(t, newChannel.ID, newStream.ChannelID, "Expects channel_id to be equal.")
 	assert.Equal(t, "Title", newStream.Titles[0], "Expects title to be equal.")
 	assert.Len(t, newStream.Categories, 2)
+	assert.Equal(t, "Dota 2", newStream.Categories[0].Name, "Expects category to be equal.")
 	assert.Equal(t, "Dota 3", newStream.Categories[1].Name, "Expects category to be equal.")
 	assert.NotNil(t, newStream.EndedAt, "Expects ended_at to be not nil.")
 
