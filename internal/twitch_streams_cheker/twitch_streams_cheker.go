@@ -111,7 +111,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						continue
 					}
 
-					categories := make([]string, len(currentDBStream.Categories))
+					categories := make([]string, 0, len(currentDBStream.Categories))
 
 					for i, category := range currentDBStream.Categories {
 						timeForCompare := lo.If(i == 0, currentDBStream.StartedAt).ElseF(func() time.Time {
