@@ -157,7 +157,7 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 				assert.Equal(t, newChannel.ID, stream.ChannelID, "Expects channel_id to be equal.")
 				assert.Equal(t, tt.wantedStreamID, stream.ID, "Expects stream_id to be equal.")
 				assert.Nil(t, stream.EndedAt, "Expects is_live to be equal.")
-				assert.Contains(t, stream.Categories[0].Name, "Category", "Expects category to be equal.")
+				assert.Equal(t, stream.Categories[0].Name, "Category", "Expects category to be equal.")
 				assert.Contains(t, stream.Titles, "Title", "Expects title to be equal.")
 			}
 
@@ -208,7 +208,7 @@ func TestStreamEntService_GetManyByChannelID(t *testing.T) {
 
 	assert.Len(t, streams, 2, "Expects streams length to be equal.")
 	assert.Equal(t, "321", streams[0].ID, "Expects stream_id to be equal.")
-	assert.Contains(t, streams[0].Categories, "Category", "Expects category to be equal.")
+	assert.Equal(t, streams[0].Categories[0].Name, "Category", "Expects category to be equal.")
 	assert.Equal(t, "123", streams[1].ID, "Expects stream_id to be equal.")
 
 	_, err = entClient.Stream.Delete().Exec(ctx)
