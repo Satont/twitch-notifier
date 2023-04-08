@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestStreamEntService_GetByID(t *testing.T) {
@@ -54,7 +55,6 @@ func TestStreamEntService_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.create {
 				_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					IsLive:   nil,
 					Category: nil,
 					Title:    nil,
 					StreamID: tt.streamID,
@@ -105,10 +105,10 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 			clearTable:     true,
 			before: func() {
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "321",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 			},
 		},
@@ -126,16 +126,16 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 			wantNil:   false,
 			before: func() {
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "321",
-					IsLive:   lo.ToPtr(false),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "4321",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "4321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 			},
 			wantedStreamID: "4321",
@@ -188,18 +188,18 @@ func TestStreamEntService_GetManyByChannelID(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: nil,
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  nil,
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "321",
-		IsLive:   lo.ToPtr(true),
-		Category: lo.ToPtr("Category"),
-		Title:    nil,
+		StreamID:  "321",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  lo.ToPtr("Category"),
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
@@ -236,15 +236,15 @@ func TestStreamEntService_UpdateOneByStreamID(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: lo.ToPtr("Dota 2"),
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  lo.ToPtr("Dota 2"),
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
 	newStream, err := service.UpdateOneByStreamID(ctx, "123", &StreamUpdateQuery{
-		IsLive:   lo.ToPtr(false),
+		EndTime:  lo.ToPtr(time.Now().UTC()),
 		Title:    lo.ToPtr("Title"),
 		Category: lo.ToPtr("Dota 3"),
 	})
@@ -281,10 +281,10 @@ func TestStreamEntService_CreateOneByChannelID(t *testing.T) {
 	assert.NoError(t, err)
 
 	newStream, err := service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: nil,
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  nil,
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
