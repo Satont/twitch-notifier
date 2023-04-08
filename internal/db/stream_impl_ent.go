@@ -19,7 +19,7 @@ type StreamEntService struct {
 }
 
 func (s *StreamEntService) convertEntity(stream *ent.Stream) *db_models.Stream {
-	categories := make([]*db_models.StreamCategory, len(stream.Edges.StreamCategories))
+	categories := make([]*db_models.StreamCategory, 0, len(stream.Edges.StreamCategories))
 
 	for _, category := range stream.Edges.StreamCategories {
 		categories = append(categories, &db_models.StreamCategory{
