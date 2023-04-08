@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
+	"time"
 )
 
 func TestNewTwitchStreamChecker(t *testing.T) {
@@ -85,7 +86,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
 				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
-					IsLive: lo.ToPtr(false),
+					EndTime: lo.ToPtr(time.Now().UTC()),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
@@ -111,10 +112,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
-					StreamID: "123",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Dota 2"),
-					Title:    lo.ToPtr("title"),
+					StreamID:  "123",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Dota 2"),
+					Title:     lo.ToPtr("title"),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
@@ -209,10 +210,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
-					StreamID: newHelixStream.ID,
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Dota 2"),
-					Title:    lo.ToPtr("title1"),
+					StreamID:  newHelixStream.ID,
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Dota 2"),
+					Title:     lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",

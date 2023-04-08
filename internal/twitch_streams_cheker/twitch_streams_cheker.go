@@ -98,7 +98,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 			// if stream becomes offline
 			if !twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.EndedAt == nil {
 				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-					IsLive: lo.ToPtr(false),
+					EndTime: lo.ToPtr(time.Now().UTC()),
 				})
 				if err != nil {
 					zap.S().Error(err)
@@ -165,10 +165,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				//}
 
 				_, err = t.services.Stream.CreateOneByChannelID(ctx, channel.ID, &db.StreamUpdateQuery{
-					StreamID: twitchCurrentStream.ID,
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr(twitchCurrentStream.GameName),
-					Title:    lo.ToPtr(twitchCurrentStream.Title),
+					StreamID:  twitchCurrentStream.ID,
+					StartTime: &twitchCurrentStream.StartedAt,
+					Category:  lo.ToPtr(twitchCurrentStream.GameName),
+					Title:     lo.ToPtr(twitchCurrentStream.Title),
 				})
 				if err != nil {
 					zap.S().Error(err)

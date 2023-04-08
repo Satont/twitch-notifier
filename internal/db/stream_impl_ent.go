@@ -122,12 +122,12 @@ func (s *StreamEntService) UpdateOneByStreamID(
 
 	query := s.entClient.Stream.UpdateOneID(str.ID)
 
-	if updateQuery.IsLive != nil && *updateQuery.IsLive {
-		query.SetStartedAt(time.Now().UTC())
+	if updateQuery.StartTime != nil {
+		query.SetStartedAt(*updateQuery.StartTime)
 	}
 
-	if updateQuery.IsLive != nil && !*updateQuery.IsLive {
-		query.SetEndedAt(time.Now().UTC())
+	if updateQuery.EndTime != nil {
+		query.SetEndedAt(*updateQuery.EndTime)
 	}
 
 	if updateQuery.Category != nil {
