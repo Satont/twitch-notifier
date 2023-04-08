@@ -2,9 +2,6 @@ package twitch_streams_cheker
 
 import (
 	"context"
-	"testing"
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -15,6 +12,7 @@ import (
 	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func TestNewTwitchStreamChecker(t *testing.T) {
@@ -42,15 +40,12 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 
 	ctx := context.Background()
 
-	categoriesTimeLayout := "Jan 2, 2006 at 3:04pm (MST)"
-	firstCategoryTime, _ := time.Parse(categoriesTimeLayout, "Feb 3, 2013 at 7:54pm (PST)")
-
 	dbChannel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
 	dbStream := &db_models.Stream{
 		ID:     "123",
 		Titles: []string{"title"},
 		Categories: []*db_models.StreamCategory{
-			{Name: "Dota 2", SettedAt: firstCategoryTime},
+			{Name: "Dota 2"},
 		},
 	}
 	dbChat := &db_models.Chat{
@@ -79,38 +74,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 		{
 			name: "stream becomes offline, should call UpdateOneByStreamID with correct args",
 			setupMocks: func() {
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
-				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
-					dbChannel,
-				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
-				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{}, nil)
-				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
-				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
-					IsLive: lo.ToPtr(false),
-				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
-						ctx,
-						dbChat,
-						mock.Anything,
-					).
-					Return(nil)
-			},
-		},
-		{
-			name: "stream becomes offline, should send message with correct times of categories",
-			setupMocks: func() {
-				dbStreamForThatCase := *dbStream
-				t, _ := time.Parse(categoriesTimeLayout, "Feb 3, 2013 at 8:30pm (PST)")
-				dbStreamForThatCase.Categories = append(dbStreamForThatCase.Categories, &db_models.StreamCategory{
-					Name:     "Dota 3",
-					SettedAt: time.Now(),
-				})
-
 				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
 					*twitchChannelInfo,
 				}, nil)

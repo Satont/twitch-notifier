@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/stretchr/testify/assert"
@@ -238,7 +239,7 @@ func TestStreamEntService_UpdateOneByStreamID(t *testing.T) {
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
 		StreamID: "123",
 		IsLive:   lo.ToPtr(true),
-		Category: nil,
+		Category: lo.ToPtr("Dota 2"),
 		Title:    nil,
 	})
 	assert.NoError(t, err)
@@ -246,14 +247,16 @@ func TestStreamEntService_UpdateOneByStreamID(t *testing.T) {
 	newStream, err := service.UpdateOneByStreamID(ctx, "123", &StreamUpdateQuery{
 		IsLive:   lo.ToPtr(false),
 		Title:    lo.ToPtr("Title"),
-		Category: lo.ToPtr("Category"),
+		Category: lo.ToPtr("Dota 3"),
 	})
+	spew.Dump(newStream)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "123", newStream.ID, "Expects stream_id to be equal.")
 	assert.Equal(t, newChannel.ID, newStream.ChannelID, "Expects channel_id to be equal.")
 	assert.Equal(t, "Title", newStream.Titles[0], "Expects title to be equal.")
-	assert.Equal(t, "Category", newStream.Categories[0], "Expects category to be equal.")
+	assert.Len(t, newStream.Categories, 2)
+	assert.Equal(t, "Dota 3", newStream.Categories[1], "Expects category to be equal.")
 	assert.NotNil(t, newStream.EndedAt, "Expects ended_at to be not nil.")
 
 	stream, err := service.UpdateOneByStreamID(ctx, "321", &StreamUpdateQuery{})

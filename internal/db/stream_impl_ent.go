@@ -142,6 +142,11 @@ func (s *StreamEntService) UpdateOneByStreamID(
 		query.SetTitles(str.Titles)
 	}
 
+	_, err = query.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return s.GetByID(ctx, streamID)
 }
 
