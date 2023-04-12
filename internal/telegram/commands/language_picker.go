@@ -99,9 +99,10 @@ func (c *LanguagePicker) handleSetLanguage(ctx context.Context, msg *tgb.Callbac
 func NewLanguagePicker(opts *tgtypes.CommandOpts) {
 	picker := &LanguagePicker{opts}
 
-	opts.Router.CallbackQuery(picker.HandleCallback, tgb.TextEqual("language_picker"))
+	opts.Router.CallbackQuery(picker.HandleCallback, channelsAdminFilter, tgb.TextEqual("language_picker"))
 	opts.Router.CallbackQuery(
 		picker.handleSetLanguage,
+		channelsAdminFilter,
 		tgb.TextHasPrefix("language_picker_set_"),
 	)
 }

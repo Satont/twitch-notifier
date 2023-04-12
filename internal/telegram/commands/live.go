@@ -143,5 +143,5 @@ func NewLiveCommand(opts *tgtypes.CommandOpts) {
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, liveCommandFilter)
+	opts.Router.Message(cmd.HandleCommand, channelsAdminFilter, liveCommandFilter)
 }
