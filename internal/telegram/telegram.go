@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"context"
-	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/satont/twitch-notifier/internal/telegram/commands"
 	"github.com/satont/twitch-notifier/internal/telegram/middlewares"
@@ -39,10 +38,6 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 	})
 
 	router := tgb.NewRouter().
-		Message(func(ctx context.Context, update *tgb.MessageUpdate) error {
-			fmt.Println(update.Chat.Type)
-			return nil
-		}).
 		Use(sessionManager).
 		//Use(&middlewares.LoggMiddleware{
 		//	Services: services,
