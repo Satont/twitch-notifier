@@ -2,8 +2,9 @@ package telegram
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/go-retryablehttp"
-	commands2 "github.com/satont/twitch-notifier/internal/telegram/commands"
+	"github.com/satont/twitch-notifier/internal/telegram/commands"
 	"github.com/satont/twitch-notifier/internal/telegram/middlewares"
 	"github.com/satont/twitch-notifier/internal/telegram/types"
 	"github.com/satont/twitch-notifier/internal/types"
@@ -38,6 +39,10 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 	})
 
 	router := tgb.NewRouter().
+		Message(func(ctx context.Context, update *tgb.MessageUpdate) error {
+			fmt.Println(update.Chat.Type)
+			return nil
+		}).
 		Use(sessionManager).
 		//Use(&middlewares.LoggMiddleware{
 		//	Services: services,
@@ -59,12 +64,12 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 		return nil
 	}, tgb.Command("cancel"))
 
-	commands2.NewStartCommand(commandOpts)
-	commands2.NewFollowCommand(commandOpts)
-	commands2.NewFollowsCommand(commandOpts)
-	commands2.NewLiveCommand(commandOpts)
-	commands2.NewBroadcastCommand(commandOpts)
-	commands2.NewLanguagePicker(commandOpts)
+	commands.NewStartCommand(commandOpts)
+	commands.NewFollowCommand(commandOpts)
+	commands.NewFollowsCommand(commandOpts)
+	commands.NewLiveCommand(commandOpts)
+	commands.NewBroadcastCommand(commandOpts)
+	commands.NewLanguagePicker(commandOpts)
 
 	poller := tgb.NewPoller(router, client)
 
