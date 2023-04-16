@@ -7,7 +7,7 @@ services:
     env_file:
       - ./.env
 
-	db:
+  db:
     image: postgres:15
     restart: always
     command: postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all
@@ -16,8 +16,8 @@ services:
       POSTGRES_PASSWORD: notifier
       POSTGRES_DB: notifier
 
-	adminer:
-		image: adminer
-		restart: always
-		ports:
+  adminer:
+    image: adminer
+    restart: always
+    ports:
       - "54324:8080"
