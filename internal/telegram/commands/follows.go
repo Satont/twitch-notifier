@@ -201,7 +201,14 @@ func NewFollowsCommand(opts *tgtypes.CommandOpts) {
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, channelsAdminFilter, followsCommandFilter)
+	messageFilter := []tgb.Filter{
+		channelsAdminFilter,
+		followsCommandFilter,
+	}
+
+	opts.Router.Message(cmd.HandleCommand, messageFilter...)
+	opts.Router.ChannelPost(cmd.HandleCommand, messageFilter...)
+
 	opts.Router.CallbackQuery(cmd.prevPageQuery, channelsAdminFilter, followsPrevPageQuery)
 	opts.Router.CallbackQuery(cmd.nextPageQuery, channelsAdminFilter, followsNextPageQuery)
 	opts.Router.CallbackQuery(cmd.unfollowQuery, channelsAdminFilter, followUnfollowQuery)

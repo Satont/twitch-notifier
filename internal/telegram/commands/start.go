@@ -217,7 +217,14 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.HandleCommand, channelsAdminFilter, startCommandFilter)
+	messageFilter := []tgb.Filter{
+		channelsAdminFilter,
+		startCommandFilter,
+	}
+
+	opts.Router.Message(cmd.HandleCommand, messageFilter...)
+	opts.Router.ChannelPost(cmd.HandleCommand, messageFilter...)
+
 	opts.Router.CallbackQuery(cmd.handleCallback, channelsAdminFilter, startMenuFilter)
 	opts.Router.CallbackQuery(cmd.handleGameNotificationSettings, channelsAdminFilter, gameChangeNotificationSettingFilter)
 	opts.Router.CallbackQuery(cmd.handleOfflineNotificationSettings, channelsAdminFilter, offlineNotificationSettingFilter)

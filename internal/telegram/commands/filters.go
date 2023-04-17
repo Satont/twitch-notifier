@@ -16,10 +16,14 @@ var channelsAdminFilter = tgb.FilterFunc(func(ctx context.Context, update *tgb.U
 		return false, err
 	}
 
-	for _, admin := range admins {
-		if admin.User.ID == update.Message.From.ID {
-			return true, nil
+	if update.Message != nil && update.Message.From != nil {
+		for _, admin := range admins {
+			if admin.User.ID == update.Message.From.ID {
+				return true, nil
+			}
 		}
+	} else {
+		return true, nil
 	}
 
 	return false, nil
