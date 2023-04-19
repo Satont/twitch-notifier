@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 )
@@ -16,7 +17,13 @@ var channelsAdminFilter = tgb.FilterFunc(func(ctx context.Context, update *tgb.U
 		return false, err
 	}
 
-	if update.Message != nil && update.Message.From != nil {
+	if update.CallbackQuery != nil {
+		for _, admin := range admins {
+			if admin.User.ID == update.CallbackQuery.From.ID {
+				return true, nil
+			}
+		}
+	} else if update.Message != nil && update.Message.From != nil {
 		for _, admin := range admins {
 			if admin.User.ID == update.Message.From.ID {
 				return true, nil
