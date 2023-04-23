@@ -143,6 +143,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					Category: lo.ToPtr("Just Chatting"),
+					Title:    lo.ToPtr("title"),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
@@ -176,7 +177,8 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
-					Title: lo.ToPtr("title1"),
+					Title:    lo.ToPtr("title1"),
+					Category: lo.ToPtr("Dota 2"),
 				}).Return((*db_models.Stream)(nil), nil)
 			},
 		},

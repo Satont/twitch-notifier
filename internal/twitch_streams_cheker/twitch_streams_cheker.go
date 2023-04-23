@@ -198,6 +198,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				if twitchCurrentStream.GameName != latestCategory {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
 						Category: lo.ToPtr(twitchCurrentStream.GameName),
+						Title:    lo.ToPtr(twitchCurrentStream.Title),
 					})
 					if err != nil {
 						zap.S().Error(err)
@@ -238,7 +239,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 				if twitchCurrentStream.Title != latestTitle {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Title: lo.ToPtr(twitchCurrentStream.Title),
+						Title:    lo.ToPtr(twitchCurrentStream.Title),
+						Category: lo.ToPtr(twitchCurrentStream.GameName),
 					})
 					if err != nil {
 						zap.S().Error(err)
