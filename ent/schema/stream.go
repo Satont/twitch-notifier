@@ -3,6 +3,7 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -30,13 +31,6 @@ func (Stream) Fields() []ent.Field {
 		//	"postgres": "text[]",
 		//	"sqlite":   "text[]",
 		//}),
-		field.Other("categories", pq.StringArray{}).
-			SchemaType(map[string]string{
-				dialect.Postgres: "text[]",
-				dialect.SQLite:   "JSON",
-			}).
-			Default(pq.StringArray{}).
-			Optional(),
 
 		//SchemaType(map[string]string{
 		//	"postgres": "text[]",
@@ -56,5 +50,8 @@ func (Stream) Edges() []ent.Edge {
 			Required().
 			Unique().
 			Field("channel_id"),
+		edge.To("stream_categories", StreamCategory.Type).Annotations(entsql.Annotation{
+			OnDelete: entsql.Cascade,
+		}),
 	}
 }

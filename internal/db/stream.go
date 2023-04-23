@@ -4,13 +4,15 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
+	"time"
 )
 
 type StreamUpdateQuery struct {
-	StreamID string
-	IsLive   *bool
-	Category *string
-	Title    *string
+	StreamID  string
+	StartTime *time.Time
+	EndTime   *time.Time
+	Category  *string
+	Title     *string
 }
 
 type StreamInterface interface {

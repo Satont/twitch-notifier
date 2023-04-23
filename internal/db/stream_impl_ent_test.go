@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestStreamEntService_GetByID(t *testing.T) {
@@ -54,7 +55,6 @@ func TestStreamEntService_GetByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.create {
 				_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					IsLive:   nil,
 					Category: nil,
 					Title:    nil,
 					StreamID: tt.streamID,
@@ -105,10 +105,10 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 			clearTable:     true,
 			before: func() {
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "321",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 			},
 		},
@@ -126,16 +126,16 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 			wantNil:   false,
 			before: func() {
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "321",
-					IsLive:   lo.ToPtr(false),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 				_, _ = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-					StreamID: "4321",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
+					StreamID:  "4321",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Category"),
+					Title:     lo.ToPtr("Title"),
 				})
 			},
 			wantedStreamID: "4321",
@@ -157,7 +157,7 @@ func TestStreamEntService_GetLatestByChannelID(t *testing.T) {
 				assert.Equal(t, newChannel.ID, stream.ChannelID, "Expects channel_id to be equal.")
 				assert.Equal(t, tt.wantedStreamID, stream.ID, "Expects stream_id to be equal.")
 				assert.Nil(t, stream.EndedAt, "Expects is_live to be equal.")
-				assert.Contains(t, stream.Categories, "Category", "Expects category to be equal.")
+				assert.Equal(t, stream.Categories[0].Name, "Category", "Expects category to be equal.")
 				assert.Contains(t, stream.Titles, "Title", "Expects title to be equal.")
 			}
 
@@ -188,18 +188,18 @@ func TestStreamEntService_GetManyByChannelID(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: nil,
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  nil,
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "321",
-		IsLive:   lo.ToPtr(true),
-		Category: lo.ToPtr("Category"),
-		Title:    nil,
+		StreamID:  "321",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  lo.ToPtr("Category"),
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
@@ -208,7 +208,7 @@ func TestStreamEntService_GetManyByChannelID(t *testing.T) {
 
 	assert.Len(t, streams, 2, "Expects streams length to be equal.")
 	assert.Equal(t, "321", streams[0].ID, "Expects stream_id to be equal.")
-	assert.Contains(t, streams[0].Categories, "Category", "Expects category to be equal.")
+	assert.Equal(t, streams[0].Categories[0].Name, "Category", "Expects category to be equal.")
 	assert.Equal(t, "123", streams[1].ID, "Expects stream_id to be equal.")
 
 	_, err = entClient.Stream.Delete().Exec(ctx)
@@ -236,24 +236,27 @@ func TestStreamEntService_UpdateOneByStreamID(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: nil,
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  lo.ToPtr("Dota 2"),
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 
 	newStream, err := service.UpdateOneByStreamID(ctx, "123", &StreamUpdateQuery{
-		IsLive:   lo.ToPtr(false),
+		EndTime:  lo.ToPtr(time.Now().UTC()),
 		Title:    lo.ToPtr("Title"),
-		Category: lo.ToPtr("Category"),
+		Category: lo.ToPtr("Dota 3"),
 	})
+
 	assert.NoError(t, err)
 
 	assert.Equal(t, "123", newStream.ID, "Expects stream_id to be equal.")
 	assert.Equal(t, newChannel.ID, newStream.ChannelID, "Expects channel_id to be equal.")
 	assert.Equal(t, "Title", newStream.Titles[0], "Expects title to be equal.")
-	assert.Equal(t, "Category", newStream.Categories[0], "Expects category to be equal.")
+	assert.Len(t, newStream.Categories, 2)
+	assert.Equal(t, "Dota 2", newStream.Categories[0].Name, "Expects category to be equal.")
+	assert.Equal(t, "Dota 3", newStream.Categories[1].Name, "Expects category to be equal.")
 	assert.NotNil(t, newStream.EndedAt, "Expects ended_at to be not nil.")
 
 	stream, err := service.UpdateOneByStreamID(ctx, "321", &StreamUpdateQuery{})
@@ -278,10 +281,10 @@ func TestStreamEntService_CreateOneByChannelID(t *testing.T) {
 	assert.NoError(t, err)
 
 	newStream, err := service.CreateOneByChannelID(ctx, newChannel.ID, &StreamUpdateQuery{
-		StreamID: "123",
-		IsLive:   lo.ToPtr(true),
-		Category: nil,
-		Title:    nil,
+		StreamID:  "123",
+		StartTime: lo.ToPtr(time.Now().UTC()),
+		Category:  nil,
+		Title:     nil,
 	})
 	assert.NoError(t, err)
 

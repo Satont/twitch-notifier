@@ -9,10 +9,11 @@ import (
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"github.com/satont/twitch-notifier/internal/types"
-	"github.com/satont/twitch-notifier/pkg/i18n/mocks"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
+	"time"
 )
 
 func TestNewTwitchStreamChecker(t *testing.T) {
@@ -41,7 +42,13 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 	ctx := context.Background()
 
 	dbChannel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
-	dbStream := &db_models.Stream{ID: "123", Titles: []string{"title"}, Categories: []string{"Dota 2"}}
+	dbStream := &db_models.Stream{
+		ID:     "123",
+		Titles: []string{"title"},
+		Categories: []*db_models.StreamCategory{
+			{Name: "Dota 2"},
+		},
+	}
 	dbChat := &db_models.Chat{
 		ID:     uuid.New(),
 		ChatID: "1",
@@ -79,7 +86,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
 				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
-					IsLive: lo.ToPtr(false),
+					EndTime: lo.ToPtr(time.Now().UTC()),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
@@ -105,10 +112,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
-					StreamID: "123",
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Dota 2"),
-					Title:    lo.ToPtr("title"),
+					StreamID:  "123",
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Dota 2"),
+					Title:     lo.ToPtr("title"),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
@@ -203,10 +210,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
-					StreamID: newHelixStream.ID,
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Dota 2"),
-					Title:    lo.ToPtr("title1"),
+					StreamID:  newHelixStream.ID,
+					StartTime: lo.ToPtr(time.Now().UTC()),
+					Category:  lo.ToPtr("Dota 2"),
+					Title:     lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
 				senderMock.
 					On("SendMessage",
