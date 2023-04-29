@@ -3,6 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+	"time"
+
+	"entgo.io/ent/dialect/sql"
 	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/config"
@@ -14,12 +22,25 @@ import (
 	"github.com/satont/twitch-notifier/internal/types"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"go.uber.org/zap"
-	"log"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"syscall"
 )
+
+func createEnt(cfg *config.Config) (*ent.Client, error) {
+	pgConnectionUrl, err := pq.ParseURL(cfg.DatabaseUrl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	drv, err := sql.Open("postgres", pgConnectionUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	db := drv.DB()
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+	db.SetConnMaxLifetime(time.Hour)
+	return ent.NewClient(ent.Driver(drv)), nil
+}
 
 func main() {
 	wd, err := os.Getwd()
@@ -38,12 +59,7 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	pgConnectionUrl, err := pq.ParseURL(cfg.DatabaseUrl)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	client, err := ent.Open("postgres", pgConnectionUrl)
+	client, err := createEnt(cfg)
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}

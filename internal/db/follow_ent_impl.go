@@ -2,30 +2,31 @@ package db
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/ent/chat"
 	"github.com/satont/twitch-notifier/ent/follow"
-	db_models2 "github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
 )
 
 type followService struct {
 	entClient *ent.Client
 }
 
-func (f *followService) convertEntity(follow *ent.Follow) *db_models2.Follow {
-	convertedFollow := &db_models2.Follow{
+func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
+	convertedFollow := &db_models.Follow{
 		ID: follow.ID,
 	}
 
 	if follow.Edges.Channel != nil {
 		convertedFollow.ChannelID = follow.Edges.Channel.ID
 
-		convertedFollow.Channel = &db_models2.Channel{
+		convertedFollow.Channel = &db_models.Channel{
 			ID:        follow.Edges.Channel.ID,
 			ChannelID: follow.Edges.Channel.ChannelID,
-			Service:   db_models2.ChannelService(follow.Edges.Channel.Service),
+			Service:   db_models.ChannelService(follow.Edges.Channel.Service),
 			IsLive:    false,
 			UpdatedAt: follow.Edges.Channel.UpdatedAt,
 		}
@@ -34,19 +35,19 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models2.Follow {
 	if follow.Edges.Chat != nil {
 		convertedFollow.ChatID = follow.Edges.Chat.ID
 
-		chatSettings := &db_models2.ChatSettings{
+		chatSettings := &db_models.ChatSettings{
 			ID:                      follow.Edges.Chat.Edges.Settings.ID,
 			ChatID:                  follow.Edges.Chat.Edges.Settings.ChatID,
-			ChatLanguage:            db_models2.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
-			GameChangeNotification:  true,
+			ChatLanguage:            db_models.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
+			GameChangeNotification:  follow.Edges.Chat.Edges.Settings.GameChangeNotification,
 			TitleChangeNotification: follow.Edges.Chat.Edges.Settings.TitleChangeNotification,
 			OfflineNotification:     follow.Edges.Chat.Edges.Settings.OfflineNotification,
 		}
 
-		convertedFollow.Chat = &db_models2.Chat{
+		convertedFollow.Chat = &db_models.Chat{
 			ID:       follow.Edges.Chat.ID,
 			ChatID:   follow.Edges.Chat.ChatID,
-			Service:  db_models2.ChatService(follow.Edges.Chat.Service),
+			Service:  db_models.ChatService(follow.Edges.Chat.Service),
 			Settings: chatSettings,
 		}
 	}
@@ -58,7 +59,7 @@ func (f *followService) Create(
 	ctx context.Context,
 	channelID uuid.UUID,
 	chatID uuid.UUID,
-) (*db_models2.Follow, error) {
+) (*db_models.Follow, error) {
 	_, err := f.entClient.Follow.
 		Create().
 		SetChatID(chatID).
@@ -66,7 +67,7 @@ func (f *followService) Create(
 		Save(ctx)
 
 	if ent.IsConstraintError(err) {
-		return nil, db_models2.FollowAlreadyExistsError
+		return nil, db_models.FollowAlreadyExistsError
 	} else if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (f *followService) GetByChatAndChannel(
 	ctx context.Context,
 	channelID uuid.UUID,
 	chatID uuid.UUID,
-) (*db_models2.Follow, error) {
+) (*db_models.Follow, error) {
 	fol, err := f.entClient.Follow.
 		Query().
 		Where(follow.ChannelID(channelID), follow.ChatID(chatID)).
@@ -100,7 +101,7 @@ func (f *followService) GetByChatAndChannel(
 		First(ctx)
 
 	if err != nil && ent.IsNotFound(err) {
-		return nil, db_models2.FollowNotFoundError
+		return nil, db_models.FollowNotFoundError
 	} else if err != nil {
 		return nil, err
 	}
@@ -112,7 +113,7 @@ func (f *followService) GetByChatAndChannel(
 	return f.convertEntity(fol), err
 }
 
-func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID) ([]*db_models2.Follow, error) {
+func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID) ([]*db_models.Follow, error) {
 	follows, err := f.entClient.Follow.
 		Query().
 		Where(follow.HasChannelWith(channel.IDEQ(channelID))).
@@ -126,7 +127,7 @@ func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID)
 		return nil, err
 	}
 
-	result := make([]*db_models2.Follow, len(follows))
+	result := make([]*db_models.Follow, len(follows))
 	for i, foll := range follows {
 		result[i] = f.convertEntity(foll)
 	}
@@ -139,7 +140,7 @@ func (f *followService) GetByChatID(
 	chatID uuid.UUID,
 	limit,
 	offset int,
-) ([]*db_models2.Follow, error) {
+) ([]*db_models.Follow, error) {
 	query := f.entClient.Follow.
 		Query().
 		Where(follow.HasChatWith(chat.IDEQ(chatID))).
@@ -160,7 +161,7 @@ func (f *followService) GetByChatID(
 		return nil, err
 	}
 
-	result := make([]*db_models2.Follow, len(follows))
+	result := make([]*db_models.Follow, len(follows))
 	for i, foll := range follows {
 		result[i] = f.convertEntity(foll)
 	}

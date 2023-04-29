@@ -151,9 +151,22 @@ func NewFollowCommand(opts *tgtypes.CommandOpts) {
 		CommandOpts: opts,
 	}
 
-	opts.Router.Message(cmd.handleScene, tgb.FilterFunc(func(ctx context.Context, update *tgb.Update) (bool, error) {
-		session := opts.SessionManager.Get(ctx)
-		return session.Scene == "follow", nil
-	}))
-	opts.Router.Message(cmd.HandleCommand, followCommandQuery)
+	sceneFilter := []tgb.Filter{
+		channelsAdminFilter,
+		tgb.FilterFunc(func(ctx context.Context, update *tgb.Update) (bool, error) {
+			session := opts.SessionManager.Get(ctx)
+			return session.Scene == "follow", nil
+		}),
+	}
+
+	opts.Router.Message(cmd.handleScene, sceneFilter...)
+	opts.Router.ChannelPost(cmd.handleScene, sceneFilter...)
+
+	messageFilter := []tgb.Filter{
+		channelsAdminFilter,
+		followCommandQuery,
+	}
+
+	opts.Router.Message(cmd.HandleCommand, messageFilter...)
+	opts.Router.ChannelPost(cmd.HandleCommand, messageFilter...)
 }

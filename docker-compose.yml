@@ -6,6 +6,7 @@ services:
     restart: always
     env_file:
       - ./.env
+
   db:
     image: postgres:15
     restart: always
@@ -14,3 +15,9 @@ services:
       POSTGRES_USER: notifier
       POSTGRES_PASSWORD: notifier
       POSTGRES_DB: notifier
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "54324:8080"
