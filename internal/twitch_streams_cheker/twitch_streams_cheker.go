@@ -195,10 +195,51 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					latestCategory = currentDBStream.Categories[len(currentDBStream.Categories)-1]
 				}
 
-				if twitchCurrentStream.GameName != latestCategory {
+				// stream is online, and both title and category changed, so we need to send a complex notification
+				if twitchCurrentStream.GameName != latestCategory && twitchCurrentStream.Title != latestTitle {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
 						Category: lo.ToPtr(twitchCurrentStream.GameName),
 						Title:    lo.ToPtr(twitchCurrentStream.Title),
+					})
+					if err != nil {
+						zap.S().Error(err)
+						return
+					}
+
+					for _, follower := range followers {
+						thumbNail := twitchCurrentStream.ThumbnailURL
+						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
+						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+							Text: t.services.I18N.Translate(
+								"notifications.streams.newCategory",
+								follower.Chat.Settings.ChatLanguage.String(),
+								map[string]string{
+									"channelLink": tg.MD.Link(
+										twitchChannel.BroadcasterName,
+										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+									),
+									"category":    tg.MD.Bold(twitchCurrentStream.GameName),
+									"oldCategory": tg.MD.Bold(latestCategory),
+									"title":       tg.MD.Bold(twitchCurrentStream.Title),
+									"oldTitle":    tg.MD.Bold(latestTitle),
+								},
+							),
+							ParseMode: &tg.MD,
+							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						})
+						if err != nil {
+							zap.S().Error(err)
+							return
+						}
+					}
+					return
+				}
+
+				if twitchCurrentStream.GameName != latestCategory {
+					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
+						Category: lo.ToPtr(twitchCurrentStream.GameName),
 					})
 					if err != nil {
 						zap.S().Error(err)
@@ -240,8 +281,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 				if twitchCurrentStream.Title != latestTitle {
 					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Title:    lo.ToPtr(twitchCurrentStream.Title),
-						Category: lo.ToPtr(twitchCurrentStream.GameName),
+						Title: lo.ToPtr(twitchCurrentStream.Title),
 					})
 					if err != nil {
 						zap.S().Error(err)
