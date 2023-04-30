@@ -68,9 +68,12 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 		go func(channel *db_models.Channel) {
 			defer wg.Done()
-			twitchChannel, twitchChannelOk := lo.Find(twitchChannels, func(item helix.ChannelInformation) bool {
-				return item.BroadcasterID == channel.ChannelID
-			})
+			twitchChannel, twitchChannelOk := lo.Find(
+				twitchChannels,
+				func(item helix.ChannelInformation) bool {
+					return item.BroadcasterID == channel.ChannelID
+				},
+			)
 			if !twitchChannelOk {
 				return
 			}
@@ -87,9 +90,12 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				return
 			}
 
-			twitchCurrentStream, twitchCurrentStreamOk := lo.Find(currentTwitchStreams, func(stream helix.Stream) bool {
-				return stream.UserID == channel.ChannelID
-			})
+			twitchCurrentStream, twitchCurrentStreamOk := lo.Find(
+				currentTwitchStreams,
+				func(stream helix.Stream) bool {
+					return stream.UserID == channel.ChannelID
+				},
+			)
 
 			if twitchCurrentStreamOk && twitchCurrentStream.Type != "live" {
 				return
@@ -97,9 +103,13 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 			// if stream becomes offline
 			if !twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.EndedAt == nil {
-				_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-					IsLive: lo.ToPtr(false),
-				})
+				_, err = t.services.Stream.UpdateOneByStreamID(
+					ctx,
+					currentDBStream.ID,
+					&db.StreamUpdateQuery{
+						IsLive: lo.ToPtr(false),
+					},
+				)
 				if err != nil {
 					zap.S().Error(err)
 					return
@@ -143,12 +153,16 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				//	return
 				//}
 
-				_, err = t.services.Stream.CreateOneByChannelID(ctx, channel.ID, &db.StreamUpdateQuery{
-					StreamID: twitchCurrentStream.ID,
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr(twitchCurrentStream.GameName),
-					Title:    lo.ToPtr(twitchCurrentStream.Title),
-				})
+				_, err = t.services.Stream.CreateOneByChannelID(
+					ctx,
+					channel.ID,
+					&db.StreamUpdateQuery{
+						StreamID: twitchCurrentStream.ID,
+						IsLive:   lo.ToPtr(true),
+						Category: lo.ToPtr(twitchCurrentStream.GameName),
+						Title:    lo.ToPtr(twitchCurrentStream.Title),
+					},
+				)
 				if err != nil {
 					zap.S().Error(err)
 					return
@@ -185,7 +199,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 			}
 
 			// stream is still online, need to check do we need to update title or category
-			if twitchCurrentStreamOk && currentDBStream != nil && currentDBStream.ID == twitchCurrentStream.ID {
+			if twitchCurrentStreamOk && currentDBStream != nil &&
+				currentDBStream.ID == twitchCurrentStream.ID {
 				latestTitle := ""
 				if len(currentDBStream.Titles) > 0 {
 					latestTitle = currentDBStream.Titles[len(currentDBStream.Titles)-1]
@@ -196,11 +211,16 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 
 				// stream is online, and both title and category changed, so we need to send a complex notification
-				if twitchCurrentStream.GameName != latestCategory && twitchCurrentStream.Title != latestTitle {
-					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Category: lo.ToPtr(twitchCurrentStream.GameName),
-						Title:    lo.ToPtr(twitchCurrentStream.Title),
-					})
+				if twitchCurrentStream.GameName != latestCategory &&
+					twitchCurrentStream.Title != latestTitle {
+					_, err = t.services.Stream.UpdateOneByStreamID(
+						ctx,
+						currentDBStream.ID,
+						&db.StreamUpdateQuery{
+							Category: lo.ToPtr(twitchCurrentStream.GameName),
+							Title:    lo.ToPtr(twitchCurrentStream.Title),
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -213,12 +233,15 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
-								"notifications.streams.newCategory",
+								"notifications.streams.titleAndCategoryChanged",
 								follower.Chat.Settings.ChatLanguage.String(),
 								map[string]string{
 									"channelLink": tg.MD.Link(
 										twitchChannel.BroadcasterName,
-										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+										fmt.Sprintf(
+											"https://twitch.tv/%s",
+											twitchChannel.BroadcasterName,
+										),
 									),
 									"category":    tg.MD.Bold(twitchCurrentStream.GameName),
 									"oldCategory": tg.MD.Bold(latestCategory),
@@ -238,9 +261,13 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 
 				if twitchCurrentStream.GameName != latestCategory {
-					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Category: lo.ToPtr(twitchCurrentStream.GameName),
-					})
+					_, err = t.services.Stream.UpdateOneByStreamID(
+						ctx,
+						currentDBStream.ID,
+						&db.StreamUpdateQuery{
+							Category: lo.ToPtr(twitchCurrentStream.GameName),
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -262,7 +289,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								map[string]string{
 									"channelLink": tg.MD.Link(
 										twitchChannel.BroadcasterName,
-										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+										fmt.Sprintf(
+											"https://twitch.tv/%s",
+											twitchChannel.BroadcasterName,
+										),
 									),
 									"category":    tg.MD.Bold(twitchCurrentStream.GameName),
 									"oldCategory": tg.MD.Bold(latestCategory),
@@ -280,9 +310,13 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 				}
 
 				if twitchCurrentStream.Title != latestTitle {
-					_, err = t.services.Stream.UpdateOneByStreamID(ctx, currentDBStream.ID, &db.StreamUpdateQuery{
-						Title: lo.ToPtr(twitchCurrentStream.Title),
-					})
+					_, err = t.services.Stream.UpdateOneByStreamID(
+						ctx,
+						currentDBStream.ID,
+						&db.StreamUpdateQuery{
+							Title: lo.ToPtr(twitchCurrentStream.Title),
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						return
@@ -304,7 +338,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								map[string]string{
 									"channelLink": tg.MD.Link(
 										twitchChannel.BroadcasterName,
-										fmt.Sprintf("https://twitch.tv/%s", twitchChannel.BroadcasterName),
+										fmt.Sprintf(
+											"https://twitch.tv/%s",
+											twitchChannel.BroadcasterName,
+										),
 									),
 									"category": twitchCurrentStream.GameName,
 									"title":    tg.MD.Bold(twitchCurrentStream.Title),

@@ -3,5 +3,5 @@
 	"nowOnline": "\uD83D\uDFE2 {{ channelLink }} теперь онлайн.\nКатегория: {{ category }}\nНазвание: {{ title }}",
 	"newCategory": "\uD83D\uDD04 На канале {{ channelLink }} изменалась категория с {{ oldCategory }} на {{ category }}",
 	"titleChanged":  "\uD83D\uDD04 На канале {{ channelLink }} изменилось название с {{ oldTitle }} на {{ title }}",
-	"titleAndCategoriesChanged": "\uD83D\uDD04 На канале {{ channelLink }} изменились название с {{ oldTitle }} на {{ title }} и категория с {{ oldCategory }} на {{ category }}"
+	"titleAndCategoryChanged": "\uD83D\uDD04 На канале {{ channelLink }} изменились название с {{ oldTitle }} на {{ title }} и категория с {{ oldCategory }} на {{ category }}"
 }
