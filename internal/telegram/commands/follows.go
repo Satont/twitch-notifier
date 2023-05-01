@@ -6,7 +6,7 @@ import (
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/samber/lo"
-	db_models2 "github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/telegram/types"
 	"go.uber.org/zap"
 	"math"
@@ -58,7 +58,7 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 	//spew.Dump(session.FollowsMenu)
 	//spew.Dump(session.FollowsMenu.CurrentPage)
 
-	channelsIds := lo.Map(follows, func(follow *db_models2.Follow, _ int) string {
+	channelsIds := lo.Map(follows, func(follow *db_models.Follow, _ int) string {
 		return follow.Channel.ChannelID
 	})
 
@@ -125,10 +125,10 @@ func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpda
 		ReplyMarkup(keyboard).DoVoid(ctx)
 }
 
-func (c *FollowsCommand) handleUnfollow(ctx context.Context, chat *db_models2.Chat, input string) error {
+func (c *FollowsCommand) handleUnfollow(ctx context.Context, chat *db_models.Chat, input string) error {
 	channelID := strings.Replace(input, "channels_unfollow_", "", 1)
 
-	channel, err := c.Services.Channel.GetByID(ctx, channelID, db_models2.ChannelServiceTwitch)
+	channel, err := c.Services.Channel.GetByID(ctx, channelID, db_models.ChannelServiceTwitch)
 	if err != nil {
 		return err
 	}
@@ -145,6 +145,10 @@ func (c *FollowsCommand) unfollowQuery(ctx context.Context, msg *tgb.CallbackQue
 	chat := c.SessionManager.Get(ctx).Chat
 
 	if err := c.handleUnfollow(ctx, chat, msg.CallbackQuery.Data); err != nil {
+		if err == db_models.FollowNotFoundError {
+			return msg.Answer().Text("already unfollowed").DoVoid(ctx)
+		}
+
 		return msg.Answer().Text("internal error").DoVoid(ctx)
 	}
 
