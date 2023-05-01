@@ -226,10 +226,15 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						return
 					}
 
+					thumbNail := twitchCurrentStream.ThumbnailURL
+					thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+					thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
 					for _, follower := range followers {
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+						if !follower.Chat.Settings.GameChangeNotification ||
+							!follower.Chat.Settings.TitleChangeNotification {
+							continue
+						}
 
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
