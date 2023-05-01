@@ -41,7 +41,11 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 	ctx := context.Background()
 
 	dbChannel := &db_models.Channel{ID: uuid.New(), ChannelID: "1"}
-	dbStream := &db_models.Stream{ID: "123", Titles: []string{"title"}, Categories: []string{"Dota 2"}}
+	dbStream := &db_models.Stream{
+		ID:         "123",
+		Titles:     []string{"title"},
+		Categories: []string{"Dota 2"},
+	}
 	dbChat := &db_models.Chat{
 		ID:     uuid.New(),
 		ChatID: "1",
@@ -51,7 +55,13 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 			OfflineNotification:    true,
 		},
 	}
-	dbFollow := &db_models.Follow{ID: uuid.New(), ChatID: dbChat.ID, Chat: dbChat, Channel: dbChannel, ChannelID: dbChannel.ID}
+	dbFollow := &db_models.Follow{
+		ID:        uuid.New(),
+		ChatID:    dbChat.ID,
+		Chat:      dbChat,
+		Channel:   dbChannel,
+		ChannelID: dbChannel.ID,
+	}
 	twitchChannelInfo := &helix.ChannelInformation{BroadcasterID: "1", BroadcasterName: "Satont"}
 	twitchStream := &helix.Stream{
 		ID:       "123",
@@ -68,16 +78,19 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 		{
 			name: "stream becomes offline, should call UpdateOneByStreamID with correct args",
 			setupMocks: func() {
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
 				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
 					dbChannel,
 				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{}, nil)
 				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					IsLive: lo.ToPtr(false),
 				}).Return((*db_models.Stream)(nil), nil)
@@ -93,17 +106,20 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 		{
 			name: "stream becomes online, should call CreateOneByChannelID with correct args",
 			setupMocks: func() {
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
 				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
 					dbChannel,
 				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
 					*twitchStream,
 				}, nil)
-				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
+				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).
+					Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
 					StreamID: "123",
 					IsLive:   lo.ToPtr(true),
@@ -130,13 +146,15 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Type:     "live",
 				}
 
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
 				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
 					dbChannel,
 				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
 					*newHelixStream,
 				}, nil)
@@ -164,13 +182,15 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Type:     "live",
 				}
 
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
 				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
 					dbChannel,
 				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
 					*newHelixStream,
 				}, nil)
@@ -178,6 +198,50 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					Title: lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
+				senderMock.
+					On("SendMessage",
+						ctx,
+						dbChat,
+						mock.Anything,
+					).
+					Return(nil)
+			},
+		},
+		{
+			name: "stream is still online, we should update title and category",
+			setupMocks: func() {
+				newHelixStream := &helix.Stream{
+					ID:       "123",
+					GameName: "Dota 3",
+					Title:    "title1",
+					UserID:   "1",
+					Type:     "live",
+				}
+
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
+				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
+					dbChannel,
+				}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
+				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
+					*newHelixStream,
+				}, nil)
+				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return(dbStream, nil)
+				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
+					Title:    lo.ToPtr("title1"),
+					Category: lo.ToPtr("Dota 3"),
+				}).Return((*db_models.Stream)(nil), nil)
+				senderMock.
+					On("SendMessage",
+						ctx,
+						dbChat,
+						mock.Anything,
+					).
+					Return(nil)
 			},
 		},
 		{
@@ -191,17 +255,20 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Type:     "live",
 				}
 
-				twitchMock.On("GetChannelsByUserIds", []string{"1"}).Return([]helix.ChannelInformation{
-					*twitchChannelInfo,
-				}, nil)
+				twitchMock.On("GetChannelsByUserIds", []string{"1"}).
+					Return([]helix.ChannelInformation{
+						*twitchChannelInfo,
+					}, nil)
 				channelsMock.On("GetAll", ctx).Return([]*db_models.Channel{
 					dbChannel,
 				}, nil)
-				followMock.On("GetByChannelID", ctx, dbChannel.ID).Return([]*db_models.Follow{dbFollow}, nil)
+				followMock.On("GetByChannelID", ctx, dbChannel.ID).
+					Return([]*db_models.Follow{dbFollow}, nil)
 				twitchMock.On("GetStreamsByUserIds", []string{"1"}).Return([]helix.Stream{
 					*newHelixStream,
 				}, nil)
-				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).Return((*db_models.Stream)(nil), nil)
+				streamMock.On("GetLatestByChannelID", ctx, dbChannel.ID).
+					Return((*db_models.Stream)(nil), nil)
 				streamMock.On("CreateOneByChannelID", ctx, dbChannel.ID, &db.StreamUpdateQuery{
 					StreamID: newHelixStream.ID,
 					IsLive:   lo.ToPtr(true),
