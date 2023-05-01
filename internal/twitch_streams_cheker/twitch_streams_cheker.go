@@ -142,7 +142,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					})
 					if err != nil {
 						zap.S().Error(err)
-						return
+						continue
 					}
 				}
 			}
@@ -193,7 +193,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					})
 					if err != nil {
 						zap.S().Error(err)
-						return
+						continue
 					}
 				}
 			}
@@ -259,7 +259,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						})
 						if err != nil {
 							zap.S().Error(err)
-							return
+							continue
 						}
 					}
 					return
@@ -308,7 +308,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						})
 						if err != nil {
 							zap.S().Error(err)
-							return
+							continue
 						}
 					}
 					return
@@ -358,7 +358,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						})
 						if err != nil {
 							zap.S().Error(err)
-							return
+							continue
 						}
 					}
 				}
