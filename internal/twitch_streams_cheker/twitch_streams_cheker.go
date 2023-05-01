@@ -182,10 +182,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						},
 					)
 
-					thumbNail := twitchCurrentStream.ThumbnailURL
-					thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-					thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
+					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 						Text:      message,
 						ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
@@ -226,9 +223,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						return
 					}
 
-					thumbNail := twitchCurrentStream.ThumbnailURL
-					thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-					thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 
 					for _, follower := range followers {
 						if !follower.Chat.Settings.GameChangeNotification ||
@@ -283,10 +278,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
+						thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.newCategory",
@@ -332,10 +324,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := twitchCurrentStream.ThumbnailURL
-						thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-						thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
+						thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.titleChanged",
@@ -396,4 +385,12 @@ func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+func createThumbNail(url string) string {
+	thumbNail := url
+	thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
+	thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
+
+	return thumbNail
 }
