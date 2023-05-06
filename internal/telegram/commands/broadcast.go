@@ -2,6 +2,10 @@ package commands
 
 import (
 	"context"
+	"strconv"
+	"strings"
+	"sync"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/samber/lo"
@@ -9,9 +13,6 @@ import (
 	tgtypes "github.com/satont/twitch-notifier/internal/telegram/types"
 	"github.com/satont/twitch-notifier/internal/types"
 	"go.uber.org/zap"
-	"strconv"
-	"strings"
-	"sync"
 )
 
 type BroadcastCommand struct {
@@ -33,6 +34,12 @@ func (c *BroadcastCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUp
 			defer wg.Done()
 
 			chatId, _ := strconv.Atoi(chat.ChatID)
+
+			// filter channels, thay have negative id.
+			if chatId <= 0 {
+				return
+			}
+
 			err := msg.Client.
 				SendMessage(
 					tg.ChatID(chatId),
