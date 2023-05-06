@@ -19,6 +19,7 @@ func (c *chatService) convertEntity(entity *ent.Chat) *db_models.Chat {
 		GameChangeNotification:  entity.Edges.Settings.GameChangeNotification,
 		OfflineNotification:     entity.Edges.Settings.OfflineNotification,
 		TitleChangeNotification: entity.Edges.Settings.TitleChangeNotification,
+		ImageInNotification:     entity.Edges.Settings.ImageInNotification,
 		ChatLanguage:            db_models.ChatLanguage(entity.Edges.Settings.ChatLanguage),
 		ChatID:                  entity.Edges.Settings.ChatID,
 	}
@@ -63,6 +64,10 @@ func (c *chatService) Update(
 
 		if settings.Settings.TitleChangeNotification != nil {
 			updater.SetTitleChangeNotification(*settings.Settings.TitleChangeNotification)
+		}
+
+		if settings.Settings.ImageInNotification != nil {
+			updater.SetImageInNotification(*settings.Settings.ImageInNotification)
 		}
 
 		_, err = updater.Save(ctx)
