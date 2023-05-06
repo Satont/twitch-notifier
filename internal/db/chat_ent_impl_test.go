@@ -40,6 +40,7 @@ func TestChatService_GetByID(t *testing.T) {
 			gameChangeNotification  bool
 			streamStartNotification bool
 			titleChangeNotification bool
+			imageInNotification     bool
 		}
 	}{
 		{
@@ -53,6 +54,7 @@ func TestChatService_GetByID(t *testing.T) {
 				gameChangeNotification  bool
 				streamStartNotification bool
 				titleChangeNotification bool
+				imageInNotification     bool
 			}{
 				chatID:                  "123",
 				service:                 db_models.ChatServiceTelegram,
@@ -60,6 +62,7 @@ func TestChatService_GetByID(t *testing.T) {
 				gameChangeNotification:  true,
 				streamStartNotification: true,
 				titleChangeNotification: false,
+				imageInNotification:     true,
 			},
 		},
 		{
@@ -88,6 +91,7 @@ func TestChatService_GetByID(t *testing.T) {
 				assert.Equal(t, tt.expects.gameChangeNotification, chat.Settings.GameChangeNotification)
 				assert.Equal(t, tt.expects.titleChangeNotification, chat.Settings.TitleChangeNotification)
 				assert.Equal(t, tt.expects.streamStartNotification, chat.Settings.OfflineNotification)
+				assert.Equal(t, tt.expects.imageInNotification, chat.Settings.ImageInNotification)
 				assert.Equal(t, chat.ID, chat.Settings.ChatID)
 			}
 		})
@@ -141,6 +145,7 @@ func TestChatService_Create(t *testing.T) {
 				assert.Equal(t, true, chat.Settings.GameChangeNotification)
 				assert.Equal(t, true, chat.Settings.OfflineNotification)
 				assert.Equal(t, false, chat.Settings.TitleChangeNotification)
+				assert.Equal(t, true, chat.Settings.ImageInNotification)
 				assert.Equal(t, chat.ID, chat.Settings.ChatID)
 			}
 		})
@@ -168,6 +173,7 @@ func TestChatService_Update(t *testing.T) {
 			gameChangeNotification  bool
 			streamStartNotification bool
 			titleChaneNotification  bool
+			imageInNotification     bool
 		}
 	}{
 		{
@@ -180,11 +186,13 @@ func TestChatService_Update(t *testing.T) {
 				gameChangeNotification  bool
 				streamStartNotification bool
 				titleChaneNotification  bool
+				imageInNotification     bool
 			}{
 				language:                db_models.ChatLanguageRu,
 				gameChangeNotification:  false,
 				streamStartNotification: false,
 				titleChaneNotification:  true,
+				imageInNotification:     true,
 			},
 		},
 		{
@@ -215,6 +223,7 @@ func TestChatService_Update(t *testing.T) {
 						GameChangeNotification:  lo.ToPtr(false),
 						OfflineNotification:     lo.ToPtr(false),
 						TitleChangeNotification: lo.ToPtr(true),
+						ImageInNotification:     lo.ToPtr(true),
 						ChatLanguage:            lo.ToPtr(db_models.ChatLanguageRu),
 					},
 				},
@@ -230,6 +239,7 @@ func TestChatService_Update(t *testing.T) {
 				assert.Equal(t, tt.newValues.gameChangeNotification, newChat.Settings.GameChangeNotification)
 				assert.Equal(t, tt.newValues.streamStartNotification, newChat.Settings.OfflineNotification)
 				assert.Equal(t, tt.newValues.titleChaneNotification, newChat.Settings.TitleChangeNotification)
+				assert.Equal(t, tt.newValues.imageInNotification, newChat.Settings.ImageInNotification)
 			}
 		})
 	}
