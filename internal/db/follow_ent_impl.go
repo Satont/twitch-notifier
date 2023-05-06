@@ -36,12 +36,15 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
 		convertedFollow.ChatID = follow.Edges.Chat.ID
 
 		chatSettings := &db_models.ChatSettings{
-			ID:                      follow.Edges.Chat.Edges.Settings.ID,
-			ChatID:                  follow.Edges.Chat.Edges.Settings.ChatID,
-			ChatLanguage:            db_models.ChatLanguage(follow.Edges.Chat.Edges.Settings.ChatLanguage),
+			ID:     follow.Edges.Chat.Edges.Settings.ID,
+			ChatID: follow.Edges.Chat.Edges.Settings.ChatID,
+			ChatLanguage: db_models.ChatLanguage(
+				follow.Edges.Chat.Edges.Settings.ChatLanguage,
+			),
 			GameChangeNotification:  follow.Edges.Chat.Edges.Settings.GameChangeNotification,
 			TitleChangeNotification: follow.Edges.Chat.Edges.Settings.TitleChangeNotification,
 			OfflineNotification:     follow.Edges.Chat.Edges.Settings.OfflineNotification,
+			ImageInNotification:     follow.Edges.Chat.Edges.Settings.ImageInNotification,
 		}
 
 		convertedFollow.Chat = &db_models.Chat{
@@ -113,7 +116,10 @@ func (f *followService) GetByChatAndChannel(
 	return f.convertEntity(fol), err
 }
 
-func (f *followService) GetByChannelID(ctx context.Context, channelID uuid.UUID) ([]*db_models.Follow, error) {
+func (f *followService) GetByChannelID(
+	ctx context.Context,
+	channelID uuid.UUID,
+) ([]*db_models.Follow, error) {
 	follows, err := f.entClient.Follow.
 		Query().
 		Where(follow.HasChannelWith(channel.IDEQ(channelID))).
@@ -170,7 +176,9 @@ func (f *followService) GetByChatID(
 }
 
 func (f *followService) CountByChatID(_ context.Context, chatID uuid.UUID) (int, error) {
-	count, err := f.entClient.Follow.Query().Where(follow.ChatIDEQ(chatID)).Count(context.Background())
+	count, err := f.entClient.Follow.Query().
+		Where(follow.ChatIDEQ(chatID)).
+		Count(context.Background())
 	if err != nil {
 		return 0, err
 	}

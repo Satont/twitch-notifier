@@ -8,7 +8,10 @@
   "offline_notification": {
     "button": "Offline notification"
   },
-    "title_change_notification_setting": {
+	"title_change_notification_setting": {
     "button": "Title change notification"
-  }
+  },
+	"image_in_notification_setting": {
+		"button": "Show images in notifications"
+	}
 }

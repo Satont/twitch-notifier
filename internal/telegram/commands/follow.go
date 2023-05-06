@@ -22,7 +22,11 @@ var (
 	TwitchLinkRegular        = regexp.MustCompile(`(?:https?://)?(?:www\.)?twitch\.tv/(\w+)`)
 )
 
-func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, input string) (*db_models.Follow, error) {
+func (c *FollowCommand) createFollow(
+	ctx context.Context,
+	chat *db_models.Chat,
+	input string,
+) (*db_models.Follow, error) {
 	twitchChannel, err := c.Services.Twitch.GetUser("", input)
 	if err != nil {
 		if err.Error() == twitchInvalidNamesString {
@@ -36,7 +40,11 @@ func (c *FollowCommand) createFollow(ctx context.Context, chat *db_models.Chat, 
 		return nil, channelNotFoundError
 	}
 
-	dbChannel, err := c.Services.Channel.GetByIdOrCreate(ctx, twitchChannel.ID, db_models.ChannelServiceTwitch)
+	dbChannel, err := c.Services.Channel.GetByIdOrCreate(
+		ctx,
+		twitchChannel.ID,
+		db_models.ChannelServiceTwitch,
+	)
 	if err != nil {
 		return nil, err
 	}

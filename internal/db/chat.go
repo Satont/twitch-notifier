@@ -10,6 +10,7 @@ type ChatUpdateSettingsQuery struct {
 	GameChangeNotification  *bool
 	OfflineNotification     *bool
 	TitleChangeNotification *bool
+	ImageInNotification     *bool
 	ChatLanguage            *db_models.ChatLanguage
 }
 

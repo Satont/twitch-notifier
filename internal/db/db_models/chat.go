@@ -52,4 +52,5 @@ type ChatSettings struct {
 	OfflineNotification     bool         `json:"offline_notification,omitempty"`
 	ChatLanguage            ChatLanguage `json:"chat_language,omitempty"`
 	ChatID                  uuid.UUID    `json:"chat_id,omitempty"`
+	ImageInNotification     bool         `json:"image_in_notification,omitempty"`
 }

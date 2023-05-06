@@ -53,6 +53,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 			ChatLanguage:           db_models.ChatLanguageEn,
 			GameChangeNotification: true,
 			OfflineNotification:    true,
+			ImageInNotification:    true,
 		},
 	}
 	dbFollow := &db_models.Follow{
