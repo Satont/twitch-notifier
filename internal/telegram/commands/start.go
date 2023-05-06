@@ -46,6 +46,12 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 		nil,
 	)
 
+	imageInNotificationButton := c.Services.I18N.Translate(
+		"commands.start.image_in_notification_setting.button",
+		chat.Settings.ChatLanguage.String(),
+		nil,
+	)
+
 	layout.Add(
 		tg.NewInlineKeyboardButtonCallback(
 			fmt.Sprintf(
@@ -70,6 +76,14 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 				titleChangeNotificationsButton,
 			),
 			"start_title_change_notification_setting",
+		),
+		tg.NewInlineKeyboardButtonCallback(
+			fmt.Sprintf(
+				"%s %s",
+				c.createCheckMark(chat.Settings.ImageInNotification),
+				imageInNotificationButton,
+			),
+			"image_in_notification_setting",
 		),
 		tg.NewInlineKeyboardButtonCallback(
 			c.Services.I18N.Translate(
@@ -110,7 +124,39 @@ func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQuer
 		DoVoid(ctx)
 }
 
-func (c *StartCommand) handleTitleNotificationSettings(ctx context.Context, msg *tgb.CallbackQueryUpdate) error {
+func (c *StartCommand) handleImageInNotificationSettings(
+	ctx context.Context,
+	msg *tgb.CallbackQueryUpdate,
+) error {
+	chat := c.SessionManager.Get(ctx).Chat
+	chat.Settings.ImageInNotification = !chat.Settings.ImageInNotification
+
+	_, err := c.Services.Chat.Update(
+		ctx,
+		chat.ChatID,
+		db_models.ChatServiceTelegram,
+		&db.ChatUpdateQuery{
+			Settings: &db.ChatUpdateSettingsQuery{
+				ImageInNotification: &chat.Settings.ImageInNotification,
+			},
+		})
+	if err != nil {
+		zap.S().Error(err)
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
+	keyboard := c.buildKeyboard(ctx)
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
+func (c *StartCommand) handleTitleNotificationSettings(
+	ctx context.Context,
+	msg *tgb.CallbackQueryUpdate,
+) error {
 	chat := c.SessionManager.Get(ctx).Chat
 	chat.Settings.TitleChangeNotification = !chat.Settings.TitleChangeNotification
 
@@ -209,7 +255,8 @@ var (
 	startMenuFilter                     = tgb.TextEqual("start_command_menu")
 	gameChangeNotificationSettingFilter = tgb.TextEqual("start_game_change_notification_setting")
 	offlineNotificationSettingFilter    = tgb.TextEqual("start_offline_notification")
-	titleNotifcationSettingFilter       = tgb.TextEqual("start_title_change_notification_setting")
+	titleNotificationSettingFilter      = tgb.TextEqual("start_title_change_notification_setting")
+	imageInNotificationSettingFilter    = tgb.TextEqual("image_in_notification_setting")
 )
 
 func NewStartCommand(opts *tg_types.CommandOpts) {
@@ -226,7 +273,24 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 	opts.Router.ChannelPost(cmd.HandleCommand, messageFilter...)
 
 	opts.Router.CallbackQuery(cmd.handleCallback, channelsAdminFilter, startMenuFilter)
-	opts.Router.CallbackQuery(cmd.handleGameNotificationSettings, channelsAdminFilter, gameChangeNotificationSettingFilter)
-	opts.Router.CallbackQuery(cmd.handleOfflineNotificationSettings, channelsAdminFilter, offlineNotificationSettingFilter)
-	opts.Router.CallbackQuery(cmd.handleTitleNotificationSettings, channelsAdminFilter, titleNotifcationSettingFilter)
+	opts.Router.CallbackQuery(
+		cmd.handleGameNotificationSettings,
+		channelsAdminFilter,
+		gameChangeNotificationSettingFilter,
+	)
+	opts.Router.CallbackQuery(
+		cmd.handleOfflineNotificationSettings,
+		channelsAdminFilter,
+		offlineNotificationSettingFilter,
+	)
+	opts.Router.CallbackQuery(
+		cmd.handleTitleNotificationSettings,
+		channelsAdminFilter,
+		titleNotificationSettingFilter,
+	)
+	opts.Router.CallbackQuery(
+		cmd.handleImageInNotificationSettings,
+		channelsAdminFilter,
+		imageInNotificationSettingFilter,
+	)
 }

@@ -184,8 +184,11 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-						Text:      message,
-						ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						Text: message,
+						ImageURL: lo.If(
+							follower.Chat.Settings.ImageInNotification,
+							fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+						).Else(""),
 						ParseMode: &tg.MD,
 					})
 					if err != nil {
@@ -250,7 +253,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							ImageURL: lo.If(
+								follower.Chat.Settings.ImageInNotification,
+								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							).Else(""),
 						})
 						if err != nil {
 							zap.S().Error(err)
@@ -296,7 +302,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							ImageURL: lo.If(
+								follower.Chat.Settings.ImageInNotification,
+								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							).Else(""),
 						})
 						if err != nil {
 							zap.S().Error(err)
@@ -343,7 +352,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							ParseMode: &tg.MD,
-							ImageURL:  fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							ImageURL: lo.If(
+								follower.Chat.Settings.ImageInNotification,
+								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							).Else(""),
 						})
 						if err != nil {
 							zap.S().Error(err)

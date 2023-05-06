@@ -20,7 +20,10 @@ type FollowsCommand struct {
 const followsMaxRows = 3
 const followsPerRow = 3
 
-func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (*tg.InlineKeyboardMarkup, error) {
+func (c *FollowsCommand) newKeyboard(
+	ctx context.Context,
+	maxRows, perRow int,
+) (*tg.InlineKeyboardMarkup, error) {
 	session := c.SessionManager.Get(ctx)
 
 	limit := maxRows * perRow
@@ -77,7 +80,8 @@ func (c *FollowsCommand) newKeyboard(ctx context.Context, maxRows, perRow int) (
 
 	var paginationRow *tg.ButtonLayout[tg.InlineKeyboardButton]
 
-	if session.FollowsMenu.CurrentPage > 1 || session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
+	if session.FollowsMenu.CurrentPage > 1 ||
+		session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
 		paginationRow = layout.Row()
 
 		// Add "Prev" button
@@ -125,7 +129,11 @@ func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpda
 		ReplyMarkup(keyboard).DoVoid(ctx)
 }
 
-func (c *FollowsCommand) handleUnfollow(ctx context.Context, chat *db_models.Chat, input string) error {
+func (c *FollowsCommand) handleUnfollow(
+	ctx context.Context,
+	chat *db_models.Chat,
+	input string,
+) error {
 	channelID := strings.Replace(input, "channels_unfollow_", "", 1)
 
 	channel, err := c.Services.Channel.GetByID(ctx, channelID, db_models.ChannelServiceTwitch)

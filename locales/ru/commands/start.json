@@ -10,5 +10,8 @@
   },
   "title_change_notification_setting": {
     "button": "Уведомление о смене названия"
-  }
+  },
+	"image_in_notification_setting": {
+		"button": "Показывать изображения в уведомлениях"
+	}
 }
