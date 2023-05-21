@@ -2,6 +2,8 @@ package twitch_streams_cheker
 
 import (
 	"context"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -9,10 +11,9 @@ import (
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"github.com/satont/twitch-notifier/internal/types"
-	"github.com/satont/twitch-notifier/pkg/i18n/mocks"
+	i18nmocks "github.com/satont/twitch-notifier/pkg/i18n/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestNewTwitchStreamChecker(t *testing.T) {
@@ -50,10 +51,11 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 		ID:     uuid.New(),
 		ChatID: "1",
 		Settings: &db_models.ChatSettings{
-			ChatLanguage:           db_models.ChatLanguageEn,
-			GameChangeNotification: true,
-			OfflineNotification:    true,
-			ImageInNotification:    true,
+			ChatLanguage:                   db_models.ChatLanguageEn,
+			GameChangeNotification:         true,
+			OfflineNotification:            true,
+			ImageInNotification:            true,
+			GameAndTitleChangeNotification: false,
 		},
 	}
 	dbFollow := &db_models.Follow{

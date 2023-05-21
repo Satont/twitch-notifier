@@ -27,6 +27,7 @@ func (ChatSettings) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.Bool("game_change_notification").Default(true),
 		field.Bool("title_change_notification").Default(false),
+		field.Bool("game_and_title_change_notification").Default(false),
 		field.Bool("offline_notification").Default(true),
 		field.Bool("image_in_notification").Default(true),
 		field.Enum("chat_language").

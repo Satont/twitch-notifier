@@ -55,7 +55,7 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 
 	keyboard := cmd.buildKeyboard(ctx)
 
-	const buttons = 6
+	const buttons = 7
 	assert.Equal(t, buttons, len(keyboard.InlineKeyboard))
 
 	assert.Equal(
@@ -78,18 +78,24 @@ func TestStartCommand_buildKeyboard(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"image_in_notification_setting",
+		"start_game_and_title_change_notification_setting",
 		keyboard.InlineKeyboard[3][0].CallbackData,
 	)
 
 	assert.Equal(
 		t,
-		"language_picker",
+		"image_in_notification_setting",
 		keyboard.InlineKeyboard[4][0].CallbackData,
 	)
 
-	assert.Equal(t, "Github", keyboard.InlineKeyboard[5][0].Text)
-	assert.Equal(t, "https://github.com/Satont/twitch-notifier", keyboard.InlineKeyboard[5][0].URL)
+	assert.Equal(
+		t,
+		"language_picker",
+		keyboard.InlineKeyboard[5][0].CallbackData,
+	)
+
+	assert.Equal(t, "Github", keyboard.InlineKeyboard[6][0].Text)
+	assert.Equal(t, "https://github.com/Satont/twitch-notifier", keyboard.InlineKeyboard[6][0].URL)
 
 	sessionManager.AssertExpectations(t)
 	i18.AssertNumberOfCalls(t, "Translate", buttons-1)

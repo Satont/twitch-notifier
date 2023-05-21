@@ -13,5 +13,8 @@
   },
 	"image_in_notification_setting": {
 		"button": "Show images in notifications"
-	}
+	},
+  "game_and_title_change_notification_setting": {
+    "button": "Game and title change notification"
+  }
 }
