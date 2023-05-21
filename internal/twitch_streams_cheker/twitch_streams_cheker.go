@@ -229,8 +229,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
 
 					for _, follower := range followers {
-						if !follower.Chat.Settings.GameChangeNotification ||
-							!follower.Chat.Settings.TitleChangeNotification {
+						if !follower.Chat.Settings.GameAndTitleChangeNotification {
 							continue
 						}
 
