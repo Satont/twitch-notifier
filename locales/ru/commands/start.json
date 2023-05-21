@@ -13,5 +13,8 @@
   },
 	"image_in_notification_setting": {
 		"button": "Показывать изображения в уведомлениях"
-	}
+	},
+  "game_and_title_change_notification_setting": {
+    "button": "Уведомелние о смене категории и названия"
+  }
 }
