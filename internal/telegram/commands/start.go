@@ -46,6 +46,12 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 		nil,
 	)
 
+	gameAndTitleChangeNotificationsButton := c.Services.I18N.Translate(
+		"commands.start.game_and_title_change_notification_setting.button",
+		chat.Settings.ChatLanguage.String(),
+		nil,
+	)
+
 	imageInNotificationButton := c.Services.I18N.Translate(
 		"commands.start.image_in_notification_setting.button",
 		chat.Settings.ChatLanguage.String(),
@@ -76,6 +82,14 @@ func (c *StartCommand) buildKeyboard(ctx context.Context) *tg.InlineKeyboardMark
 				titleChangeNotificationsButton,
 			),
 			"start_title_change_notification_setting",
+		),
+		tg.NewInlineKeyboardButtonCallback(
+			fmt.Sprintf(
+				"%s %s",
+				c.createCheckMark(chat.Settings.GameAndTitleChangeNotification),
+				gameAndTitleChangeNotificationsButton,
+			),
+			"start_game_and_title_change_notification_setting",
 		),
 		tg.NewInlineKeyboardButtonCallback(
 			fmt.Sprintf(
@@ -215,6 +229,36 @@ func (c *StartCommand) handleGameNotificationSettings(
 		DoVoid(ctx)
 }
 
+func (c *StartCommand) handleGameAndTitleNotificationSettings(
+	ctx context.Context,
+	msg *tgb.CallbackQueryUpdate,
+) error {
+	chat := c.SessionManager.Get(ctx).Chat
+	chat.Settings.GameAndTitleChangeNotification = !chat.Settings.GameAndTitleChangeNotification
+
+	_, err := c.Services.Chat.Update(
+		ctx,
+		chat.ChatID,
+		db_models.ChatServiceTelegram,
+		&db.ChatUpdateQuery{
+			Settings: &db.ChatUpdateSettingsQuery{
+				GameAndTitleChangeNotification: &chat.Settings.GameAndTitleChangeNotification,
+			},
+		},
+	)
+	if err != nil {
+		zap.S().Error(err)
+		return msg.Answer().Text("internal error").DoVoid(ctx)
+	}
+
+	keyboard := c.buildKeyboard(ctx)
+
+	return msg.Client.
+		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		ReplyMarkup(*keyboard).
+		DoVoid(ctx)
+}
+
 func (c *StartCommand) handleOfflineNotificationSettings(
 	ctx context.Context,
 	msg *tgb.CallbackQueryUpdate,
@@ -256,6 +300,7 @@ var (
 	gameChangeNotificationSettingFilter = tgb.TextEqual("start_game_change_notification_setting")
 	offlineNotificationSettingFilter    = tgb.TextEqual("start_offline_notification")
 	titleNotificationSettingFilter      = tgb.TextEqual("start_title_change_notification_setting")
+	gameAndTitleSettingFilter           = tgb.TextEqual("start_game_and_title_change_notification_setting")
 	imageInNotificationSettingFilter    = tgb.TextEqual("image_in_notification_setting")
 )
 
@@ -287,6 +332,11 @@ func NewStartCommand(opts *tg_types.CommandOpts) {
 		cmd.handleTitleNotificationSettings,
 		channelsAdminFilter,
 		titleNotificationSettingFilter,
+	)
+	opts.Router.CallbackQuery(
+		cmd.handleGameAndTitleNotificationSettings,
+		channelsAdminFilter,
+		gameAndTitleSettingFilter,
 	)
 	opts.Router.CallbackQuery(
 		cmd.handleImageInNotificationSettings,
