@@ -15,13 +15,14 @@ type chatService struct {
 
 func (c *chatService) convertEntity(entity *ent.Chat) *db_models.Chat {
 	settings := &db_models.ChatSettings{
-		ID:                      entity.Edges.Settings.ID,
-		GameChangeNotification:  entity.Edges.Settings.GameChangeNotification,
-		OfflineNotification:     entity.Edges.Settings.OfflineNotification,
-		TitleChangeNotification: entity.Edges.Settings.TitleChangeNotification,
-		ImageInNotification:     entity.Edges.Settings.ImageInNotification,
-		ChatLanguage:            db_models.ChatLanguage(entity.Edges.Settings.ChatLanguage),
-		ChatID:                  entity.Edges.Settings.ChatID,
+		ID:                             entity.Edges.Settings.ID,
+		GameChangeNotification:         entity.Edges.Settings.GameChangeNotification,
+		OfflineNotification:            entity.Edges.Settings.OfflineNotification,
+		TitleChangeNotification:        entity.Edges.Settings.TitleChangeNotification,
+		GameAndTitleChangeNotification: entity.Edges.Settings.GameAndTitleChangeNotification,
+		ImageInNotification:            entity.Edges.Settings.ImageInNotification,
+		ChatLanguage:                   db_models.ChatLanguage(entity.Edges.Settings.ChatLanguage),
+		ChatID:                         entity.Edges.Settings.ChatID,
 	}
 
 	return &db_models.Chat{
@@ -68,6 +69,10 @@ func (c *chatService) Update(
 
 		if settings.Settings.ImageInNotification != nil {
 			updater.SetImageInNotification(*settings.Settings.ImageInNotification)
+		}
+
+		if settings.Settings.GameAndTitleChangeNotification != nil {
+			updater.SetGameAndTitleChangeNotification(*settings.Settings.GameAndTitleChangeNotification)
 		}
 
 		_, err = updater.Save(ctx)

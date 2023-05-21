@@ -41,10 +41,11 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
 			ChatLanguage: db_models.ChatLanguage(
 				follow.Edges.Chat.Edges.Settings.ChatLanguage,
 			),
-			GameChangeNotification:  follow.Edges.Chat.Edges.Settings.GameChangeNotification,
-			TitleChangeNotification: follow.Edges.Chat.Edges.Settings.TitleChangeNotification,
-			OfflineNotification:     follow.Edges.Chat.Edges.Settings.OfflineNotification,
-			ImageInNotification:     follow.Edges.Chat.Edges.Settings.ImageInNotification,
+			GameChangeNotification:         follow.Edges.Chat.Edges.Settings.GameChangeNotification,
+			TitleChangeNotification:        follow.Edges.Chat.Edges.Settings.TitleChangeNotification,
+			OfflineNotification:            follow.Edges.Chat.Edges.Settings.OfflineNotification,
+			ImageInNotification:            follow.Edges.Chat.Edges.Settings.ImageInNotification,
+			GameAndTitleChangeNotification: follow.Edges.Chat.Edges.Settings.GameAndTitleChangeNotification,
 		}
 
 		convertedFollow.Chat = &db_models.Chat{

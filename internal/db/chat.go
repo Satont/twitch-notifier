@@ -7,11 +7,12 @@ import (
 )
 
 type ChatUpdateSettingsQuery struct {
-	GameChangeNotification  *bool
-	OfflineNotification     *bool
-	TitleChangeNotification *bool
-	ImageInNotification     *bool
-	ChatLanguage            *db_models.ChatLanguage
+	GameChangeNotification         *bool
+	OfflineNotification            *bool
+	TitleChangeNotification        *bool
+	GameAndTitleChangeNotification *bool
+	ImageInNotification            *bool
+	ChatLanguage                   *db_models.ChatLanguage
 }
 
 type ChatUpdateQuery struct {

@@ -46,11 +46,12 @@ func (cl ChatLanguage) String() string {
 }
 
 type ChatSettings struct {
-	ID                      uuid.UUID    `json:"id,omitempty"`
-	GameChangeNotification  bool         `json:"game_change_notification,omitempty"`
-	TitleChangeNotification bool         `json:"title_change_notification,omitempty"`
-	OfflineNotification     bool         `json:"offline_notification,omitempty"`
-	ChatLanguage            ChatLanguage `json:"chat_language,omitempty"`
-	ChatID                  uuid.UUID    `json:"chat_id,omitempty"`
-	ImageInNotification     bool         `json:"image_in_notification,omitempty"`
+	ID                             uuid.UUID    `json:"id,omitempty"`
+	GameChangeNotification         bool         `json:"game_change_notification,omitempty"`
+	TitleChangeNotification        bool         `json:"title_change_notification,omitempty"`
+	GameAndTitleChangeNotification bool         `json:"game_and_title_change_notification,omitempty"`
+	OfflineNotification            bool         `json:"offline_notification,omitempty"`
+	ChatLanguage                   ChatLanguage `json:"chat_language,omitempty"`
+	ChatID                         uuid.UUID    `json:"chat_id,omitempty"`
+	ImageInNotification            bool         `json:"image_in_notification,omitempty"`
 }
