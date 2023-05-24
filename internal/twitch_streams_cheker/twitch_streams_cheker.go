@@ -18,10 +18,11 @@ import (
 )
 
 type TwitchStreamChecker struct {
-	services *types.Services
-	ticks    int
-	tickTime *time.Duration
-	sender   message_sender.MessageSenderInterface
+	services         *types.Services
+	ticks            int
+	tickTime         *time.Duration
+	sender           message_sender.MessageSenderInterface
+	thumbNailBuilder *thumbNailBuilder
 }
 
 func NewTwitchStreamChecker(
@@ -30,9 +31,10 @@ func NewTwitchStreamChecker(
 	tickTime *time.Duration,
 ) *TwitchStreamChecker {
 	checker := &TwitchStreamChecker{
-		services: services,
-		tickTime: tickTime,
-		sender:   sender,
+		services:         services,
+		tickTime:         tickTime,
+		sender:           sender,
+		thumbNailBuilder: newThumbNailBuilder(),
 	}
 
 	return checker
@@ -149,10 +151,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 			// if stream becomes online
 			if twitchCurrentStreamOk && currentDBStream == nil {
-				//if currentDBStream != nil && currentDBStream.ID == twitchCurrentStream.ID {
-				//	return
-				//}
-
 				_, err = t.services.Stream.CreateOneByChannelID(
 					ctx,
 					channel.ID,
@@ -182,7 +180,11 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						},
 					)
 
-					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
+					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+					if err != nil {
+						zap.S().Error(err)
+					}
+
 					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 						Text: message,
 						ImageURL: lo.If(
@@ -226,7 +228,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						return
 					}
 
-					thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
+					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, false)
+					if err != nil {
+						zap.S().Error(err)
+					}
 
 					for _, follower := range followers {
 						if !follower.Chat.Settings.GameAndTitleChangeNotification {
@@ -283,7 +288,11 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
+						thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+						if err != nil {
+							zap.S().Error(err)
+						}
+
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.newCategory",
@@ -332,7 +341,11 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail := createThumbNail(twitchCurrentStream.ThumbnailURL)
+						thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+						if err != nil {
+							zap.S().Error(err)
+						}
+
 						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
 							Text: t.services.I18N.Translate(
 								"notifications.streams.titleChanged",
@@ -367,8 +380,6 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 		}(channel)
 	}
 	wg.Wait()
-
-	return
 }
 
 func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
@@ -396,12 +407,4 @@ func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
 			}
 		}
 	}()
-}
-
-func createThumbNail(url string) string {
-	thumbNail := url
-	thumbNail = strings.Replace(thumbNail, "{width}", "1920", 1)
-	thumbNail = strings.Replace(thumbNail, "{height}", "1080", 1)
-
-	return thumbNail
 }
