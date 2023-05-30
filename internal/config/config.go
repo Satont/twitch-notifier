@@ -14,6 +14,7 @@ type Config struct {
 	AppEnv             string   `required:"true" envconfig:"APP_ENV" default:"development"`
 	TelegramBotAdmins  []string `required:"false" envconfig:"TELEGRAM_BOT_ADMINS"`
 	DatabaseUrl        string   `required:"true" envconfig:"DATABASE_URL"`
+	SentryDsn          string   `required:"false" envconfig:"SENTRY_DSN"`
 }
 
 var getWd = os.Getwd

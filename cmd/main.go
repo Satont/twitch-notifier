@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/getsentry/sentry-go"
 	"log"
 	"os"
 	"os/signal"
@@ -51,6 +52,17 @@ func main() {
 	cfg, err := config.NewConfig(nil)
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	if cfg.SentryDsn != "" {
+		err = sentry.Init(sentry.ClientOptions{
+			Dsn:           cfg.SentryDsn,
+			EnableTracing: true,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer sentry.Flush(2 * time.Second)
 	}
 
 	var logger *zap.Logger
