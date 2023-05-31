@@ -121,6 +121,10 @@ func (c *channelEntService) Update(
 		updateQuery.SetTitle(*query.Title)
 	}
 
+	if query.DangerNewChannelId != nil {
+		updateQuery.SetChannelID(*query.DangerNewChannelId)
+	}
+
 	newChannel, err := updateQuery.Save(context.Background())
 
 	if err != nil {

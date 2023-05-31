@@ -9,6 +9,8 @@ type ChannelUpdateQuery struct {
 	IsLive   *bool
 	Category *string
 	Title    *string
+
+	DangerNewChannelId *string
 }
 
 type ChannelInterface interface {

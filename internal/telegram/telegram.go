@@ -65,6 +65,7 @@ func NewTelegram(ctx context.Context, token string, services *types.Services) *T
 	commands.NewLiveCommand(commandOpts)
 	commands.NewBroadcastCommand(commandOpts)
 	commands.NewLanguagePicker(commandOpts)
+	commands.NewChangeChannelId(commandOpts)
 
 	poller := tgb.NewPoller(router, client)
 
