@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/getsentry/sentry-go"
 	"log"
 	"os"
 	"os/signal"
@@ -11,7 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/getsentry/sentry-go"
+
 	"entgo.io/ent/dialect/sql"
+	"github.com/TheZeroSlave/zapsentry"
 	"github.com/lib/pq"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/internal/config"
@@ -23,6 +24,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/types"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func createEnt(cfg *config.Config) (*ent.Client, error) {
@@ -54,26 +56,25 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	logger, _ := zap.NewDevelopment()
+
 	if cfg.SentryDsn != "" {
-		err = sentry.Init(sentry.ClientOptions{
+		sentryClient, err := sentry.NewClient(sentry.ClientOptions{
 			Dsn:           cfg.SentryDsn,
 			EnableTracing: true,
 		})
 		if err != nil {
 			log.Fatalln(err)
 		}
+		logger = modifyToSentryLogger(logger, sentryClient)
 		defer sentry.Flush(2 * time.Second)
 	}
-
-	var logger *zap.Logger
-
-	logger, _ = zap.NewDevelopment()
 
 	zap.ReplaceGlobals(logger)
 
 	client, err := createEnt(cfg)
 	if err != nil {
-		log.Fatalf("failed opening connection to postgres: %v", err)
+		logger.Sugar().Fatalln("failed opening connection to postgres: %v", err)
 	}
 	// Run the auto migration tool.
 	//if err := client.Schema.Create(context.Background()); err != nil {
@@ -82,12 +83,12 @@ func main() {
 
 	twitchService, err := twitch.NewTwitchService(cfg.TwitchClientId, cfg.TwitchClientSecret)
 	if err != nil {
-		log.Fatalln(err)
+		logger.Sugar().Fatalln(err)
 	}
 
 	i18, err := i18n.NewI18n(filepath.Join(wd, "locales"))
 	if err != nil {
-		log.Fatalln(err)
+		logger.Sugar().Fatalln(err)
 	}
 
 	services := &types.Services{
@@ -114,7 +115,30 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
-	fmt.Println("Closing...")
+	logger.Sugar().Info("Closing...")
 	cancel()
 	_ = client.Close()
+}
+
+func modifyToSentryLogger(log *zap.Logger, client *sentry.Client) *zap.Logger {
+	cfg := zapsentry.Configuration{
+		Level:             zapcore.ErrorLevel, //when to send message to sentry
+		EnableBreadcrumbs: true,               // enable sending breadcrumbs to Sentry
+		BreadcrumbLevel:   zapcore.InfoLevel,  // at what level should we sent breadcrumbs to sentry
+		Tags: map[string]string{
+			"component": "system",
+		},
+	}
+	core, err := zapsentry.NewCore(cfg, zapsentry.NewSentryClientFromClient(client))
+
+	//in case of err it will return noop core. so we can safely attach it
+	if err != nil {
+		log.Warn("failed to init zap", zap.Error(err))
+	}
+
+	log = zapsentry.AttachCoreToLogger(core, log)
+
+	// to use breadcrumbs feature - create new scope explicitly
+	// and attach after attaching the core
+	return log.With(zapsentry.NewScope())
 }

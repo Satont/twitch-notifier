@@ -23,6 +23,7 @@ require (
 
 require (
 	ariga.io/atlas v0.10.0 // indirect
+	github.com/TheZeroSlave/zapsentry v1.15.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/getsentry/sentry-go v0.21.0 // indirect
