@@ -5,6 +5,7 @@ build-out*
 ent/**/*
 !ent/schema
 !ent/schema/**
+!ent/migrate
 !ent/migrate/migrations
 !ent/migrate/migrations/**
 !ent/generate.go
