@@ -1,5 +1,7 @@
-h1:5dIiqHm4gM6G6fF/AjBxNMcJBJYgK25xeMdiqHT0XMk=
+h1:Tj9BRvyAc3mkGtL8rTC2Tw23Lut++FpD3JnuxVjxT+c=
 20230327181912_initial.sql h1:L6nniWh3O35p6lwgIG+NrRkkU2n2iG48Be5/zfPAz0I=
 20230401125338_TitleChangeNotification.sql h1:9u5qCYBNNL6RHtLdcW691tRhYyli7/pG2kBxYuHs1fA=
 20230506114213_EnableImageInNotification.sql h1:cGbFYJRVhaB3swtBPyOmw627aemnTVRd6HByCSJa0OQ=
 20230521162457_GameAndTitleChangeNotificationSetting.sql h1:g1bUjbU8y2uGqbiDh89URK3QWv+XBRYC4rwsW6Zu408=
+20230604210118_add_queue.sql h1:g9JUdYjy/yVFlBn2AN7Ox9oz5AkMaO+hpLz479uDbbA=
+20230604212652_add_job_status_to_queue.sql h1:v+gszl9cr70h06zG0Yv7fmtOWLcaWYpwqDC6esc7j20=

@@ -2,6 +2,7 @@ package db_models
 
 import (
 	"github.com/google/uuid"
+	"github.com/satont/twitch-notifier/internal/queue"
 	"time"
 )
 
@@ -14,4 +15,5 @@ type QueueJob struct {
 	AddedAt    time.Time
 	TTL        time.Duration
 	FailReason string
+	Status     queue.JobStatus
 }

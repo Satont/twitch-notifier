@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/queuejob"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/queue"
 	"time"
 )
 
@@ -26,6 +27,8 @@ func (q *QueueJobEntService) convertEntity(job *ent.QueueJob) *db_models.QueueJo
 		Data:       job.Data,
 		Retries:    job.Retries,
 		AddedAt:    job.AddedAt,
+		MaxRetries: job.MaxRetries,
+		Status:     job.Status,
 		TTL:        time.Duration(job.TTL) * time.Millisecond,
 		FailReason: job.FailReason,
 	}
@@ -37,6 +40,9 @@ func (q *QueueJobEntService) AddJob(ctx context.Context, job *QueueJobCreateOpts
 		SetQueueName(job.QueueName).
 		SetData(job.Data).
 		SetRetries(0).
+		SetMaxRetries(job.MaxRetries).
+		SetAddedAt(time.Now()).
+		SetStatus(queue.JobStatusPending).
 		SetTTL(int(job.TTL.Milliseconds())).
 		Save(ctx)
 
@@ -51,8 +57,13 @@ func (q *QueueJobEntService) RemoveJobById(ctx context.Context, id uuid.UUID) er
 	return q.entClient.QueueJob.DeleteOneID(id).Exec(ctx)
 }
 
-func (q *QueueJobEntService) GetJobsByQueueName(ctx context.Context, queueName string) ([]db_models.QueueJob, error) {
-	jobs, err := q.entClient.QueueJob.Query().Where(queuejob.QueueName(queueName)).All(ctx)
+func (q *QueueJobEntService) GetUnprocessedJobsByQueueName(ctx context.Context, queueName string) ([]db_models.QueueJob, error) {
+	jobs, err := q.entClient.QueueJob.Query().
+		Where(
+			queuejob.QueueName(queueName),
+			queuejob.StatusEQ(queue.JobStatusPending),
+		).
+		All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +86,8 @@ func (q *QueueJobEntService) UpdateJob(ctx context.Context, id uuid.UUID, data *
 	if data.FailReason != nil {
 		query = query.SetFailReason(*data.FailReason)
 	}
+
+	query = query.SetStatus(data.Status)
 
 	_, err := query.Save(ctx)
 

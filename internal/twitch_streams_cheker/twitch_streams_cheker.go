@@ -139,9 +139,9 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 					)
 
 					err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
-						Chat:      follower.Chat,
-						Text:      message,
-						ParseMode: &tg.MD,
+						Chat:        follower.Chat,
+						Text:        message,
+						TgParseMode: message_sender.TgParseModeMD,
 					})
 					if err != nil {
 						zap.S().Error(err)
@@ -193,7 +193,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							follower.Chat.Settings.ImageInNotification,
 							fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 						).Else(""),
-						ParseMode: &tg.MD,
+						TgParseMode: message_sender.TgParseModeMD,
 					})
 					if err != nil {
 						zap.S().Error(err)
@@ -259,7 +259,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 									"oldTitle":    tg.MD.Bold(latestTitle),
 								},
 							),
-							ParseMode: &tg.MD,
+							TgParseMode: message_sender.TgParseModeMD,
 							ImageURL: lo.If(
 								follower.Chat.Settings.ImageInNotification,
 								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
@@ -313,7 +313,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 									"oldCategory": tg.MD.Bold(latestCategory),
 								},
 							),
-							ParseMode: &tg.MD,
+							TgParseMode: message_sender.TgParseModeMD,
 							ImageURL: lo.If(
 								follower.Chat.Settings.ImageInNotification,
 								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
@@ -368,7 +368,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 									"oldTitle": tg.MD.Bold(latestTitle),
 								},
 							),
-							ParseMode: &tg.MD,
+							TgParseMode: message_sender.TgParseModeMD,
 							ImageURL: lo.If(
 								follower.Chat.Settings.ImageInNotification,
 								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
