@@ -1,7 +1,9 @@
 package message_sender
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"github.com/mr-linch/go-tg"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/db"
@@ -17,9 +19,16 @@ type MessageSender struct {
 }
 
 func (m *MessageSender) SendMessage(ctx context.Context, opts *MessageOpts) error {
+	var buff bytes.Buffer
+	encoder := gob.NewEncoder(&buff)
+	err := encoder.Encode(opts)
+	if err != nil {
+		return err
+	}
+
 	dbJob, err := m.dbQueue.AddJob(ctx, &db.QueueJobCreateOpts{
 		QueueName:  "send_message",
-		Data:       nil,
+		Data:       buff.Bytes(),
 		MaxRetries: lo.ToPtr(3),
 	})
 
@@ -44,6 +53,12 @@ func NewMessageSender(telegram *tg.Client, dbQueue db.QueueJobInterface) Message
 		telegram: telegram,
 		que: queue.New[*MessageOpts](queue.Opts[*MessageOpts]{
 			Run: func(ctx context.Context, opts *MessageOpts) error {
+				var parseMode tg.ParseMode
+
+				if opts.TgParseMode == TgParseModeMD {
+					parseMode = tg.MD
+				}
+
 				if opts.Chat.Service == db_models.ChatServiceTelegram {
 					chatId, err := strconv.Atoi(opts.Chat.ChatID)
 					if err != nil {
@@ -55,8 +70,8 @@ func NewMessageSender(telegram *tg.Client, dbQueue db.QueueJobInterface) Message
 							SendPhoto(tg.ChatID(chatId), tg.FileArg{URL: opts.ImageURL}).
 							Caption(opts.Text)
 
-						if opts.ParseMode != nil {
-							query = query.ParseMode(*opts.ParseMode)
+						if opts.TgParseMode != "" {
+							query = query.ParseMode(parseMode)
 						}
 
 						return query.DoVoid(ctx)
@@ -65,8 +80,8 @@ func NewMessageSender(telegram *tg.Client, dbQueue db.QueueJobInterface) Message
 							SendMessage(tg.ChatID(chatId), opts.Text).
 							DisableWebPagePreview(true)
 
-						if opts.ParseMode != nil {
-							query = query.ParseMode(*opts.ParseMode)
+						if opts.TgParseMode != "" {
+							query = query.ParseMode(parseMode)
 						}
 
 						return query.DoVoid(ctx)
