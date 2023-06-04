@@ -91,14 +91,16 @@ func main() {
 		logger.Sugar().Fatalln(err)
 	}
 
+	dbQueueJob := db.NewQueueJobEntService(client)
 	services := &types.Services{
-		Config:  cfg,
-		Twitch:  twitchService,
-		Chat:    db.NewChatEntRepository(client),
-		Channel: db.NewChannelEntService(client),
-		Follow:  db.NewFollowService(client),
-		Stream:  db.NewStreamEntService(client),
-		I18N:    i18,
+		Config:   cfg,
+		Twitch:   twitchService,
+		Chat:     db.NewChatEntRepository(client),
+		Channel:  db.NewChannelEntService(client),
+		Follow:   db.NewFollowService(client),
+		Stream:   db.NewStreamEntService(client),
+		QueueJob: dbQueueJob,
+		I18N:     i18,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -106,7 +108,7 @@ func main() {
 	tg := telegram.NewTelegram(ctx, cfg.TelegramToken, services)
 	tg.StartPolling(ctx)
 
-	sender := message_sender.NewMessageSender(tg.Client)
+	sender := message_sender.NewMessageSender(tg.Client, dbQueueJob)
 
 	checker := twitch_streams_cheker.NewTwitchStreamChecker(services, sender, nil)
 	checker.StartPolling(ctx)

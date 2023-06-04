@@ -7,11 +7,12 @@ import (
 )
 
 type MessageOpts struct {
+	Chat      *db_models.Chat
 	Text      string
 	ImageURL  string
 	ParseMode *tg.ParseMode
 }
 
 type MessageSenderInterface interface {
-	SendMessage(ctx context.Context, chat *db_models.Chat, opts *MessageOpts) error
+	SendMessage(ctx context.Context, opts *MessageOpts) error
 }

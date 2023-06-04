@@ -138,7 +138,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						},
 					)
 
-					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+					err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
+						Chat:      follower.Chat,
 						Text:      message,
 						ParseMode: &tg.MD,
 					})
@@ -185,7 +186,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						zap.S().Error(err)
 					}
 
-					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+					err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
+						Chat: follower.Chat,
 						Text: message,
 						ImageURL: lo.If(
 							follower.Chat.Settings.ImageInNotification,
@@ -238,7 +240,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
+							Chat: follower.Chat,
 							Text: t.services.I18N.Translate(
 								"notifications.streams.titleAndCategoryChanged",
 								follower.Chat.Settings.ChatLanguage.String(),
@@ -293,7 +296,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
+							Chat: follower.Chat,
 							Text: t.services.I18N.Translate(
 								"notifications.streams.newCategory",
 								follower.Chat.Settings.ChatLanguage.String(),
@@ -346,7 +350,8 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.sender.SendMessage(ctx, &message_sender.MessageOpts{
+							Chat: follower.Chat,
 							Text: t.services.I18N.Translate(
 								"notifications.streams.titleChanged",
 								follower.Chat.Settings.ChatLanguage.String(),
