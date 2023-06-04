@@ -4,6 +4,6 @@ coverage.out
 build-out*
 ent/**/*
 !ent/schema
-!ent/migrate/migrations
+!ent/migrate
 !ent/generate.go
 .vscode
