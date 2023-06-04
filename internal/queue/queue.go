@@ -115,17 +115,20 @@ func (q *Queue[T]) process(ctx context.Context, job *Job[T]) {
 		failReason = err.Error()
 	}
 
-	if err != nil && job.Retries <= job.MaxRetries {
+	doRetry := job.Retries <= job.MaxRetries
+	if err != nil && doRetry {
 		job.Retries++
 		q.Push(job)
 	}
 
 	if q.updateHook != nil {
 		var status JobStatus
-		if err == nil {
-			status = JobStatusDone
-		} else {
+		if doRetry {
+			status = JobStatusPending
+		} else if err != nil {
 			status = JobStatusFailed
+		} else {
+			status = JobStatusDone
 		}
 
 		q.updateHook(ctx, &UpdateData{
