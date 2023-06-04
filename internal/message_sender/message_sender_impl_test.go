@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/mr-linch/go-tg"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
+	"github.com/satont/twitch-notifier/internal/test_utils/mocks"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -92,8 +92,8 @@ func TestMessageSender_SendMessage(t *testing.T) {
 			name: "should call send message method with parse mode",
 			chat: chat,
 			opts: &MessageOpts{
-				Text:      "test md",
-				ParseMode: &tg.MD,
+				Text:        "test md",
+				TgParseMode: TgParseModeMD,
 			},
 			createServer: func(t *testing.T) *httptest.Server {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -126,9 +126,9 @@ func TestMessageSender_SendMessage(t *testing.T) {
 		t.Run(tt.name, func(c *testing.T) {
 			server := tt.createServer(c)
 			tgClient := test_utils.NewTelegramClient(server)
-			sender := NewMessageSender(tgClient)
+			sender := NewMessageSender(tgClient, &mocks.DbQueueMock{})
 
-			err := sender.SendMessage(context.Background(), tt.chat, tt.opts)
+			err := sender.SendMessage(context.Background(), tt.opts)
 			assert.NoError(c, err)
 			assert.Nil(c, err)
 		})
