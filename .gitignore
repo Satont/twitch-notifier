@@ -5,5 +5,6 @@ build-out*
 ent/**/*
 !ent/schema
 !ent/migrate/migrations
+!ent/migrate/migrations/**
 !ent/generate.go
 .vscode
