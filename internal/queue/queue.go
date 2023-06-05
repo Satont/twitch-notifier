@@ -43,18 +43,18 @@ type UpdateData struct {
 	Status JobStatus
 }
 type AnyFunc[T any] func(ctx context.Context, args T) error
-type UpdateTook func(ctx context.Context, data *UpdateData)
+type UpdateHook func(ctx context.Context, data *UpdateData)
 
 type Queue[T any] struct {
 	channel     chan *Job[T]
 	workersPool *gopool.Pool
 	run         AnyFunc[T]
-	updateHook  UpdateTook
+	updateHook  UpdateHook
 }
 type Opts[T any] struct {
 	Run        AnyFunc[T]
 	PoolSize   int
-	UpdateHook UpdateTook
+	UpdateHook UpdateHook
 }
 
 func New[T any](opts Opts[T]) *Queue[T] {
