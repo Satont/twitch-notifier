@@ -1,9 +1,0 @@
-{
-	"errors": {
-		"badUsername": "{{ streamer }} - username can only contain \"a-z\", \"0-9\" and \"_\" symbols.",
-		"streamerNotFound": "{{ streamer }} - not found on twitch.",
-		"alreadyFollowed": "{{ streamer }} - already followed."
-	},
-	"success": "{{ streamer }} - now followed.",
-	"enter": "Enter username of streamer you want to follow.\nYou can use multiple links to streamers.\n\nType /cancel for cancel action."
-}

@@ -1,14 +1,63 @@
 {
-  "language": {
-    "name": "English",
-    "changed": "Language is set to english.",
-    "emoji": "🇬🇧"
-  },
-  "bot": {
-    "description": "Hello! I will notify you when Twitch broadcasts start."
-  },
-  "enable": "Enable",
-  "disable": "Disable",
-  "enabled": "Enabled",
-  "disabled": "Disabled"
+	"language": {
+		"name": "English",
+		"changed": "Language is set to english.",
+		"emoji": "🇬🇧"
+	},
+
+	"bot": {
+		"description": "Hello! I will notify you when Twitch broadcasts start."
+	},
+
+	"enable": "Enable",
+	"disable": "Disable",
+	"enabled": "Enabled",
+	"disabled": "Disabled",
+
+	"commands": {
+		"follow": {
+			"errors": {
+				"badUsername": "{{ streamer }} - username can only contain \"a-z\", \"0-9\" and \"_\" symbols.",
+				"streamerNotFound": "{{ streamer }} - not found on twitch.",
+				"alreadyFollowed": "{{ streamer }} - already followed."
+			},
+			"success": "{{ streamer }} - now followed.",
+			"enter": "Enter username of streamer you want to follow.\nYou can use multiple links to streamers.\n\nType /cancel for cancel action."
+		},
+
+		"follows": {
+			"total": "You followed to notifications from {{ count }} channels. Click on streamer nickname to unfollow from notifications."
+		},
+
+		"start": {
+			"game_change_notification_setting": {
+				"button": "Game change notification"
+			},
+			"language": {
+				"button": "🌍 Language"
+			},
+			"offline_notification": {
+				"button": "Offline notification"
+			},
+			"title_change_notification_setting": {
+				"button": "Title change notification"
+			},
+			"image_in_notification_setting": {
+				"button": "Show images in notifications"
+			},
+			"game_and_title_change_notification_setting": {
+				"button": "Game and title change notification"
+			}
+		}
+	},
+
+	"notifications": {
+		"streams": {
+			"nowOffline": "\uD83D\uDD34 {{ channelLink }} now offline.\n{{ categories }}\n{{ duration }}",
+			"nowOnline": "\uD83D\uDFE2 {{ channelLink }} now online.\nCategory: {{ category }}\nTitle: {{ title }}",
+			"newCategory": "\uD83D\uDD04 {{ channelLink }} updated category from {{ oldCategory }} to {{ category }}",
+			"titleChanged": "\uD83D\uDD04 {{ channelLink }} updated title from {{ oldTitle }} to {{ title }}",
+			"titleAndCategoryChanged": "\uD83D\uDD04 {{ channelLink }} updated title from {{ oldTitle }} to {{ title }} and category from {{ oldCategory }} to {{ category }}"
+		}
+	}
 }

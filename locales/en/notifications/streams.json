@@ -1,7 +1,0 @@
-{
-	"nowOffline": "\uD83D\uDD34 {{ channelLink }} now offline.\n{{ categories }}\n{{ duration }}",
-	"nowOnline": "\uD83D\uDFE2 {{ channelLink }} now online.\nCategory: {{ category }}\nTitle: {{ title }}",
-	"newCategory": "\uD83D\uDD04 {{ channelLink }} updated category from {{ oldCategory }} to {{ category }}",
-	"titleChanged":  "\uD83D\uDD04 {{ channelLink }} updated title from {{ oldTitle }} to {{ title }}",
-	"titleAndCategoryChanged": "\uD83D\uDD04 {{ channelLink }} updated title from {{ oldTitle }} to {{ title }} and category from {{ oldCategory }} to {{ category }}"
-}
