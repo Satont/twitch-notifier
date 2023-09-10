@@ -15,9 +15,14 @@ services:
       POSTGRES_USER: notifier
       POSTGRES_PASSWORD: notifier
       POSTGRES_DB: notifier
+    volumes:
+      - postgres:/var/lib/postgresql/data
 
   adminer:
     image: adminer
     restart: always
     ports:
       - "54324:8080"
+
+volumes:
+  postgres:
