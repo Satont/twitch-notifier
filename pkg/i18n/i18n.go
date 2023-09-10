@@ -44,39 +44,16 @@ func NewI18n(localesPath string) (Interface, error) {
 		translations[name] = fileContent
 	}
 
-	for langCode, _ := range translations {
-		langNestedDirs, err := readDir(filepath.Join(localesPath, langCode))
-		if err != nil {
-			return nil, err
-		}
-
-		for _, dir := range langNestedDirs {
-			files, err := readDir(filepath.Join(localesPath, langCode, dir.Name()))
-			if err != nil {
-				return nil, err
-			}
-
-			translations[langCode][dir.Name()] = make(map[string]any)
-
-			for _, file := range files {
-				fileContent := make(map[string]any)
-				f, err := readFile(filepath.Join(localesPath, langCode, dir.Name(), file.Name()))
-				if err != nil {
-					return nil, err
-				}
-				err = json.Unmarshal(f, &fileContent)
-				translations[langCode][dir.Name()].(map[string]any)[strings.Replace(file.Name(), ".json", "", 1)] = fileContent
-			}
-		}
-
-	}
-
 	return &I18n{
 		translations: translations,
 	}, nil
 }
 
 func (i *I18n) Translate(key, language string, data map[string]string) string {
+	if data == nil {
+		data = make(map[string]string)
+	}
+
 	str, _ := GetNested[string](i.translations[language], strings.Split(key, ".")...)
 
 	str = strings.ReplaceAll(str, "{{ ", "{{.")

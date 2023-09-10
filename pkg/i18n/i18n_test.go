@@ -1,10 +1,11 @@
 package i18n
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewI18n(t *testing.T) {
@@ -35,10 +36,12 @@ func TestNewI18n(t *testing.T) {
 			localesPath: localesPath,
 		},
 		{
-			translation: "nested.world.hello",
+			translation: "nested.templated",
 			lang:        "en",
-			data:        nil,
-			expected:    "nested world",
+			data: map[string]string{
+				"who": "world",
+			},
+			expected:    "hello world",
 			localesPath: localesPath,
 		},
 		{
@@ -75,31 +78,35 @@ func TestNewI18n(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		t.Run(tt.translation, func(t *testing.T) {
-			if tt.patchReadFile {
-				readFile = func(string) ([]byte, error) {
-					return nil, os.ErrNotExist
+		t.Run(
+			tt.translation, func(t *testing.T) {
+				if tt.patchReadFile {
+					readFile = func(string) ([]byte, error) {
+						return nil, os.ErrNotExist
+					}
+					defer func() { readFile = os.ReadFile }()
 				}
-				defer func() { readFile = os.ReadFile }()
-			}
 
-			if tt.patchReadDir {
-				readDir = func(string) ([]os.DirEntry, error) {
-					return nil, os.ErrNotExist
+				if tt.patchReadDir {
+					readDir = func(string) ([]os.DirEntry, error) {
+						return nil, os.ErrNotExist
+					}
+					defer func() { readDir = os.ReadDir }()
 				}
-				defer func() { readDir = os.ReadDir }()
-			}
 
-			i18, err := NewI18n(tt.localesPath)
-			if tt.expectErr {
-				assert.Error(t, err)
-				return
-			}
-			assert.Equal(t,
-				tt.expected,
-				i18.Translate(tt.translation, tt.lang, tt.data),
-			)
-		})
+				i18, err := NewI18n(tt.localesPath)
+				if tt.expectErr {
+					assert.Error(t, err)
+					return
+				}
+
+				assert.Equal(
+					t,
+					tt.expected,
+					i18.Translate(tt.translation, tt.lang, tt.data),
+				)
+			},
+		)
 	}
 }
 
@@ -112,5 +119,6 @@ func TestGetLanguagesCodes(t *testing.T) {
 	}
 	i18, err := NewI18n(filepath.Join(wd, "test_locales"))
 
+	assert.NoError(t, err)
 	assert.Equal(t, []string{"en"}, i18.GetLanguagesCodes())
 }
