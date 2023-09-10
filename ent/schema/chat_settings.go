@@ -34,7 +34,6 @@ func (ChatSettings) Fields() []ent.Field {
 		field.Enum("chat_language").
 			Values(ChatLanguageRu.String(), ChatLanguageEn.String(), ChatLanguageUk.String()).
 			Default(ChatLanguageEn.String()),
-		field.String("test").Default("test"),
 		field.UUID("chat_id", uuid.UUID{}),
 	}
 }
