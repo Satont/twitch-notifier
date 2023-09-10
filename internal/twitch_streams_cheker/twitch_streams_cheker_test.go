@@ -100,7 +100,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
@@ -132,7 +131,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
@@ -168,7 +166,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
@@ -204,7 +201,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
@@ -241,7 +237,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
@@ -281,7 +276,6 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				senderMock.
 					On("SendMessage",
 						ctx,
-						dbChat,
 						mock.Anything,
 					).
 					Return(nil)
