@@ -39,8 +39,8 @@ func createEnt(cfg *config.Config) (*ent.Client, error) {
 	}
 
 	db := drv.DB()
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(2)
+	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(time.Hour)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
@@ -59,10 +59,12 @@ func main() {
 	logger, _ := zap.NewDevelopment()
 
 	if cfg.SentryDsn != "" {
-		sentryClient, err := sentry.NewClient(sentry.ClientOptions{
-			Dsn:           cfg.SentryDsn,
-			EnableTracing: true,
-		})
+		sentryClient, err := sentry.NewClient(
+			sentry.ClientOptions{
+				Dsn:           cfg.SentryDsn,
+				EnableTracing: true,
+			},
+		)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -77,9 +79,9 @@ func main() {
 		logger.Sugar().Fatalln("failed opening connection to postgres: %v", err)
 	}
 	// Run the auto migration tool.
-	//if err := client.Schema.Create(context.Background()); err != nil {
+	// if err := client.Schema.Create(context.Background()); err != nil {
 	//	log.Fatalf("failed creating schema resources: %v", err)
-	//}
+	// }
 
 	twitchService, err := twitch.NewTwitchService(cfg.TwitchClientId, cfg.TwitchClientSecret)
 	if err != nil {
@@ -122,7 +124,7 @@ func main() {
 
 func modifyToSentryLogger(log *zap.Logger, client *sentry.Client) *zap.Logger {
 	cfg := zapsentry.Configuration{
-		Level:             zapcore.ErrorLevel, //when to send message to sentry
+		Level:             zapcore.ErrorLevel, // when to send message to sentry
 		EnableBreadcrumbs: true,               // enable sending breadcrumbs to Sentry
 		BreadcrumbLevel:   zapcore.InfoLevel,  // at what level should we sent breadcrumbs to sentry
 		Tags: map[string]string{
@@ -131,7 +133,7 @@ func modifyToSentryLogger(log *zap.Logger, client *sentry.Client) *zap.Logger {
 	}
 	core, err := zapsentry.NewCore(cfg, zapsentry.NewSentryClientFromClient(client))
 
-	//in case of err it will return noop core. so we can safely attach it
+	// in case of err it will return noop core. so we can safely attach it
 	if err != nil {
 		log.Warn("failed to init zap", zap.Error(err))
 	}

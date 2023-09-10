@@ -14,7 +14,7 @@ migrate-create: generate
 	atlas migrate diff $(filter-out $@,$(MAKECMDGOALS)) \
 		--dir "file://ent/migrate/migrations" \
 		--to "ent://ent/schema" \
-		--dev-url "docker://postgres/15/test?search_path=public"
+		--dev-url "docker://postgres/15/twitch-notifier?search_path=public"
 
 migrate-apply:
 	atlas migrate apply \

@@ -16,6 +16,7 @@ type ChatLanguage string
 const (
 	ChatLanguageRu ChatLanguage = "ru"
 	ChatLanguageEn ChatLanguage = "en"
+	ChatLanguageUk ChatLanguage = "uk"
 )
 
 func (c ChatLanguage) String() string {
@@ -31,8 +32,9 @@ func (ChatSettings) Fields() []ent.Field {
 		field.Bool("offline_notification").Default(true),
 		field.Bool("image_in_notification").Default(true),
 		field.Enum("chat_language").
-			Values(ChatLanguageRu.String(), ChatLanguageEn.String()).
+			Values(ChatLanguageRu.String(), ChatLanguageEn.String(), ChatLanguageUk.String()).
 			Default(ChatLanguageEn.String()),
+		field.String("test").Default("test"),
 		field.UUID("chat_id", uuid.UUID{}),
 	}
 }
