@@ -28,7 +28,7 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 			for _, row := range opts.Buttons {
 				var buttons []tg.InlineKeyboardButton
 				for _, button := range row {
-					if button.SkipInGroup {
+					if button.SkipInGroup && chatId < 0 {
 						continue
 					}
 
