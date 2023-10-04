@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+
+	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/ent"
 	"github.com/satont/twitch-notifier/ent/channel"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
@@ -49,6 +51,38 @@ func (c *channelEntService) GetByIdOrCreate(
 }
 
 func (c *channelEntService) GetByID(
+	ctx context.Context,
+	id string,
+	service db_models.ChannelService,
+) (*db_models.Channel, error) {
+	channelService := channel.Service(service.String())
+
+	idUUID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+
+	ch, err := c.entClient.Channel.
+		Query().
+		Where(channel.ID(idUUID), channel.ServiceEQ(channelService)).
+		Only(ctx)
+
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, db_models.ChannelNotFoundError
+		}
+
+		return nil, err
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c.convertEntity(ch), nil
+}
+
+func (c *channelEntService) GetByChannelID(
 	ctx context.Context,
 	channelID string,
 	service db_models.ChannelService,

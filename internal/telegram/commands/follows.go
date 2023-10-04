@@ -2,15 +2,17 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"math"
+	"strings"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/telegram/types"
 	"go.uber.org/zap"
-	"math"
-	"strings"
 )
 
 type FollowsCommand struct {
@@ -57,13 +59,15 @@ func (c *FollowsCommand) newKeyboard(
 	}
 
 	session.FollowsMenu.TotalPages = int(math.Ceil(float64(totalFollows) / float64(limit)))
-	//spew.Dump(totalFollows)
-	//spew.Dump(session.FollowsMenu)
-	//spew.Dump(session.FollowsMenu.CurrentPage)
+	// spew.Dump(totalFollows)
+	// spew.Dump(session.FollowsMenu)
+	// spew.Dump(session.FollowsMenu.CurrentPage)
 
-	channelsIds := lo.Map(follows, func(follow *db_models.Follow, _ int) string {
-		return follow.Channel.ChannelID
-	})
+	channelsIds := lo.Map(
+		follows, func(follow *db_models.Follow, _ int) string {
+			return follow.Channel.ChannelID
+		},
+	)
 
 	channels, err := c.Services.Twitch.GetChannelsByUserIds(channelsIds)
 
@@ -72,10 +76,19 @@ func (c *FollowsCommand) newKeyboard(
 	}
 
 	for _, channel := range channels {
-		layout.Insert(tg.NewInlineKeyboardButtonCallback(
-			channel.BroadcasterName,
-			fmt.Sprintf("channels_unfollow_%s", channel.BroadcasterID),
-		))
+		internalChannel, _ := lo.Find(
+			follows,
+			func(follow *db_models.Follow) bool {
+				return follow.Channel.ChannelID == channel.BroadcasterID
+			},
+		)
+
+		layout.Insert(
+			tg.NewInlineKeyboardButtonCallback(
+				channel.BroadcasterName,
+				fmt.Sprintf("channels_unfollow_%s", internalChannel.ID.String()),
+			),
+		)
 	}
 
 	var paginationRow *tg.ButtonLayout[tg.InlineKeyboardButton]
@@ -86,18 +99,22 @@ func (c *FollowsCommand) newKeyboard(
 
 		// Add "Prev" button
 		if session.FollowsMenu.CurrentPage > 1 {
-			paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
-				"«",
-				"channels_unfollow_prev_page",
-			))
+			paginationRow.Insert(
+				tg.NewInlineKeyboardButtonCallback(
+					"«",
+					"channels_unfollow_prev_page",
+				),
+			)
 		}
 
 		// Add "Next" button
 		if session.FollowsMenu.CurrentPage < session.FollowsMenu.TotalPages {
-			paginationRow.Insert(tg.NewInlineKeyboardButtonCallback(
-				"»",
-				"channels_unfollow_next_page",
-			))
+			paginationRow.Insert(
+				tg.NewInlineKeyboardButtonCallback(
+					"»",
+					"channels_unfollow_next_page",
+				),
+			)
 		}
 	}
 
@@ -121,11 +138,13 @@ func (c *FollowsCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpda
 	totalFollows, err := c.Services.Follow.CountByChatID(ctx, session.Chat.ID)
 
 	return msg.
-		Answer(c.Services.I18N.Translate(
-			"commands.follows.total",
-			session.Chat.Settings.ChatLanguage.String(),
-			map[string]string{"count": fmt.Sprintf("%v", totalFollows)},
-		)).
+		Answer(
+			c.Services.I18N.Translate(
+				"commands.follows.total",
+				session.Chat.Settings.ChatLanguage.String(),
+				map[string]string{"count": fmt.Sprintf("%v", totalFollows)},
+			),
+		).
 		ReplyMarkup(keyboard).DoVoid(ctx)
 }
 
@@ -153,9 +172,11 @@ func (c *FollowsCommand) unfollowQuery(ctx context.Context, msg *tgb.CallbackQue
 	chat := c.SessionManager.Get(ctx).Chat
 
 	if err := c.handleUnfollow(ctx, chat, msg.CallbackQuery.Data); err != nil {
-		if err == db_models.FollowNotFoundError {
+		if errors.Is(err, db_models.FollowNotFoundError) {
 			return msg.Answer().Text("already unfollowed").DoVoid(ctx)
 		}
+
+		zap.S().Error(err)
 
 		return msg.Answer().Text("internal error").DoVoid(ctx)
 	}
@@ -202,7 +223,8 @@ func (c *FollowsCommand) nextPageQuery(ctx context.Context, msg *tgb.CallbackQue
 var (
 	followsCommandFilter = tgb.Command(
 		"follows",
-		tgb.WithCommandAlias("unfollow"))
+		tgb.WithCommandAlias("unfollow"),
+	)
 	followsPrevPageQuery = tgb.TextEqual("channels_unfollow_prev_page")
 	followsNextPageQuery = tgb.TextEqual("channels_unfollow_next_page")
 	followUnfollowQuery  = tgb.TextHasPrefix("channels_unfollow_")

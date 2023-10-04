@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 )
 
@@ -15,6 +16,11 @@ type ChannelUpdateQuery struct {
 
 type ChannelInterface interface {
 	GetByID(
+		_ context.Context,
+		id string,
+		service db_models.ChannelService,
+	) (*db_models.Channel, error)
+	GetByChannelID(
 		_ context.Context,
 		channelID string,
 		service db_models.ChannelService,

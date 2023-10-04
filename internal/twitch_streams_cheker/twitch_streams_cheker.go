@@ -137,11 +137,24 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								String(),
 						},
 					)
+					unfollowButton := message_sender.KeyboardButton{
+						Text: t.services.I18N.Translate(
+							"commands.unfollow.callbackButton",
+							follower.Chat.Settings.ChatLanguage.String(),
+							map[string]string{
+								"streamer": twitchChannel.BroadcasterName,
+							},
+						),
+						CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+					}
 
-					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-						Text:      message,
-						ParseMode: &tg.MD,
-					})
+					err = t.sender.SendMessage(
+						ctx, follower.Chat, &message_sender.MessageOpts{
+							Text:      message,
+							ParseMode: &tg.MD,
+							Buttons:   [][]message_sender.KeyboardButton{{unfollowButton}},
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						continue
@@ -180,19 +193,33 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						},
 					)
 
+					unfollowButton := message_sender.KeyboardButton{
+						Text: t.services.I18N.Translate(
+							"commands.unfollow.callbackButton",
+							follower.Chat.Settings.ChatLanguage.String(),
+							map[string]string{
+								"streamer": twitchChannel.BroadcasterName,
+							},
+						),
+						CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+					}
+
 					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
 					if err != nil {
 						zap.S().Error(err)
 					}
 
-					err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-						Text: message,
-						ImageURL: lo.If(
-							follower.Chat.Settings.ImageInNotification,
-							fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
-						).Else(""),
-						ParseMode: &tg.MD,
-					})
+					err = t.sender.SendMessage(
+						ctx, follower.Chat, &message_sender.MessageOpts{
+							Text: message,
+							ImageURL: lo.If(
+								follower.Chat.Settings.ImageInNotification,
+								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+							).Else(""),
+							ParseMode: &tg.MD,
+							Buttons:   [][]message_sender.KeyboardButton{{unfollowButton}},
+						},
+					)
 					if err != nil {
 						zap.S().Error(err)
 						continue
@@ -238,30 +265,44 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
+						unfollowButton := message_sender.KeyboardButton{
 							Text: t.services.I18N.Translate(
-								"notifications.streams.titleAndCategoryChanged",
+								"commands.unfollow.callbackButton",
 								follower.Chat.Settings.ChatLanguage.String(),
 								map[string]string{
-									"channelLink": tg.MD.Link(
-										twitchChannel.BroadcasterName,
-										fmt.Sprintf(
-											"https://twitch.tv/%s",
-											twitchChannel.BroadcasterName,
-										),
-									),
-									"category":    tg.MD.Bold(twitchCurrentStream.GameName),
-									"oldCategory": tg.MD.Bold(latestCategory),
-									"title":       tg.MD.Bold(twitchCurrentStream.Title),
-									"oldTitle":    tg.MD.Bold(latestTitle),
+									"streamer": twitchChannel.BroadcasterName,
 								},
 							),
-							ParseMode: &tg.MD,
-							ImageURL: lo.If(
-								follower.Chat.Settings.ImageInNotification,
-								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
-							).Else(""),
-						})
+							CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+						}
+
+						err = t.sender.SendMessage(
+							ctx, follower.Chat, &message_sender.MessageOpts{
+								Text: t.services.I18N.Translate(
+									"notifications.streams.titleAndCategoryChanged",
+									follower.Chat.Settings.ChatLanguage.String(),
+									map[string]string{
+										"channelLink": tg.MD.Link(
+											twitchChannel.BroadcasterName,
+											fmt.Sprintf(
+												"https://twitch.tv/%s",
+												twitchChannel.BroadcasterName,
+											),
+										),
+										"category":    tg.MD.Bold(twitchCurrentStream.GameName),
+										"oldCategory": tg.MD.Bold(latestCategory),
+										"title":       tg.MD.Bold(twitchCurrentStream.Title),
+										"oldTitle":    tg.MD.Bold(latestTitle),
+									},
+								),
+								ParseMode: &tg.MD,
+								ImageURL: lo.If(
+									follower.Chat.Settings.ImageInNotification,
+									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+								).Else(""),
+								Buttons: [][]message_sender.KeyboardButton{{unfollowButton}},
+							},
+						)
 						if err != nil {
 							zap.S().Error(err)
 							continue
@@ -293,28 +334,30 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-							Text: t.services.I18N.Translate(
-								"notifications.streams.newCategory",
-								follower.Chat.Settings.ChatLanguage.String(),
-								map[string]string{
-									"channelLink": tg.MD.Link(
-										twitchChannel.BroadcasterName,
-										fmt.Sprintf(
-											"https://twitch.tv/%s",
+						err = t.sender.SendMessage(
+							ctx, follower.Chat, &message_sender.MessageOpts{
+								Text: t.services.I18N.Translate(
+									"notifications.streams.newCategory",
+									follower.Chat.Settings.ChatLanguage.String(),
+									map[string]string{
+										"channelLink": tg.MD.Link(
 											twitchChannel.BroadcasterName,
+											fmt.Sprintf(
+												"https://twitch.tv/%s",
+												twitchChannel.BroadcasterName,
+											),
 										),
-									),
-									"category":    tg.MD.Bold(twitchCurrentStream.GameName),
-									"oldCategory": tg.MD.Bold(latestCategory),
-								},
-							),
-							ParseMode: &tg.MD,
-							ImageURL: lo.If(
-								follower.Chat.Settings.ImageInNotification,
-								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
-							).Else(""),
-						})
+										"category":    tg.MD.Bold(twitchCurrentStream.GameName),
+										"oldCategory": tg.MD.Bold(latestCategory),
+									},
+								),
+								ParseMode: &tg.MD,
+								ImageURL: lo.If(
+									follower.Chat.Settings.ImageInNotification,
+									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+								).Else(""),
+							},
+						)
 						if err != nil {
 							zap.S().Error(err)
 							continue
@@ -346,29 +389,31 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(ctx, follower.Chat, &message_sender.MessageOpts{
-							Text: t.services.I18N.Translate(
-								"notifications.streams.titleChanged",
-								follower.Chat.Settings.ChatLanguage.String(),
-								map[string]string{
-									"channelLink": tg.MD.Link(
-										twitchChannel.BroadcasterName,
-										fmt.Sprintf(
-											"https://twitch.tv/%s",
+						err = t.sender.SendMessage(
+							ctx, follower.Chat, &message_sender.MessageOpts{
+								Text: t.services.I18N.Translate(
+									"notifications.streams.titleChanged",
+									follower.Chat.Settings.ChatLanguage.String(),
+									map[string]string{
+										"channelLink": tg.MD.Link(
 											twitchChannel.BroadcasterName,
+											fmt.Sprintf(
+												"https://twitch.tv/%s",
+												twitchChannel.BroadcasterName,
+											),
 										),
-									),
-									"category": twitchCurrentStream.GameName,
-									"title":    tg.MD.Bold(twitchCurrentStream.Title),
-									"oldTitle": tg.MD.Bold(latestTitle),
-								},
-							),
-							ParseMode: &tg.MD,
-							ImageURL: lo.If(
-								follower.Chat.Settings.ImageInNotification,
-								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
-							).Else(""),
-						})
+										"category": twitchCurrentStream.GameName,
+										"title":    tg.MD.Bold(twitchCurrentStream.Title),
+										"oldTitle": tg.MD.Bold(latestTitle),
+									},
+								),
+								ParseMode: &tg.MD,
+								ImageURL: lo.If(
+									follower.Chat.Settings.ImageInNotification,
+									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
+								).Else(""),
+							},
+						)
 						if err != nil {
 							zap.S().Error(err)
 							continue
@@ -384,12 +429,15 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 
 func (t *TwitchStreamChecker) StartPolling(ctx context.Context) {
 	tickTime := lo.
-		IfF(t.tickTime != nil, func() time.Duration {
-			return *t.tickTime
-		}).
-		Else(lo.
-			If(t.services.Config.AppEnv == "development", 10*time.Second).
-			Else(1 * time.Minute),
+		IfF(
+			t.tickTime != nil, func() time.Duration {
+				return *t.tickTime
+			},
+		).
+		Else(
+			lo.
+				If(t.services.Config.AppEnv == "development", 10*time.Second).
+				Else(1 * time.Minute),
 		)
 	ticker := time.NewTicker(tickTime)
 

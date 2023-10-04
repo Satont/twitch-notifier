@@ -2,9 +2,10 @@ package message_sender
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"strconv"
 )
 
 type MessageSender struct {
@@ -18,6 +19,27 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 			return err
 		}
 
+		var keyboard *tg.InlineKeyboardMarkup
+		if opts.Buttons != nil && len(opts.Buttons) > 0 {
+			keyboard = &tg.InlineKeyboardMarkup{
+				InlineKeyboard: make([][]tg.InlineKeyboardButton, 0, len(opts.Buttons)),
+			}
+
+			for _, row := range opts.Buttons {
+				var buttons []tg.InlineKeyboardButton
+				for _, button := range row {
+					buttons = append(
+						buttons, tg.InlineKeyboardButton{
+							Text:         button.Text,
+							CallbackData: button.CallbackData,
+						},
+					)
+				}
+
+				keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, buttons)
+			}
+		}
+
 		if opts.ImageURL != "" {
 			query := m.telegram.
 				SendPhoto(tg.ChatID(chatId), tg.FileArg{URL: opts.ImageURL}).
@@ -27,11 +49,19 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 				query = query.ParseMode(*opts.ParseMode)
 			}
 
+			if keyboard != nil && keyboard.InlineKeyboard != nil && len(keyboard.InlineKeyboard) > 0 {
+				query = query.ReplyMarkup(keyboard)
+			}
+
 			return query.DoVoid(ctx)
 		} else {
 			query := m.telegram.
 				SendMessage(tg.ChatID(chatId), opts.Text).
 				DisableWebPagePreview(true)
+
+			if keyboard != nil && keyboard.InlineKeyboard != nil && len(keyboard.InlineKeyboard) > 0 {
+				query = query.ReplyMarkup(keyboard)
+			}
 
 			if opts.ParseMode != nil {
 				query = query.ParseMode(*opts.ParseMode)

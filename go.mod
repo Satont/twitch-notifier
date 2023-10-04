@@ -2,7 +2,7 @@ module github.com/satont/twitch-notifier
 
 go 1.21
 
-replace github.com/mr-linch/go-tg => ./libs/go-tg
+//replace github.com/mr-linch/go-tg => ./libs/go-tg
 
 require (
 	entgo.io/ent v0.12.3
@@ -15,7 +15,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/mr-linch/go-tg v0.10.0
+	github.com/mr-linch/go-tg v0.11.0
 	github.com/nicklaw5/helix/v2 v2.25.0
 	github.com/samber/lo v1.38.1
 	github.com/sourcegraph/conc v0.3.0

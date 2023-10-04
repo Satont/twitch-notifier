@@ -29,6 +29,10 @@
 			"total": "You followed to notifications from {{ count }} channels. Click on streamer nickname to unfollow from notifications."
 		},
 
+		"unfollow": {
+			"callbackButton": "Unfollow {{ streamer }}"
+		},
+
 		"start": {
 			"game_change_notification_setting": {
 				"button": "Game change notification"

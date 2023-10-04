@@ -2,9 +2,10 @@ package db
 
 import (
 	"context"
-	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"strconv"
 	"testing"
+
+	"github.com/satont/twitch-notifier/internal/db/db_models"
 
 	"github.com/samber/lo"
 	"github.com/sourcegraph/conc"
@@ -66,22 +67,24 @@ func TestChannelEntService_GetByID(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.createChannel {
-				_, err := channelService.Create(context.Background(), tt.channelID, tt.service)
-				assert.NoError(t, err)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if tt.createChannel {
+					_, err := channelService.Create(context.Background(), tt.channelID, tt.service)
+					assert.NoError(t, err)
+				}
 
-			channel, err := channelService.GetByID(context.Background(), tt.channelID, tt.service)
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.EqualError(t, err, db_models.ChannelNotFoundError.Error())
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.channelID, channel.ChannelID)
-				assert.Equal(t, tt.service, channel.Service)
-			}
-		})
+				channel, err := channelService.GetByChannelID(context.Background(), tt.channelID, tt.service)
+				if tt.wantErr {
+					assert.Error(t, err)
+					assert.EqualError(t, err, db_models.ChannelNotFoundError.Error())
+				} else {
+					assert.NoError(t, err)
+					assert.Equal(t, tt.channelID, channel.ChannelID)
+					assert.Equal(t, tt.service, channel.Service)
+				}
+			},
+		)
 	}
 }
 
@@ -116,20 +119,22 @@ func TestChannelEntService_Create(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		t.Run(tt.name, func(t *testing.T) {
-			channel, err := channelService.Create(context.Background(), tt.channel, tt.service)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.channel, channel.ChannelID)
-				assert.Equal(t, tt.service, channel.Service)
-				assert.False(t, channel.IsLive)
-				assert.Nil(t, channel.Title)
-				assert.Nil(t, channel.Category)
-				assert.Nil(t, channel.UpdatedAt)
-			}
-		})
+		t.Run(
+			tt.name, func(t *testing.T) {
+				channel, err := channelService.Create(context.Background(), tt.channel, tt.service)
+				if tt.wantErr {
+					assert.Error(t, err)
+				} else {
+					assert.NoError(t, err)
+					assert.Equal(t, tt.channel, channel.ChannelID)
+					assert.Equal(t, tt.service, channel.Service)
+					assert.False(t, channel.IsLive)
+					assert.Nil(t, channel.Title)
+					assert.Nil(t, channel.Category)
+					assert.Nil(t, channel.UpdatedAt)
+				}
+			},
+		)
 	}
 }
 
@@ -166,34 +171,36 @@ func TestChannelEntService_Update(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.createChannel {
-				_, err := channelService.Create(context.Background(), tt.channelID, tt.service)
-				assert.NoError(t, err)
-			}
+		t.Run(
+			tt.name, func(t *testing.T) {
+				if tt.createChannel {
+					_, err := channelService.Create(context.Background(), tt.channelID, tt.service)
+					assert.NoError(t, err)
+				}
 
-			channel, err := channelService.Update(
-				context.Background(),
-				tt.channelID,
-				tt.service,
-				&ChannelUpdateQuery{
-					IsLive:   lo.ToPtr(true),
-					Category: lo.ToPtr("Category"),
-					Title:    lo.ToPtr("Title"),
-				},
-			)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.channelID, channel.ChannelID)
-				assert.Equal(t, tt.service, channel.Service)
-				assert.True(t, channel.IsLive)
-				assert.Equal(t, "Title", *channel.Title)
-				assert.Equal(t, "Category", *channel.Category)
-				assert.NotNil(t, channel.UpdatedAt)
-			}
-		})
+				channel, err := channelService.Update(
+					context.Background(),
+					tt.channelID,
+					tt.service,
+					&ChannelUpdateQuery{
+						IsLive:   lo.ToPtr(true),
+						Category: lo.ToPtr("Category"),
+						Title:    lo.ToPtr("Title"),
+					},
+				)
+				if tt.wantErr {
+					assert.Error(t, err)
+				} else {
+					assert.NoError(t, err)
+					assert.Equal(t, tt.channelID, channel.ChannelID)
+					assert.Equal(t, tt.service, channel.Service)
+					assert.True(t, channel.IsLive)
+					assert.Equal(t, "Title", *channel.Title)
+					assert.Equal(t, "Category", *channel.Category)
+					assert.NotNil(t, channel.UpdatedAt)
+				}
+			},
+		)
 	}
 }
 
@@ -213,10 +220,12 @@ func TestChannelEntService_GetAll(t *testing.T) {
 	wg := conc.NewWaitGroup()
 	for i := 0; i < 5; i++ {
 		i := i
-		wg.Go(func() {
-			_, err = channelService.Create(ctx, strconv.Itoa(i), db_models.ChannelServiceTwitch)
-			assert.NoError(t, err)
-		})
+		wg.Go(
+			func() {
+				_, err = channelService.Create(ctx, strconv.Itoa(i), db_models.ChannelServiceTwitch)
+				assert.NoError(t, err)
+			},
+		)
 	}
 	wg.Wait()
 

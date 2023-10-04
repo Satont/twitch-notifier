@@ -55,6 +55,9 @@ func (i *I18n) Translate(key, language string, data map[string]string) string {
 	}
 
 	str, _ := GetNested[string](i.translations[language], strings.Split(key, ".")...)
+	if str == "" {
+		str, _ = GetNested[string](i.translations["en"], strings.Split(key, ".")...)
+	}
 
 	str = strings.ReplaceAll(str, "{{ ", "{{.")
 

@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+
 	"github.com/satont/twitch-notifier/internal/db"
 	db_models2 "github.com/satont/twitch-notifier/internal/db/db_models"
 
@@ -12,7 +13,7 @@ type DbChannelMock struct {
 	mock.Mock
 }
 
-func (c *DbChannelMock) GetByID(
+func (c *DbChannelMock) GetByChannelID(
 	ctx context.Context,
 	channelID string,
 	service db_models2.ChannelService,
