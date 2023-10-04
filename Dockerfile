@@ -8,7 +8,6 @@ WORKDIR /app
 
 RUN apk add --no-cache git curl wget upx make
 
-COPY libs libs
 COPY go.mod go.sum /app/
 RUN go mod download
 
