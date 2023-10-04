@@ -73,7 +73,7 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 			wantedErr: db_models2.ChannelNotFoundError,
 			setupMocks: func() {
 				channelsMock.
-					On("GetByChannelID", ctx, "1", db_models2.ChannelServiceTwitch).
+					On("GetByID", ctx, "1", db_models2.ChannelServiceTwitch).
 					Return((*db_models2.Channel)(nil), db_models2.ChannelNotFoundError)
 			},
 		},
@@ -92,7 +92,7 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 			setupMocks: func() {
 				channelId := uuid.New()
 				channelsMock.
-					On("GetByChannelID", ctx, "1", db_models2.ChannelServiceTwitch).
+					On("GetByID", ctx, "1", db_models2.ChannelServiceTwitch).
 					Return(
 						&db_models2.Channel{
 							ID:        channelId,
@@ -120,7 +120,7 @@ func TestFollowsCommand_handleUnfollow(t *testing.T) {
 				channelID := uuid.New()
 				followID := uuid.New()
 				channelsMock.
-					On("GetByChannelID", ctx, "1", db_models2.ChannelServiceTwitch).
+					On("GetByID", ctx, "1", db_models2.ChannelServiceTwitch).
 					Return(
 						&db_models2.Channel{
 							ID:        channelID,
@@ -258,6 +258,8 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 		},
 	}
 
+	entityId := uuid.New()
+
 	table := []struct {
 		name       string
 		setupMocks func()
@@ -271,7 +273,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 					Return(
 						[]*db_models2.Follow{
 							{
-								ID:        uuid.New(),
+								ID:        entityId,
 								ChannelID: uuid.New(),
 								ChatID:    dbChat.ID,
 								Channel: &db_models2.Channel{
@@ -294,7 +296,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				assert.Len(t, keyboard.InlineKeyboard, 1)
 				assert.Len(t, keyboard.InlineKeyboard[0], 1)
 				assert.Equal(t, keyboard.InlineKeyboard[0][0].Text, "Satont")
-				assert.Equal(t, keyboard.InlineKeyboard[0][0].CallbackData, "channels_unfollow_1")
+				assert.Equal(t, keyboard.InlineKeyboard[0][0].CallbackData, "channels_unfollow_"+entityId.String())
 			},
 		},
 		{
