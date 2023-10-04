@@ -7,7 +7,6 @@ go 1.21
 require (
 	entgo.io/ent v0.12.3
 	github.com/TheZeroSlave/zapsentry v1.17.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/getsentry/sentry-go v0.24.0
 	github.com/google/uuid v1.3.1
 	github.com/hashicorp/go-retryablehttp v0.7.4
@@ -27,6 +26,7 @@ require (
 	ariga.io/atlas v0.14.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
