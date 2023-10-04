@@ -21,7 +21,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 	t.Parallel()
 
 	chat := &db_models.Chat{
-		ChatID:  "123",
+		ChatID:  "-123",
 		Service: db_models.ChatServiceTelegram,
 	}
 
@@ -47,7 +47,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 							assert.NoError(t, err)
 
 							assert.Equal(t, "test", query.Get("text"))
-							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Equal(t, "-123", query.Get("chat_id"))
 
 							assert.Equal(t, http.MethodPost, r.Method)
 							assert.Equal(
@@ -81,7 +81,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 
 							assert.Equal(t, "test photo", query.Get("caption"))
 							assert.Equal(t, "https://example.com/image.jpg", query.Get("photo"))
-							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Equal(t, "-123", query.Get("chat_id"))
 
 							assert.Equal(t, http.MethodPost, r.Method)
 							assert.Equal(
@@ -114,7 +114,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 							assert.NoError(t, err)
 
 							assert.Equal(t, "test md", query.Get("text"))
-							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Equal(t, "-123", query.Get("chat_id"))
 							assert.Equal(t, "Markdown", query.Get("parse_mode"))
 
 							assert.Equal(t, http.MethodPost, r.Method)
@@ -152,7 +152,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 							assert.NoError(t, err)
 
 							assert.Equal(t, "test buttons", query.Get("text"))
-							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Equal(t, "-123", query.Get("chat_id"))
 
 							keyboard := map[string]any{}
 
@@ -205,7 +205,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 							assert.NoError(t, err)
 
 							assert.Equal(t, "test buttons", query.Get("text"))
-							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Equal(t, "-123", query.Get("chat_id"))
 							assert.Empty(t, query.Get("reply_markup"))
 
 							assert.Equal(t, http.MethodPost, r.Method)
