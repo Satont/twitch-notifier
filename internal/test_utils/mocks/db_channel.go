@@ -13,6 +13,16 @@ type DbChannelMock struct {
 	mock.Mock
 }
 
+func (c *DbChannelMock) GetByID(
+	ctx context.Context,
+	id string,
+	service db_models2.ChannelService,
+) (*db_models2.Channel, error) {
+	args := c.Called(ctx, id, service)
+
+	return args.Get(0).(*db_models2.Channel), args.Error(1)
+}
+
 func (c *DbChannelMock) GetByChannelID(
 	ctx context.Context,
 	channelID string,
