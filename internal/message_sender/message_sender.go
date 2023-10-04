@@ -8,13 +8,17 @@ import (
 )
 
 type MessageOpts struct {
-	Text      string
-	ImageURL  string
-	ParseMode *tg.ParseMode
-	Buttons   [][]KeyboardButton
+	Text        string
+	ImageURL    string
+	ParseMode   *tg.ParseMode
+	Buttons     [][]KeyboardButton
+	SkipButtons bool
 }
 
 type KeyboardButton struct {
+	// kostil chto bi skipnut knopki v gruppah
+	SkipInGroup bool
+
 	Text         string `json:"text"`
 	CallbackData string `json:"callback_data,omitempty"`
 	// this is not needed currently

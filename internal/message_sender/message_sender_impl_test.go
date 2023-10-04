@@ -184,6 +184,44 @@ func TestMessageSender_SendMessage(t *testing.T) {
 				)
 			},
 		},
+		{
+			name: "should skip button",
+			chat: chat,
+			opts: &MessageOpts{
+				Text: "test buttons",
+				Buttons: [][]KeyboardButton{
+					{
+						KeyboardButton{Text: "click me", CallbackData: "click", SkipInGroup: true},
+					},
+				},
+			},
+			createServer: func(t *testing.T) *httptest.Server {
+				return httptest.NewServer(
+					http.HandlerFunc(
+						func(w http.ResponseWriter, r *http.Request) {
+							body, err := io.ReadAll(r.Body)
+							assert.NoError(t, err)
+							query, err := url.ParseQuery(string(body))
+							assert.NoError(t, err)
+
+							assert.Equal(t, "test buttons", query.Get("text"))
+							assert.Equal(t, "123", query.Get("chat_id"))
+							assert.Empty(t, query.Get("reply_markup"))
+
+							assert.Equal(t, http.MethodPost, r.Method)
+							assert.Equal(
+								t,
+								fmt.Sprintf("/bot%s/sendMessage", test_utils.TelegramClientToken),
+								r.URL.Path,
+							)
+
+							w.WriteHeader(http.StatusOK)
+							_, _ = w.Write([]byte(test_utils.TelegramOkResponse))
+						},
+					),
+				)
+			},
+		},
 	}
 
 	for _, tt := range table {

@@ -28,6 +28,10 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 			for _, row := range opts.Buttons {
 				var buttons []tg.InlineKeyboardButton
 				for _, button := range row {
+					if button.SkipInGroup {
+						continue
+					}
+
 					buttons = append(
 						buttons, tg.InlineKeyboardButton{
 							Text:         button.Text,
@@ -36,7 +40,9 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 					)
 				}
 
-				keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, buttons)
+				if len(buttons) != 0 {
+					keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, buttons)
+				}
 			}
 		}
 

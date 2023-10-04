@@ -146,6 +146,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							},
 						),
 						CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+						SkipInGroup:  true,
 					}
 
 					err = t.sender.SendMessage(
@@ -202,6 +203,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							},
 						),
 						CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+						SkipInGroup:  true,
 					}
 
 					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
@@ -274,6 +276,7 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 								},
 							),
 							CallbackData: fmt.Sprintf("channels_unfollow_%v", channel.ID),
+							SkipInGroup:  true,
 						}
 
 						err = t.sender.SendMessage(
