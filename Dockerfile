@@ -1,8 +1,4 @@
-FROM alpine:latest as builder
-
-COPY --from=golang:alpine /usr/local/go/ /usr/local/go/
-ENV PATH="$PATH:/usr/local/go/bin"
-ENV PATH="$PATH:/root/go/bin"
+FROM golang:alpine as builder
 
 WORKDIR /app
 
