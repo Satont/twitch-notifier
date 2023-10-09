@@ -19,7 +19,7 @@ go mod download
 
 ### Generate
 
-After clone/on first setup/on schema change - you should run 
+After clone/on first setup/on schema change - you should run
 
 ```bash
 make generate
@@ -34,6 +34,7 @@ make tests
 ### Running
 
 ```bash
+docker compose -f docker-compose.dev.yml up -d
 make dev
 ```
 
