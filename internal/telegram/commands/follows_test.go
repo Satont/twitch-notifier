@@ -259,6 +259,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 	}
 
 	entityId := uuid.New()
+	channelId := uuid.New()
 
 	table := []struct {
 		name       string
@@ -274,10 +275,10 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 						[]*db_models2.Follow{
 							{
 								ID:        entityId,
-								ChannelID: uuid.New(),
+								ChannelID: channelId,
 								ChatID:    dbChat.ID,
 								Channel: &db_models2.Channel{
-									ID:        uuid.New(),
+									ID:        channelId,
 									ChannelID: "1",
 								},
 							},
@@ -296,7 +297,7 @@ func TestFollowsCommand_newKeyboard(t *testing.T) {
 				assert.Len(t, keyboard.InlineKeyboard, 1)
 				assert.Len(t, keyboard.InlineKeyboard[0], 1)
 				assert.Equal(t, keyboard.InlineKeyboard[0][0].Text, "Satont")
-				assert.Equal(t, keyboard.InlineKeyboard[0][0].CallbackData, "channels_unfollow_"+entityId.String())
+				assert.Equal(t, keyboard.InlineKeyboard[0][0].CallbackData, "channels_unfollow_"+channelId.String())
 			},
 		},
 		{
