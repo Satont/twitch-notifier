@@ -86,7 +86,7 @@ func (c *FollowsCommand) newKeyboard(
 		layout.Insert(
 			tg.NewInlineKeyboardButtonCallback(
 				channel.BroadcasterName,
-				fmt.Sprintf("channels_unfollow_%s", internalChannel.ID.String()),
+				fmt.Sprintf("channels_unfollow_%s", internalChannel.ChannelID),
 			),
 		)
 	}
