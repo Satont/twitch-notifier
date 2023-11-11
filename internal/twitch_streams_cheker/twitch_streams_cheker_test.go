@@ -30,7 +30,7 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 
 	channelsMock := &mocks.DbChannelMock{}
 	twitchMock := &mocks.TwitchApiMock{}
-	senderMock := &mocks.MessageSenderMock{}
+	distributorMock := &mocks.TaskDistributorMock{}
 	streamMock := &mocks.DbStreamMock{}
 	followMock := &mocks.DbFollowMock{}
 	i18nMock := i18nmocks.NewI18nMock()
@@ -97,10 +97,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					IsLive: lo.ToPtr(false),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -129,10 +129,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Category: lo.ToPtr("Dota 2"),
 					Title:    lo.ToPtr("title"),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -165,10 +165,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					Category: lo.ToPtr("Just Chatting"),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -201,10 +201,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 				streamMock.On("UpdateOneByStreamID", ctx, dbStream.ID, &db.StreamUpdateQuery{
 					Title: lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -238,10 +238,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Title:    lo.ToPtr("title1"),
 					Category: lo.ToPtr("Dota 3"),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -278,10 +278,10 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 					Category: lo.ToPtr("Dota 2"),
 					Title:    lo.ToPtr("title1"),
 				}).Return((*db_models.Stream)(nil), nil)
-				senderMock.
-					On("SendMessage",
+				distributorMock.
+					On("DistributeSendPrivateMessage",
 						ctx,
-						dbChat,
+						mock.Anything,
 						mock.Anything,
 					).
 					Return(nil)
@@ -296,27 +296,27 @@ func TestTwitchStreamChecker_check(t *testing.T) {
 
 			checker := &TwitchStreamChecker{
 				services: &types.Services{
-					Channel: channelsMock,
-					Twitch:  twitchMock,
-					Stream:  streamMock,
-					Follow:  followMock,
-					I18N:    i18nMock,
+					Channel:     channelsMock,
+					Twitch:      twitchMock,
+					Stream:      streamMock,
+					Follow:      followMock,
+					I18N:        i18nMock,
+					Distributor: distributorMock,
 				},
-				sender: senderMock,
 			}
 
 			checker.check(ctx)
 
 			channelsMock.AssertExpectations(t)
 			twitchMock.AssertExpectations(t)
-			senderMock.AssertExpectations(t)
+			distributorMock.AssertExpectations(t)
 			streamMock.AssertExpectations(t)
 			followMock.AssertExpectations(t)
 
 			channelsMock.ExpectedCalls = nil
 			twitchMock.ExpectedCalls = nil
 			streamMock.ExpectedCalls = nil
-			senderMock.ExpectedCalls = nil
+			distributorMock.ExpectedCalls = nil
 			followMock.ExpectedCalls = nil
 		})
 	}

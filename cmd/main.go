@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/hibiken/asynq"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/TheZeroSlave/zapsentry"
@@ -22,6 +23,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/twitch"
 	"github.com/satont/twitch-notifier/internal/twitch_streams_cheker"
 	"github.com/satont/twitch-notifier/internal/types"
+	"github.com/satont/twitch-notifier/internal/worker"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -93,14 +95,20 @@ func main() {
 		logger.Sugar().Fatalln(err)
 	}
 
+	redisOpt := asynq.RedisClientOpt{
+		Addr: cfg.RedisUrl,
+	}
+	distributor := worker.NewRedisTaskDistributor(redisOpt, logger)
+
 	services := &types.Services{
-		Config:  cfg,
-		Twitch:  twitchService,
-		Chat:    db.NewChatEntRepository(client),
-		Channel: db.NewChannelEntService(client),
-		Follow:  db.NewFollowService(client),
-		Stream:  db.NewStreamEntService(client),
-		I18N:    i18,
+		Config:      cfg,
+		Twitch:      twitchService,
+		Chat:        db.NewChatEntRepository(client),
+		Channel:     db.NewChannelEntService(client),
+		Follow:      db.NewFollowService(client),
+		Stream:      db.NewStreamEntService(client),
+		I18N:        i18,
+		Distributor: distributor,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -112,6 +120,19 @@ func main() {
 
 	checker := twitch_streams_cheker.NewTwitchStreamChecker(services, sender, nil)
 	checker.StartPolling(ctx)
+
+	go func(redisOpt asynq.RedisClientOpt, logger *zap.Logger, sender message_sender.MessageSenderInterface) {
+		taskProcessor := worker.NewRedisTaskProcessor(redisOpt, logger, sender)
+		logger.Sugar().Info("Starting worker processor")
+		err := taskProcessor.Start()
+		if err != nil {
+			logger.Sugar().Fatalln(err)
+		}
+	}(
+		redisOpt,
+		logger,
+		sender,
+	)
 
 	logger.Sugar().Info("Started")
 	exitSignal := make(chan os.Signal, 1)

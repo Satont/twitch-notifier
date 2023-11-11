@@ -10,7 +10,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/mr-linch/go-tg"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 
 	"github.com/satont/twitch-notifier/internal/test_utils"
@@ -101,8 +100,8 @@ func TestMessageSender_SendMessage(t *testing.T) {
 			name: "should call send message method with parse mode",
 			chat: chat,
 			opts: &MessageOpts{
-				Text:      "test md",
-				ParseMode: &tg.MD,
+				Text:        "test md",
+				TgParseMode: TgParseModeMD,
 			},
 			createServer: func(t *testing.T) *httptest.Server {
 				return httptest.NewServer(
@@ -231,7 +230,7 @@ func TestMessageSender_SendMessage(t *testing.T) {
 				tgClient := test_utils.NewTelegramClient(server)
 				sender := NewMessageSender(tgClient)
 
-				err := sender.SendMessage(context.Background(), tt.chat, tt.opts)
+				err := sender.SendMessage(context.Background(), tt.opts)
 				assert.NoError(c, err)
 				assert.Nil(c, err)
 			},
