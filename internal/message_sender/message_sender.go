@@ -2,15 +2,21 @@ package message_sender
 
 import (
 	"context"
+)
 
-	"github.com/mr-linch/go-tg"
-	"github.com/satont/twitch-notifier/internal/db/db_models"
+type TgParseMode string
+
+const (
+	TgParseModeMD TgParseMode = "markdown"
 )
 
 type MessageOpts struct {
+	ChatID      string
+	ChatService string
 	Text        string
 	ImageURL    string
-	ParseMode   *tg.ParseMode
+
+	TgParseMode TgParseMode
 	Buttons     [][]KeyboardButton
 	SkipButtons bool
 }
@@ -32,5 +38,5 @@ type KeyboardButton struct {
 }
 
 type MessageSenderInterface interface {
-	SendMessage(ctx context.Context, chat *db_models.Chat, opts *MessageOpts) error
+	SendMessage(ctx context.Context, opts *MessageOpts) error
 }

@@ -5,6 +5,7 @@ import (
 	db2 "github.com/satont/twitch-notifier/internal/db"
 	"github.com/satont/twitch-notifier/internal/message_sender"
 	"github.com/satont/twitch-notifier/internal/twitch"
+	"github.com/satont/twitch-notifier/internal/worker"
 	"github.com/satont/twitch-notifier/pkg/i18n"
 )
 
@@ -17,4 +18,5 @@ type Services struct {
 	Stream        db2.StreamInterface
 	I18N          i18n.Interface
 	MessageSender message_sender.MessageSenderInterface
+	Distributor   worker.TaskDistributor
 }

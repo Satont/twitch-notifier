@@ -12,9 +12,15 @@ type MessageSender struct {
 	telegram *tg.Client
 }
 
-func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, opts *MessageOpts) error {
-	if chat.Service == db_models.ChatServiceTelegram {
-		chatId, err := strconv.Atoi(chat.ChatID)
+func (m *MessageSender) SendMessage(ctx context.Context, opts *MessageOpts) error {
+	var parseMode tg.ParseMode
+
+	if opts.TgParseMode == TgParseModeMD {
+		parseMode = tg.MD
+	}
+
+	if db_models.ChatService(opts.ChatService) == db_models.ChatServiceTelegram {
+		chatId, err := strconv.Atoi(opts.ChatID)
 		if err != nil {
 			return err
 		}
@@ -51,11 +57,12 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 				SendPhoto(tg.ChatID(chatId), tg.FileArg{URL: opts.ImageURL}).
 				Caption(opts.Text)
 
-			if opts.ParseMode != nil {
-				query = query.ParseMode(*opts.ParseMode)
+			if opts.TgParseMode != "" {
+				query = query.ParseMode(parseMode)
 			}
 
-			if keyboard != nil && keyboard.InlineKeyboard != nil && len(keyboard.InlineKeyboard) > 0 {
+			if keyboard != nil && keyboard.InlineKeyboard != nil &&
+				len(keyboard.InlineKeyboard) > 0 {
 				query = query.ReplyMarkup(keyboard)
 			}
 
@@ -67,10 +74,6 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 
 			if keyboard != nil && keyboard.InlineKeyboard != nil && len(keyboard.InlineKeyboard) > 0 {
 				query = query.ReplyMarkup(keyboard)
-			}
-
-			if opts.ParseMode != nil {
-				query = query.ParseMode(*opts.ParseMode)
 			}
 
 			return query.DoVoid(ctx)

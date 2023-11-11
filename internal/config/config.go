@@ -1,20 +1,22 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
 	"os"
 	"path/filepath"
+
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
 type Config struct {
-	TwitchClientId     string   `required:"true" envconfig:"TWITCH_CLIENTID"`
-	TwitchClientSecret string   `required:"true" envconfig:"TWITCH_CLIENTSECRET"`
-	TelegramToken      string   `required:"true" envconfig:"TELEGRAM_TOKEN"`
-	AppEnv             string   `required:"true" envconfig:"APP_ENV" default:"development"`
+	TwitchClientId     string   `required:"true"  envconfig:"TWITCH_CLIENTID"`
+	TwitchClientSecret string   `required:"true"  envconfig:"TWITCH_CLIENTSECRET"`
+	TelegramToken      string   `required:"true"  envconfig:"TELEGRAM_TOKEN"`
+	AppEnv             string   `required:"true"  envconfig:"APP_ENV"             default:"development"`
 	TelegramBotAdmins  []string `required:"false" envconfig:"TELEGRAM_BOT_ADMINS"`
-	DatabaseUrl        string   `required:"true" envconfig:"DATABASE_URL"`
+	DatabaseUrl        string   `required:"true"  envconfig:"DATABASE_URL"`
 	SentryDsn          string   `required:"false" envconfig:"SENTRY_DSN"`
+	RedisUrl           string   `required:"true"  envconfig:"REDIS_URL"`
 }
 
 var getWd = os.Getwd

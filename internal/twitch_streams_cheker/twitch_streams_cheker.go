@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/mr-linch/go-tg"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -14,6 +15,7 @@ import (
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	"github.com/satont/twitch-notifier/internal/message_sender"
 	"github.com/satont/twitch-notifier/internal/types"
+	"github.com/satont/twitch-notifier/internal/worker"
 	"go.uber.org/zap"
 )
 
@@ -149,12 +151,18 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						SkipInGroup:  true,
 					}
 
-					err = t.sender.SendMessage(
-						ctx, follower.Chat, &message_sender.MessageOpts{
-							Text:      message,
-							ParseMode: &tg.MD,
-							Buttons:   [][]message_sender.KeyboardButton{{unfollowButton}},
+					err = t.services.Distributor.DistributeSendPrivateMessage(
+						ctx,
+						&worker.TaskSendPrivateMessagePayload{
+							ChatID:      follower.Chat.ChatID,
+							ChatService: string(follower.Chat.Service),
+							Text:        message,
+							TgParseMode: message_sender.TgParseModeMD,
+							Buttons:     [][]message_sender.KeyboardButton{{unfollowButton}},
 						},
+						asynq.TaskID(
+							fmt.Sprintf("stream_%s_offline_for_%s", currentDBStream.ID, channel.ID),
+						),
 					)
 					if err != nil {
 						zap.S().Error(err)
@@ -206,21 +214,34 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						SkipInGroup:  true,
 					}
 
-					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+					thumbNail, err := t.thumbNailBuilder.Build(
+						twitchCurrentStream.ThumbnailURL,
+						true,
+					)
 					if err != nil {
 						zap.S().Error(err)
 					}
 
-					err = t.sender.SendMessage(
-						ctx, follower.Chat, &message_sender.MessageOpts{
-							Text: message,
+					err = t.services.Distributor.DistributeSendPrivateMessage(
+						ctx,
+						&worker.TaskSendPrivateMessagePayload{
+							ChatID:      follower.Chat.ChatID,
+							ChatService: string(follower.Chat.Service),
+							Text:        message,
 							ImageURL: lo.If(
 								follower.Chat.Settings.ImageInNotification,
 								fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 							).Else(""),
-							ParseMode: &tg.MD,
-							Buttons:   [][]message_sender.KeyboardButton{{unfollowButton}},
+							TgParseMode: message_sender.TgParseModeMD,
+							Buttons:     [][]message_sender.KeyboardButton{{unfollowButton}},
 						},
+						asynq.TaskID(
+							fmt.Sprintf(
+								"stream_%s_online_for_%s",
+								twitchCurrentStream.ID,
+								channel.ID,
+							),
+						),
 					)
 					if err != nil {
 						zap.S().Error(err)
@@ -257,7 +278,10 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 						return
 					}
 
-					thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, false)
+					thumbNail, err := t.thumbNailBuilder.Build(
+						twitchCurrentStream.ThumbnailURL,
+						false,
+					)
 					if err != nil {
 						zap.S().Error(err)
 					}
@@ -279,8 +303,11 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							SkipInGroup:  true,
 						}
 
-						err = t.sender.SendMessage(
-							ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.services.Distributor.DistributeSendPrivateMessage(
+							ctx,
+							&worker.TaskSendPrivateMessagePayload{
+								ChatID:      follower.Chat.ChatID,
+								ChatService: string(follower.Chat.Service),
 								Text: t.services.I18N.Translate(
 									"notifications.streams.titleAndCategoryChanged",
 									follower.Chat.Settings.ChatLanguage.String(),
@@ -298,13 +325,20 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 										"oldTitle":    tg.MD.Bold(latestTitle),
 									},
 								),
-								ParseMode: &tg.MD,
+								TgParseMode: message_sender.TgParseModeMD,
 								ImageURL: lo.If(
 									follower.Chat.Settings.ImageInNotification,
 									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 								).Else(""),
 								Buttons: [][]message_sender.KeyboardButton{{unfollowButton}},
 							},
+							asynq.TaskID(
+								fmt.Sprintf(
+									"stream_%s_title_or_category_changed_for_%s",
+									currentDBStream.ID,
+									channel.ID,
+								),
+							),
 						)
 						if err != nil {
 							zap.S().Error(err)
@@ -332,13 +366,19 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+						thumbNail, err := t.thumbNailBuilder.Build(
+							twitchCurrentStream.ThumbnailURL,
+							true,
+						)
 						if err != nil {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(
-							ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.services.Distributor.DistributeSendPrivateMessage(
+							ctx,
+							&worker.TaskSendPrivateMessagePayload{
+								ChatID:      follower.Chat.ChatID,
+								ChatService: string(follower.Chat.Service),
 								Text: t.services.I18N.Translate(
 									"notifications.streams.newCategory",
 									follower.Chat.Settings.ChatLanguage.String(),
@@ -354,12 +394,19 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 										"oldCategory": tg.MD.Bold(latestCategory),
 									},
 								),
-								ParseMode: &tg.MD,
+								TgParseMode: message_sender.TgParseModeMD,
 								ImageURL: lo.If(
 									follower.Chat.Settings.ImageInNotification,
 									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 								).Else(""),
 							},
+							asynq.TaskID(
+								fmt.Sprintf(
+									"stream_%s_new_category_for_%s",
+									currentDBStream.ID,
+									channel.ID,
+								),
+							),
 						)
 						if err != nil {
 							zap.S().Error(err)
@@ -387,13 +434,19 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 							continue
 						}
 
-						thumbNail, err := t.thumbNailBuilder.Build(twitchCurrentStream.ThumbnailURL, true)
+						thumbNail, err := t.thumbNailBuilder.Build(
+							twitchCurrentStream.ThumbnailURL,
+							true,
+						)
 						if err != nil {
 							zap.S().Error(err)
 						}
 
-						err = t.sender.SendMessage(
-							ctx, follower.Chat, &message_sender.MessageOpts{
+						err = t.services.Distributor.DistributeSendPrivateMessage(
+							ctx,
+							&worker.TaskSendPrivateMessagePayload{
+								ChatID:      follower.Chat.ChatID,
+								ChatService: string(follower.Chat.Service),
 								Text: t.services.I18N.Translate(
 									"notifications.streams.titleChanged",
 									follower.Chat.Settings.ChatLanguage.String(),
@@ -410,12 +463,19 @@ func (t *TwitchStreamChecker) check(ctx context.Context) {
 										"oldTitle": tg.MD.Bold(latestTitle),
 									},
 								),
-								ParseMode: &tg.MD,
+								TgParseMode: message_sender.TgParseModeMD,
 								ImageURL: lo.If(
 									follower.Chat.Settings.ImageInNotification,
 									fmt.Sprintf("%s?%d", thumbNail, time.Now().Unix()),
 								).Else(""),
 							},
+							asynq.TaskID(
+								fmt.Sprintf(
+									"stream_%s_title_changed_for_%s",
+									currentDBStream.ID,
+									channel.ID,
+								),
+							),
 						)
 						if err != nil {
 							zap.S().Error(err)
