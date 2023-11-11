@@ -101,14 +101,13 @@ func main() {
 	distributor := worker.NewRedisTaskDistributor(redisOpt, logger)
 
 	services := &types.Services{
-		Config:  cfg,
-		Twitch:  twitchService,
-		Chat:    db.NewChatEntRepository(client),
-		Channel: db.NewChannelEntService(client),
-		Follow:  db.NewFollowService(client),
-		Stream:  db.NewStreamEntService(client),
-		I18N:    i18,
-		//TODO: change name to something good
+		Config:      cfg,
+		Twitch:      twitchService,
+		Chat:        db.NewChatEntRepository(client),
+		Channel:     db.NewChannelEntService(client),
+		Follow:      db.NewFollowService(client),
+		Stream:      db.NewStreamEntService(client),
+		I18N:        i18,
 		Distributor: distributor,
 	}
 
@@ -127,8 +126,7 @@ func main() {
 		logger.Sugar().Info("Starting worker processor")
 		err := taskProcessor.Start()
 		if err != nil {
-			//TODO: change this in the future, cus of memory leak
-			panic(err)
+			logger.Sugar().Fatalln(err)
 		}
 	}(
 		redisOpt,
