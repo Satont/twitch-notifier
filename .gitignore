@@ -7,3 +7,4 @@ ent/**/*
 !ent/migrate/migrations
 !ent/generate.go
 .vscode
+.DS_Store

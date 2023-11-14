@@ -4,6 +4,9 @@ WORKDIR /app
 
 RUN apk add --no-cache git curl wget upx make
 
+COPY go.mod go.sum /app/
+RUN go mod download
+
 COPY . .
 
 RUN make build
