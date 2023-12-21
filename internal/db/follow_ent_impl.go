@@ -34,18 +34,19 @@ func (f *followService) convertEntity(follow *ent.Follow) *db_models.Follow {
 
 	if follow.Edges.Chat != nil {
 		convertedFollow.ChatID = follow.Edges.Chat.ID
+		chatSettings := &db_models.ChatSettings{}
 
-		chatSettings := &db_models.ChatSettings{
-			ID:     follow.Edges.Chat.Edges.Settings.ID,
-			ChatID: follow.Edges.Chat.Edges.Settings.ChatID,
-			ChatLanguage: db_models.ChatLanguage(
+		if follow.Edges.Chat.Edges.Settings != nil {
+			chatSettings.ID = follow.Edges.Chat.Edges.Settings.ID
+			chatSettings.ChatID = follow.Edges.Chat.Edges.Settings.ChatID
+			chatSettings.ChatLanguage = db_models.ChatLanguage(
 				follow.Edges.Chat.Edges.Settings.ChatLanguage,
-			),
-			GameChangeNotification:         follow.Edges.Chat.Edges.Settings.GameChangeNotification,
-			TitleChangeNotification:        follow.Edges.Chat.Edges.Settings.TitleChangeNotification,
-			OfflineNotification:            follow.Edges.Chat.Edges.Settings.OfflineNotification,
-			ImageInNotification:            follow.Edges.Chat.Edges.Settings.ImageInNotification,
-			GameAndTitleChangeNotification: follow.Edges.Chat.Edges.Settings.GameAndTitleChangeNotification,
+			)
+			chatSettings.GameChangeNotification = follow.Edges.Chat.Edges.Settings.GameChangeNotification
+			chatSettings.TitleChangeNotification = follow.Edges.Chat.Edges.Settings.TitleChangeNotification
+			chatSettings.OfflineNotification = follow.Edges.Chat.Edges.Settings.OfflineNotification
+			chatSettings.ImageInNotification = follow.Edges.Chat.Edges.Settings.ImageInNotification
+			chatSettings.GameAndTitleChangeNotification = follow.Edges.Chat.Edges.Settings.GameAndTitleChangeNotification
 		}
 
 		convertedFollow.Chat = &db_models.Chat{
