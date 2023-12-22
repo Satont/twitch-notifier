@@ -21,6 +21,6 @@ type Repository interface {
 	)
 	GetAll(ctx context.Context) ([]Channel, error)
 	Create(ctx context.Context, channel Channel) error
-	Update(ctx context.Context, channel Channel) error
+	// Update(ctx context.Context, channel Channel) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }

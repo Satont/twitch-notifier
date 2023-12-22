@@ -24,10 +24,13 @@ type Pgx struct {
 func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (Channel, error) {
 	channel := Channel{}
 
-	query, args, err := repository.Sq.Select("id", "channel_id", "service").Where(
-		"id = ?",
-		id,
-	).ToSql()
+	query, args, err := repository.Sq.
+		Select("id", "channel_id", "service").
+		From("channels").
+		Where(
+			"id = ?",
+			id,
+		).ToSql()
 	if err != nil {
 		return channel, err
 	}
@@ -47,11 +50,14 @@ func (c *Pgx) GetByStreamServiceAndID(
 ) (Channel, error) {
 	channel := Channel{}
 
-	query, args, err := repository.Sq.Select("id", "channel_id", "service").Where(
-		"channel_id = ? AND service = ?",
-		id,
-		service,
-	).ToSql()
+	query, args, err := repository.Sq.
+		Select("id", "channel_id", "service").
+		From("channels").
+		Where(
+			"channel_id = ? AND service = ?",
+			id,
+			service,
+		).ToSql()
 	if err != nil {
 		return channel, err
 	}
@@ -67,7 +73,10 @@ func (c *Pgx) GetByStreamServiceAndID(
 func (c *Pgx) GetAll(ctx context.Context) ([]Channel, error) {
 	var channels []Channel
 
-	query, args, err := repository.Sq.Select("id", "channel_id", "service").ToSql()
+	query, args, err := repository.Sq.
+		Select("id", "channel_id", "service").
+		From("channels").
+		ToSql()
 	if err != nil {
 		return channels, err
 	}
@@ -91,7 +100,7 @@ func (c *Pgx) GetAll(ctx context.Context) ([]Channel, error) {
 }
 
 func (c *Pgx) Create(ctx context.Context, channel Channel) error {
-	query, args, err := repository.Sq.Insert("channel").Columns(
+	query, args, err := repository.Sq.Insert("channels").Columns(
 		"id",
 		"channel_id",
 		"service",
@@ -112,35 +121,37 @@ func (c *Pgx) Create(ctx context.Context, channel Channel) error {
 	return nil
 }
 
-func (c *Pgx) Update(ctx context.Context, channel Channel) error {
-	query, args, err := repository.Sq.Update("channel").Set(
-		"channel_id",
-		channel.ChannelID,
-	).Set(
-		"service",
-		channel.Service,
-	).Where(
-		"id = ?",
-		channel.ID,
-	).ToSql()
-
-	if err != nil {
-		return err
-	}
-
-	_, err = c.pg.Exec(ctx, query, args...)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
+// func (c *Pgx) Update(ctx context.Context, channel Channel) error {
+// 	query, args, err := repository.Sq.Update("channel").Set(
+// 		"channel_id",
+// 		channel.ChannelID,
+// 	).Set(
+// 		"service",
+// 		channel.Service,
+// 	).Where(
+// 		"id = ?",
+// 		channel.ID,
+// 	).ToSql()
+//
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	_, err = c.pg.Exec(ctx, query, args...)
+// 	if err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }
 
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
-	query, args, err := repository.Sq.Delete("channel").Where(
-		"id = ?",
-		id,
-	).ToSql()
+	query, args, err := repository.Sq.
+		Delete("channel").
+		Where(
+			"id = ?",
+			id,
+		).ToSql()
 
 	if err != nil {
 		return err

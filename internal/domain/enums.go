@@ -9,6 +9,7 @@ func (l Language) String() string {
 const (
 	LanguageEN Language = "en"
 	LanguageRU Language = "ru"
+	LanguageUA Language = "ua"
 )
 
 type ChatService string

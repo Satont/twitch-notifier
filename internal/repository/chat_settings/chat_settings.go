@@ -15,13 +15,12 @@ type ChatSettings struct {
 	TitleChangeNotifications  bool
 	OfflineNotifications      bool
 	GameAndTitleNotifications bool
-	ShotThumbnail             bool
+	ShowThumbnail             bool
 }
 
 type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (ChatSettings, error)
 	GetByChatID(ctx context.Context, chatID uuid.UUID) (ChatSettings, error)
-	GetAll(ctx context.Context) ([]ChatSettings, error)
 	Create(ctx context.Context, chatSettings ChatSettings) error
 	Update(ctx context.Context, chatSettings ChatSettings) error
 	Delete(ctx context.Context, id uuid.UUID) error

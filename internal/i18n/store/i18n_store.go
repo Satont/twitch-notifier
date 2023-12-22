@@ -6,5 +6,5 @@ import (
 
 type I18nStore interface {
 	GetKey(language domain.Language, key string) (string, error)
-	GetSupportedLanguages() ([]domain.Language, error)
+	GetSupportedLanguages() []domain.Language
 }
