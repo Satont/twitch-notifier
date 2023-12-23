@@ -5,9 +5,12 @@ import (
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
+	"go.uber.org/fx"
 )
 
 type WorkflowOpts struct {
+	fx.In
+
 	Activity *Activity
 }
 
