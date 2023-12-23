@@ -25,7 +25,7 @@ type Pgx struct {
 
 const tableName = "follows"
 
-func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (domain.Follow, error) {
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (*domain.Follow, error) {
 	follow := Follow{}
 
 	query, args, err := repository.Sq.
@@ -41,7 +41,7 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (domain.Follow, error) 
 			id,
 		).ToSql()
 	if err != nil {
-		return domain.Follow{}, repository.ErrBadQuery
+		return nil, repository.ErrBadQuery
 	}
 
 	err = c.pg.QueryRow(ctx, query, args...).Scan(
@@ -52,13 +52,13 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (domain.Follow, error) 
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Follow{}, ErrNotFound
+			return nil, ErrNotFound
 		}
 
-		return domain.Follow{}, err
+		return nil, err
 	}
 
-	return domain.Follow{
+	return &domain.Follow{
 		ID:        follow.ID,
 		ChatID:    follow.ChatID,
 		ChannelID: follow.ChannelID,

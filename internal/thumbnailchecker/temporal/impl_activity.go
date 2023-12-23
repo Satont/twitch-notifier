@@ -23,6 +23,8 @@ type Activity struct {
 	client *http.Client
 }
 
+var ErrInvalidThumbnail = errors.New("invalid thumbnail")
+
 func (c *Activity) ThumbnailCheckerTemporalActivity(
 	ctx context.Context,
 	thumbnailUrl string,
@@ -42,9 +44,14 @@ func (c *Activity) ThumbnailCheckerTemporalActivity(
 		return err
 	}
 
-	if res.StatusCode >= 200 && res.StatusCode < 300 {
+	contentType := res.Header.Get("Content-Type")
+	isImage := contentType == "image/png" || contentType == "image/jpeg"
+
+	isNotRedirect := res.StatusCode >= 200 && res.StatusCode < 300
+
+	if isImage && isNotRedirect {
 		return nil
 	}
 
-	return errors.New("invalid thumbnail")
+	return ErrInvalidThumbnail
 }

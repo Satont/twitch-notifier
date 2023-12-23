@@ -21,13 +21,15 @@ type Workflow struct {
 	activity *Activity
 }
 
+const activityMaximumAttempts = 50
+
 func (c *Workflow) Workflow(ctx workflow.Context, thumbNailUrl string) error {
 	ao := workflow.ActivityOptions{
 		TaskQueue:           queueName,
 		StartToCloseTimeout: 10 * time.Second,
 		RetryPolicy: &temporal.RetryPolicy{
 			MaximumInterval:        15 * time.Second,
-			MaximumAttempts:        50,
+			MaximumAttempts:        activityMaximumAttempts,
 			NonRetryableErrorTypes: nil,
 		},
 	}
