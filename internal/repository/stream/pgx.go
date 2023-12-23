@@ -2,10 +2,14 @@ package stream
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/repository"
+	"gopkg.in/guregu/null.v4"
 )
 
 func NewPgx(pg *pgxpool.Pool) *Pgx {
@@ -20,8 +24,7 @@ type Pgx struct {
 	pg *pgxpool.Pool
 }
 
-func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (Stream, error) {
-	stream := Stream{}
+func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (*domain.Stream, error) {
 	query, args, err := repository.Sq.
 		Select(
 			"id",
@@ -36,9 +39,10 @@ func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (Stream, error) {
 		Where("id = ?", id).
 		ToSql()
 	if err != nil {
-		return stream, err
+		return nil, repository.ErrBadQuery
 	}
 
+	stream := Stream{}
 	err = c.pg.QueryRow(ctx, query, args...).Scan(
 		&stream.ID,
 		&stream.ChannelID,
@@ -48,12 +52,29 @@ func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (Stream, error) {
 		&stream.UpdatedAt,
 		&stream.EndedAt,
 	)
-	return stream, err
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return &domain.Stream{
+		ID:         stream.ID,
+		ChannelID:  stream.ChannelID,
+		Titles:     stream.Titles,
+		Categories: stream.Categories,
+		StartedAt:  stream.StartedAt,
+		UpdatedAt:  stream.UpdatedAt,
+		EndedAt:    stream.EndedAt.Ptr(),
+	}, err
 }
 
-func (c *Pgx) GetLatestByChannelId(ctx context.Context, channelId uuid.UUID) (Stream, error) {
-	stream := Stream{}
-
+func (c *Pgx) GetLatestByChannelId(ctx context.Context, channelId uuid.UUID) (
+	*domain.Stream,
+	error,
+) {
 	query, args, err := repository.Sq.
 		Select(
 			"id",
@@ -70,9 +91,10 @@ func (c *Pgx) GetLatestByChannelId(ctx context.Context, channelId uuid.UUID) (St
 		Limit(1).
 		ToSql()
 	if err != nil {
-		return stream, err
+		return nil, repository.ErrBadQuery
 	}
 
+	stream := Stream{}
 	err = c.pg.QueryRow(ctx, query, args...).Scan(
 		&stream.ID,
 		&stream.ChannelID,
@@ -82,10 +104,26 @@ func (c *Pgx) GetLatestByChannelId(ctx context.Context, channelId uuid.UUID) (St
 		&stream.UpdatedAt,
 		&stream.EndedAt,
 	)
-	return stream, err
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return &domain.Stream{
+		ID:         stream.ID,
+		ChannelID:  stream.ChannelID,
+		Titles:     stream.Titles,
+		Categories: stream.Categories,
+		StartedAt:  stream.StartedAt,
+		UpdatedAt:  stream.UpdatedAt,
+		EndedAt:    stream.EndedAt.Ptr(),
+	}, err
 }
 
-func (c *Pgx) GetByChannelId(ctx context.Context, channelId uuid.UUID) ([]Stream, error) {
+func (c *Pgx) GetByChannelId(ctx context.Context, channelId uuid.UUID) ([]domain.Stream, error) {
 	query, args, err := repository.Sq.
 		Select(
 			"id",
@@ -101,7 +139,7 @@ func (c *Pgx) GetByChannelId(ctx context.Context, channelId uuid.UUID) ([]Stream
 		OrderBy("started_at DESC").
 		ToSql()
 	if err != nil {
-		return nil, err
+		return nil, repository.ErrBadQuery
 	}
 
 	rows, err := c.pg.Query(ctx, query, args...)
@@ -111,8 +149,6 @@ func (c *Pgx) GetByChannelId(ctx context.Context, channelId uuid.UUID) ([]Stream
 
 	defer rows.Close()
 	var streams []Stream
-
-	rows.RawValues()
 	for rows.Next() {
 		stream := Stream{}
 		err = rows.Scan(
@@ -130,10 +166,23 @@ func (c *Pgx) GetByChannelId(ctx context.Context, channelId uuid.UUID) ([]Stream
 		streams = append(streams, stream)
 	}
 
-	return streams, nil
+	domainStreams := make([]domain.Stream, len(streams))
+	for i, stream := range streams {
+		domainStreams[i] = domain.Stream{
+			ID:         stream.ID,
+			ChannelID:  stream.ChannelID,
+			Titles:     stream.Titles,
+			Categories: stream.Categories,
+			StartedAt:  stream.StartedAt,
+			UpdatedAt:  stream.UpdatedAt,
+			EndedAt:    stream.EndedAt.Ptr(),
+		}
+	}
+
+	return domainStreams, err
 }
 
-func (c *Pgx) Create(ctx context.Context, stream Stream) error {
+func (c *Pgx) Create(ctx context.Context, stream domain.Stream) error {
 	query, args, err := repository.Sq.
 		Insert("streams").
 		Columns(
@@ -152,17 +201,21 @@ func (c *Pgx) Create(ctx context.Context, stream Stream) error {
 			stream.Categories,
 			stream.StartedAt,
 			stream.UpdatedAt,
-			stream.EndedAt,
+			null.Time{},
 		).ToSql()
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
 	_, err = c.pg.Exec(ctx, query, args...)
-	return err
+	if err != nil {
+		return errors.Join(err, ErrCannotCreate)
+	}
+
+	return nil
 }
 
-func (c *Pgx) Update(ctx context.Context, stream Stream) error {
+func (c *Pgx) Update(ctx context.Context, stream domain.Stream) error {
 	query, args, err := repository.Sq.
 		Update("streams").
 		Set("channel_id", stream.ChannelID).
@@ -170,12 +223,11 @@ func (c *Pgx) Update(ctx context.Context, stream Stream) error {
 		Set("categories", stream.Categories).
 		Set("started_at", stream.StartedAt).
 		Set("updated_at", stream.UpdatedAt).
-		Set("ended_at", stream.EndedAt).
+		Set("ended_at", null.TimeFromPtr(stream.EndedAt)).
 		Where("id = ?", stream.ID).
 		ToSql()
-
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
 	_, err = c.pg.Exec(ctx, query, args...)
@@ -188,9 +240,17 @@ func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 		Where("id = ?", id).
 		ToSql()
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
-	_, err = c.pg.Exec(ctx, query, args...)
-	return err
+	rows, err := c.pg.Exec(ctx, query, args...)
+	if err != nil {
+		return errors.Join(err, ErrCannotDelete)
+	}
+
+	if rows.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+
+	return nil
 }

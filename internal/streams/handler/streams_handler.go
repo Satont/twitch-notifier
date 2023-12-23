@@ -1,4 +1,4 @@
-package streams_handler
+package handler
 
 import (
 	"context"

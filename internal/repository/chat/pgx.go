@@ -2,8 +2,10 @@ package chat
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/repository"
@@ -21,9 +23,7 @@ type Pgx struct {
 	pg *pgxpool.Pool
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (Chat, error) {
-	chat := Chat{}
-
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (*domain.Chat, error) {
 	query, args, err := repository.Sq.
 		Select("id", "chat_id", "service").
 		From("chats").
@@ -31,26 +31,31 @@ func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (Chat, error) {
 			"id = ?",
 			id,
 		).ToSql()
-
 	if err != nil {
-		return chat, err
+		return nil, repository.ErrBadQuery
 	}
 
+	chat := Chat{}
 	err = c.pg.QueryRow(ctx, query, args...).Scan(&chat.ID, &chat.ChatID, &chat.Service)
 	if err != nil {
-		return chat, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
 	}
 
-	return chat, nil
+	return &domain.Chat{
+		ID:      chat.ID,
+		Service: domain.ChatService(chat.Service),
+		ChatID:  chat.ChatID,
+	}, nil
 }
 
 func (c *Pgx) GetByChatServiceAndChatID(
 	ctx context.Context,
-	service domain.ChatService,
+	service ChatService,
 	chatID string,
-) (Chat, error) {
-	chat := Chat{}
-
+) (*domain.Chat, error) {
 	query, args, err := repository.Sq.
 		Select("id", "chat_id", "service").
 		From("chats").
@@ -60,46 +65,63 @@ func (c *Pgx) GetByChatServiceAndChatID(
 			service,
 		).ToSql()
 	if err != nil {
-		return chat, err
+		return nil, repository.ErrBadQuery
 	}
 
+	chat := Chat{}
 	err = c.pg.QueryRow(ctx, query, args...).Scan(&chat.ID, &chat.ChatID, &chat.Service)
 	if err != nil {
-		return chat, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
 	}
 
-	return chat, nil
+	return &domain.Chat{
+		ID:      chat.ID,
+		Service: domain.ChatService(chat.Service),
+		ChatID:  chat.ChatID,
+	}, nil
 }
 
-func (c *Pgx) GetAll(ctx context.Context) ([]Chat, error) {
-	var chats []Chat
-
+func (c *Pgx) GetAll(ctx context.Context) ([]domain.Chat, error) {
 	query, args, err := repository.Sq.
 		Select("id", "chat_id", "service").
 		From("chats").
 		ToSql()
 	if err != nil {
-		return chats, err
+		return nil, repository.ErrBadQuery
 	}
 
 	rows, err := c.pg.Query(ctx, query, args...)
 	if err != nil {
-		return chats, err
+		return nil, err
 	}
 
+	defer rows.Close()
+	var chats []Chat
 	for rows.Next() {
 		var chat Chat
 		err = rows.Scan(&chat.ID, &chat.ChatID, &chat.Service)
 		if err != nil {
-			return chats, err
+			return nil, err
 		}
 		chats = append(chats, chat)
 	}
 
-	return chats, nil
+	domainChats := make([]domain.Chat, len(chats))
+	for i, chat := range chats {
+		domainChats[i] = domain.Chat{
+			ID:      chat.ID,
+			Service: domain.ChatService(chat.Service),
+			ChatID:  chat.ChatID,
+		}
+	}
+
+	return domainChats, nil
 }
 
-func (c *Pgx) Create(ctx context.Context, user Chat) error {
+func (c *Pgx) Create(ctx context.Context, user domain.Chat) error {
 	query, args, err := repository.Sq.
 		Insert("chats").
 		Columns(
@@ -112,12 +134,12 @@ func (c *Pgx) Create(ctx context.Context, user Chat) error {
 		user.Service,
 	).ToSql()
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
 	_, err = c.pg.Exec(ctx, query, args...)
 	if err != nil {
-		return err
+		return errors.Join(err, ErrCannotCreate)
 	}
 
 	return nil
@@ -129,12 +151,16 @@ func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 		id,
 	).ToSql()
 	if err != nil {
+		return repository.ErrBadQuery
+	}
+
+	rows, err := c.pg.Exec(ctx, query, args...)
+	if err != nil {
 		return err
 	}
 
-	_, err = c.pg.Exec(ctx, query, args...)
-	if err != nil {
-		return err
+	if rows.RowsAffected() == 0 {
+		return errors.Join(err, ErrCannotDelete)
 	}
 
 	return nil

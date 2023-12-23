@@ -1,4 +1,4 @@
-package message_sender
+package messagesender
 
 import (
 	"context"

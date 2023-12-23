@@ -2,8 +2,10 @@ package channel
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/repository"
@@ -21,86 +23,110 @@ type Pgx struct {
 	pg *pgxpool.Pool
 }
 
-func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (Channel, error) {
+const tableName = "channels"
+
+func (c *Pgx) GetById(ctx context.Context, id uuid.UUID) (*domain.Channel, error) {
 	channel := Channel{}
 
 	query, args, err := repository.Sq.
 		Select("id", "channel_id", "service").
-		From("channels").
+		From(tableName).
 		Where(
 			"id = ?",
 			id,
 		).ToSql()
 	if err != nil {
-		return channel, err
+		return nil, repository.ErrBadQuery
 	}
 
 	err = c.pg.QueryRow(ctx, query, args...).Scan(&channel.ID, &channel.ChannelID, &channel.Service)
 	if err != nil {
-		return channel, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+
+		return nil, err
 	}
 
-	return channel, nil
+	return &domain.Channel{
+		ID:        channel.ID,
+		ChannelID: channel.ChannelID,
+		Service:   domain.StreamingService(channel.Service),
+	}, nil
 }
 
 func (c *Pgx) GetByStreamServiceAndID(
 	ctx context.Context,
-	service domain.StreamingService,
+	service StreamingService,
 	id string,
-) (Channel, error) {
-	channel := Channel{}
-
+) (*domain.Channel, error) {
 	query, args, err := repository.Sq.
 		Select("id", "channel_id", "service").
-		From("channels").
+		From(tableName).
 		Where(
 			"channel_id = ? AND service = ?",
 			id,
 			service,
 		).ToSql()
 	if err != nil {
-		return channel, err
+		return nil, err
 	}
 
+	channel := Channel{}
 	err = c.pg.QueryRow(ctx, query, args...).Scan(&channel.ID, &channel.ChannelID, &channel.Service)
 	if err != nil {
-		return channel, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		}
+		return nil, err
 	}
 
-	return channel, nil
+	return &domain.Channel{
+		ID:        channel.ID,
+		ChannelID: channel.ChannelID,
+		Service:   domain.StreamingService(channel.Service),
+	}, nil
 }
 
-func (c *Pgx) GetAll(ctx context.Context) ([]Channel, error) {
-	var channels []Channel
-
+func (c *Pgx) GetAll(ctx context.Context) ([]domain.Channel, error) {
 	query, args, err := repository.Sq.
 		Select("id", "channel_id", "service").
-		From("channels").
+		From(tableName).
 		ToSql()
 	if err != nil {
-		return channels, err
+		return nil, repository.ErrBadQuery
 	}
 
 	rows, err := c.pg.Query(ctx, query, args...)
 	if err != nil {
-		return channels, err
+		return nil, err
 	}
 
+	var channels []Channel
 	defer rows.Close()
 	for rows.Next() {
 		channel := Channel{}
 		err = rows.Scan(&channel.ID, &channel.ChannelID, &channel.Service)
 		if err != nil {
-			return channels, err
+			return nil, err
 		}
 		channels = append(channels, channel)
 	}
 
-	return channels, nil
+	resultChannels := make([]domain.Channel, len(channels))
+	for i, channel := range channels {
+		resultChannels[i] = domain.Channel{
+			ID:        channel.ID,
+			ChannelID: channel.ChannelID,
+			Service:   domain.StreamingService(channel.Service),
+		}
+	}
+
+	return resultChannels, nil
 }
 
-func (c *Pgx) Create(ctx context.Context, channel Channel) error {
-	query, args, err := repository.Sq.Insert("channels").Columns(
+func (c *Pgx) Create(ctx context.Context, channel domain.Channel) error {
+	query, args, err := repository.Sq.Insert(tableName).Columns(
 		"id",
 		"channel_id",
 		"service",
@@ -110,12 +136,13 @@ func (c *Pgx) Create(ctx context.Context, channel Channel) error {
 		channel.Service,
 	).ToSql()
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
 	_, err = c.pg.Exec(ctx, query, args...)
 	if err != nil {
-		return err
+		// TODO: viyasnit kak luchshe
+		return errors.Join(err, ErrCannotCreate)
 	}
 
 	return nil
@@ -147,19 +174,23 @@ func (c *Pgx) Create(ctx context.Context, channel Channel) error {
 
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query, args, err := repository.Sq.
-		Delete("channel").
+		Delete(tableName).
 		Where(
 			"id = ?",
 			id,
 		).ToSql()
-
 	if err != nil {
-		return err
+		return repository.ErrBadQuery
 	}
 
-	_, err = c.pg.Exec(ctx, query, args...)
+	res, err := c.pg.Exec(ctx, query, args...)
 	if err != nil {
-		return err
+		// TODO: viyasnit kak luchshe
+		return errors.Join(err, ErrCannotDelete)
+	}
+
+	if res.RowsAffected() == 0 {
+		return ErrNotFound
 	}
 
 	return nil

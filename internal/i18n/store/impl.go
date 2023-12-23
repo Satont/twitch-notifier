@@ -74,18 +74,32 @@ func (c *Store) readLocales() error {
 var ErrLocaleNotFound = errors.New("locale not found")
 var ErrKeyNotFound = errors.New("key not found")
 
+func (c *Store) getMaybeNestedKey(v any, keys ...string) (string, bool) {
+	res := v
+	for _, key := range keys {
+		mp, ok := res.(map[string]any)
+		if !ok {
+			var e string
+			return e, false
+		}
+		res = mp[key]
+	}
+	a, ok := res.(string)
+	return a, ok
+}
+
 func (c *Store) GetKey(language domain.Language, key string) (string, error) {
 	lang := c.locales[language]
 	if lang == nil {
 		return "", ErrLocaleNotFound
 	}
 
-	value, ok := lang[key]
+	value, ok := c.getMaybeNestedKey(lang, strings.Split(key, ".")...)
 	if !ok {
 		return "", ErrKeyNotFound
 	}
 
-	return value.(string), nil
+	return value, nil
 }
 
 func (c *Store) GetSupportedLanguages() []domain.Language {

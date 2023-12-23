@@ -1,11 +1,7 @@
 package twitch
 
-import (
-	"github.com/satont/twitch-notifier/internal/streams_handler"
-)
-
 type Opts struct {
-	Handler streams_handler.StreamsHandler
+	Handler streamshandler.StreamsHandler
 }
 
 func New(opts Opts) *Impl {
@@ -17,7 +13,7 @@ func New(opts Opts) *Impl {
 var _ Watcher = (*Impl)(nil)
 
 type Impl struct {
-	handler streams_handler.StreamsHandler
+	handler streamshandler.StreamsHandler
 }
 
 func (c *Impl) Start() error {

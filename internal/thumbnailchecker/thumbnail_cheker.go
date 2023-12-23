@@ -1,4 +1,4 @@
-package thumbnail_checker
+package thumbnailchecker
 
 import (
 	"context"

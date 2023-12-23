@@ -1,15 +1,14 @@
-package streams_handler
+package handler
 
 import (
 	"context"
 
-	"github.com/satont/twitch-notifier/internal/announce_sender"
 	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/repository/channel"
 )
 
 type TwitchHandlerOpts struct {
-	AnnounceSender    announce_sender.AnnounceSender
+	AnnounceSender    announcesender.AnnounceSender
 	ChannelRepository channel.Repository
 }
 
@@ -23,12 +22,12 @@ func NewTwitch(opts TwitchHandlerOpts) *TwitchHandler {
 var _ StreamsHandler = (*TwitchHandler)(nil)
 
 type TwitchHandler struct {
-	announceSender    announce_sender.AnnounceSender
+	announceSender    announcesender.AnnounceSender
 	channelRepository channel.Repository
 }
 
 func (c *TwitchHandler) Online(ctx context.Context, opts ChannelOnlineOpts) error {
-	channel, err := c.channelRepository.GetByStreamServiceAndID(
+	streamChannel, err := c.channelRepository.GetByStreamServiceAndID(
 		ctx,
 		domain.StreamingServiceTwitch,
 		opts.ChannelID,
@@ -39,8 +38,8 @@ func (c *TwitchHandler) Online(ctx context.Context, opts ChannelOnlineOpts) erro
 
 	return c.announceSender.SendOnline(
 		ctx,
-		announce_sender.ChannelOnlineOpts{
-			ChannelID:    channel.ID,
+		announcesender.ChannelOnlineOpts{
+			ChannelID:    streamChannel.ID,
 			Category:     opts.Category.Name,
 			Title:        opts.Title,
 			ThumbnailURL: opts.ThumbnailURL,
@@ -49,7 +48,7 @@ func (c *TwitchHandler) Online(ctx context.Context, opts ChannelOnlineOpts) erro
 }
 
 func (c *TwitchHandler) Offline(ctx context.Context, opts ChannelOfflineOpts) error {
-	channel, err := c.channelRepository.GetByStreamServiceAndID(
+	streamChannel, err := c.channelRepository.GetByStreamServiceAndID(
 		ctx,
 		domain.StreamingServiceTwitch,
 		opts.ChannelID,
@@ -60,14 +59,14 @@ func (c *TwitchHandler) Offline(ctx context.Context, opts ChannelOfflineOpts) er
 
 	return c.announceSender.SendOffline(
 		ctx,
-		announce_sender.ChannelOfflineOpts{
-			ChannelID: channel.ID,
+		announcesender.ChannelOfflineOpts{
+			ChannelID: streamChannel.ID,
 		},
 	)
 }
 
 func (c *TwitchHandler) MetadataChange(ctx context.Context, opts ChannelMetaDataChangedOpts) error {
-	channel, err := c.channelRepository.GetByStreamServiceAndID(
+	streamChannel, err := c.channelRepository.GetByStreamServiceAndID(
 		ctx,
 		domain.StreamingServiceTwitch,
 		opts.ChannelID,
@@ -81,8 +80,8 @@ func (c *TwitchHandler) MetadataChange(ctx context.Context, opts ChannelMetaData
 	if opts.OldCategory.Name != opts.NewCategory.Name && opts.OldTitle != opts.NewTitle {
 		return c.announceSender.SendTitleAndCategoryChange(
 			ctx,
-			announce_sender.ChannelTitleAndCategoryChangeOpts{
-				ChannelID:   channel.ID,
+			announcesender.ChannelTitleAndCategoryChangeOpts{
+				ChannelID:   streamChannel.ID,
 				OldCategory: opts.OldCategory.Name,
 				NewCategory: opts.NewCategory.Name,
 				OldTitle:    opts.OldTitle,
@@ -93,8 +92,8 @@ func (c *TwitchHandler) MetadataChange(ctx context.Context, opts ChannelMetaData
 	if opts.OldCategory.Name != opts.NewCategory.Name {
 		return c.announceSender.SendCategoryChange(
 			ctx,
-			announce_sender.ChannelCategoryChangeOpts{
-				ChannelID:   channel.ID,
+			announcesender.ChannelCategoryChangeOpts{
+				ChannelID:   streamChannel.ID,
 				OldCategory: opts.OldCategory.Name,
 				NewCategory: opts.NewCategory.Name,
 			},
@@ -104,8 +103,8 @@ func (c *TwitchHandler) MetadataChange(ctx context.Context, opts ChannelMetaData
 	if opts.OldTitle != opts.NewTitle {
 		return c.announceSender.SendTitleChange(
 			ctx,
-			announce_sender.ChannelTitleChangeOpts{
-				ChannelID: channel.ID,
+			announcesender.ChannelTitleChangeOpts{
+				ChannelID: streamChannel.ID,
 				OldTitle:  opts.OldTitle,
 				NewTitle:  opts.NewTitle,
 			},

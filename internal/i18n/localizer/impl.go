@@ -1,8 +1,9 @@
 package localizer
 
 import (
-	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/i18n/store"
@@ -13,18 +14,21 @@ type LocalizeOpts struct {
 }
 
 func NewLocalizer(i18nStore store.I18nStore) *Impl {
-	return &Impl{store: i18nStore}
+
+	return &Impl{
+		store:   i18nStore,
+		regular: regexp.MustCompile(`{{\s*(\w+)\s*}}`),
+	}
 }
 
 var _ Localizer = (*Impl)(nil)
 
 type Impl struct {
-	store store.I18nStore
+	store   store.I18nStore
+	regular *regexp.Regexp
 }
 
 const defaultLanguage = domain.LanguageEN
-
-var ErrKeyIsEmpty = errors.New("key is empty")
 
 func (c *Impl) Localize(opts ...Option) (string, error) {
 	options := &localizerOptions{
@@ -43,7 +47,26 @@ func (c *Impl) Localize(opts ...Option) (string, error) {
 		return "", fmt.Errorf("failed to get key: %w", err)
 	}
 
-	return key, nil
+	variablesMatches := c.regular.FindAllStringSubmatch(key, -1)
+	if len(variablesMatches) == 0 {
+		return key, nil
+	}
+
+	res := key
+	for _, match := range variablesMatches {
+		if len(match) != 2 {
+			continue
+		}
+
+		variableValue := options.attributes[match[1]]
+		if variableValue == nil {
+			continue
+		}
+
+		res = strings.ReplaceAll(res, match[0], fmt.Sprintf("%v", variableValue))
+	}
+
+	return res, nil
 }
 
 func (c *Impl) MustLocalize(opts ...Option) string {

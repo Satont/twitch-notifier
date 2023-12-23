@@ -1,4 +1,4 @@
-package chat_settings
+package chatsettings
 
 import (
 	"go.uber.org/fx"

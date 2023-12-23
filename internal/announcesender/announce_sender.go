@@ -1,4 +1,4 @@
-package announce_sender
+package announcesender
 
 import (
 	"context"
@@ -42,4 +42,5 @@ type ChannelTitleAndCategoryChangeOpts struct {
 	OldCategory string
 	NewCategory string
 	OldTitle    string
+	NewTitle    string
 }
