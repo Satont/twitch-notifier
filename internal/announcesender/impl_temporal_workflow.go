@@ -63,8 +63,8 @@ func (c *AnnounceSenderWorkflows) SendOnline(
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text:     localizedString,

@@ -70,8 +70,8 @@ func (c *AnnounceSenderTemporal) SendOnline(ctx context.Context, opts ChannelOnl
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text:     localizedString,
@@ -118,8 +118,8 @@ func (c *AnnounceSenderTemporal) SendOffline(ctx context.Context, opts ChannelOf
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text: localizedString,
@@ -168,8 +168,8 @@ func (c *AnnounceSenderTemporal) SendTitleChange(
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text: localizedString,
@@ -218,8 +218,8 @@ func (c *AnnounceSenderTemporal) SendCategoryChange(
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text: localizedString,
@@ -268,8 +268,8 @@ func (c *AnnounceSenderTemporal) SendTitleAndCategoryChange(
 		if followerChat.Service == domain.ChatServiceTelegram {
 			err = c.messageSender.SendMessageTelegram(
 				ctx,
-				messagesender.Opts{
-					Target: messagesender.MessageTarget{
+				messagesender.TelegramOpts{
+					ServiceChatID: messagesender.MessageTarget{
 						ServiceChatID: followerChat.ChatID,
 					},
 					Text: localizedString,
