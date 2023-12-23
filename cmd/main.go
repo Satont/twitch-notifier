@@ -4,6 +4,7 @@ import (
 	i18nstore "github.com/satont/twitch-notifier/internal/i18n/store"
 	"github.com/satont/twitch-notifier/internal/pgx"
 	repositories "github.com/satont/twitch-notifier/internal/repository/fx"
+	thumbnailchecker "github.com/satont/twitch-notifier/internal/thumbnailchecker/fx"
 	"github.com/satont/twitch-notifier/pkg/logger"
 	"go.uber.org/fx"
 )
@@ -23,6 +24,7 @@ func main() {
 			pgx.New,
 		),
 		repositories.Module,
+		thumbnailchecker.Module,
 		fx.Invoke(pgx.New),
 	).Run()
 }

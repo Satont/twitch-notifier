@@ -31,7 +31,7 @@ type Impl struct {
 const defaultLanguage = domain.LanguageEN
 
 func (c *Impl) Localize(opts ...Option) (string, error) {
-	options := &localizerOptions{
+	options := &Options{
 		attributes: make(map[string]any),
 	}
 	for _, opt := range opts {
@@ -85,11 +85,11 @@ func (c *Impl) MustLocalize(opts ...Option) string {
 	return key
 }
 
-func (f applyFunc) apply(s *localizerOptions) { f(s) }
+func (f applyFunc) apply(s *Options) { f(s) }
 
 func WithKey(key string) Option {
 	return applyFunc(
-		func(s *localizerOptions) {
+		func(s *Options) {
 			s.key = key
 		},
 	)
@@ -97,7 +97,7 @@ func WithKey(key string) Option {
 
 func WithLanguage(language domain.Language) Option {
 	return applyFunc(
-		func(s *localizerOptions) {
+		func(s *Options) {
 			s.language = language
 		},
 	)
@@ -105,7 +105,7 @@ func WithLanguage(language domain.Language) Option {
 
 func WithAttribute(key string, value any) Option {
 	return applyFunc(
-		func(s *localizerOptions) {
+		func(s *Options) {
 			s.attributes[key] = value
 		},
 	)

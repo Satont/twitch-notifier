@@ -100,7 +100,7 @@ func (m *MockOption) EXPECT() *MockOptionMockRecorder {
 }
 
 // apply mocks base method.
-func (m *MockOption) apply(options *localizerOptions) {
+func (m *MockOption) apply(options *localizer.Options) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "apply", options)
 }

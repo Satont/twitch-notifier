@@ -7,47 +7,37 @@ import (
 	"github.com/satont/twitch-notifier/internal/domain"
 	"github.com/satont/twitch-notifier/internal/i18n/localizer"
 	"github.com/satont/twitch-notifier/internal/messagesender"
-	"github.com/satont/twitch-notifier/internal/repository/channel"
-	"github.com/satont/twitch-notifier/internal/repository/chat"
-	"github.com/satont/twitch-notifier/internal/repository/follow"
-	"github.com/satont/twitch-notifier/internal/thumbnailchecker"
+	"github.com/satont/twitch-notifier/pkg/logger"
+	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/log"
 )
 
 type Opts struct {
-	Localizer              localizer.Localizer
-	FollowRepository       follow.Repository
-	ChatRepository         chat.Repository
-	ChatSettingsRepository chatsettings.Repository
-	ChannelRepository      channel.Repository
-	MessageSender          messagesender.MessageSender
-	ThumbnailChecker       thumbnailchecker.ThumbnailChecker
+	Logger logger.Logger
 }
 
-func New(opts Opts) *AnnounceSenderImpl {
-	return &AnnounceSenderImpl{
-		localizer:              opts.Localizer,
-		followRepository:       opts.FollowRepository,
-		chatRepository:         opts.ChatRepository,
-		chatSettingsRepository: opts.ChatSettingsRepository,
-		channelRepository:      opts.ChannelRepository,
-		messageSender:          opts.MessageSender,
-		thumbnailChecker:       opts.ThumbnailChecker,
+func New(opts Opts) (*AnnounceSenderTemporal, error) {
+	temporalClient, err := client.Dial(
+		client.Options{
+			Logger: log.NewStructuredLogger(opts.Logger.GetSlog()),
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
+
+	return &AnnounceSenderTemporal{
+		client: temporalClient,
+	}, nil
 }
 
-var _ AnnounceSender = (*AnnounceSenderImpl)(nil)
+var _ AnnounceSender = (*AnnounceSenderTemporal)(nil)
 
-type AnnounceSenderImpl struct {
-	localizer              localizer.Localizer
-	followRepository       follow.Repository
-	chatRepository         chat.Repository
-	chatSettingsRepository chatsettings.Repository
-	channelRepository      channel.Repository
-	messageSender          messagesender.MessageSender
-	thumbnailChecker       thumbnailchecker.ThumbnailChecker
+type AnnounceSenderTemporal struct {
+	client client.Client
 }
 
-func (c *AnnounceSenderImpl) SendOnline(ctx context.Context, opts ChannelOnlineOpts) error {
+func (c *AnnounceSenderTemporal) SendOnline(ctx context.Context, opts ChannelOnlineOpts) error {
 	err := c.thumbnailChecker.ValidateThumbnail(ctx, opts.ThumbnailURL)
 	if err != nil {
 		return fmt.Errorf("failed to check thumbnail: %w", err)
@@ -97,7 +87,7 @@ func (c *AnnounceSenderImpl) SendOnline(ctx context.Context, opts ChannelOnlineO
 	return nil
 }
 
-func (c *AnnounceSenderImpl) SendOffline(ctx context.Context, opts ChannelOfflineOpts) error {
+func (c *AnnounceSenderTemporal) SendOffline(ctx context.Context, opts ChannelOfflineOpts) error {
 	followers, err := c.followRepository.GetByChannelID(ctx, opts.ChannelID)
 	if err != nil {
 		return fmt.Errorf("failed to get followers: %w", err)
@@ -144,7 +134,7 @@ func (c *AnnounceSenderImpl) SendOffline(ctx context.Context, opts ChannelOfflin
 	return nil
 }
 
-func (c *AnnounceSenderImpl) SendTitleChange(
+func (c *AnnounceSenderTemporal) SendTitleChange(
 	ctx context.Context,
 	opts ChannelTitleChangeOpts,
 ) error {
@@ -194,7 +184,7 @@ func (c *AnnounceSenderImpl) SendTitleChange(
 	return nil
 }
 
-func (c *AnnounceSenderImpl) SendCategoryChange(
+func (c *AnnounceSenderTemporal) SendCategoryChange(
 	ctx context.Context,
 	opts ChannelCategoryChangeOpts,
 ) error {
@@ -244,7 +234,7 @@ func (c *AnnounceSenderImpl) SendCategoryChange(
 	return nil
 }
 
-func (c *AnnounceSenderImpl) SendTitleAndCategoryChange(
+func (c *AnnounceSenderTemporal) SendTitleAndCategoryChange(
 	ctx context.Context,
 	opts ChannelTitleAndCategoryChangeOpts,
 ) error {

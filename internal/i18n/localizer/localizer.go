@@ -16,7 +16,7 @@ type Localizer interface {
 	MustLocalize(opts ...Option) string
 }
 
-type localizerOptions struct {
+type Options struct {
 	key        string
 	language   domain.Language
 	attributes map[string]any
@@ -24,8 +24,8 @@ type localizerOptions struct {
 
 type (
 	Option interface {
-		apply(options *localizerOptions)
+		apply(options *Options)
 	}
 
-	applyFunc func(options *localizerOptions)
+	applyFunc func(options *Options)
 )
