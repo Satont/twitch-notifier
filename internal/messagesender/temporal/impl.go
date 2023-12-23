@@ -20,7 +20,7 @@ type TemporalOpts struct {
 	Logger   logger.Logger
 }
 
-func NewTemporal(opts TemporalOpts) (*Temporal, error) {
+func NewImpl(opts TemporalOpts) (*Temporal, error) {
 	cl, err := client.Dial(client.Options{})
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (c *Temporal) SendMessageTelegram(ctx context.Context, opts messagesender.T
 		},
 	}
 
-	we, err := c.client.ExecuteWorkflow(ctx, workflowOptions, c.workflow.SendTelegram, thumbnailUrl)
+	we, err := c.client.ExecuteWorkflow(ctx, workflowOptions, c.workflow.SendTelegram, opts)
 	if err != nil {
 		return err
 	}

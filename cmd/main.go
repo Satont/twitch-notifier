@@ -2,6 +2,7 @@ package main
 
 import (
 	i18nstore "github.com/satont/twitch-notifier/internal/i18n/store"
+	messagesender "github.com/satont/twitch-notifier/internal/messagesender/fx"
 	"github.com/satont/twitch-notifier/internal/pgx"
 	repositories "github.com/satont/twitch-notifier/internal/repository/fx"
 	thumbnailchecker "github.com/satont/twitch-notifier/internal/thumbnailchecker/fx"
@@ -25,6 +26,7 @@ func main() {
 		),
 		repositories.Module,
 		thumbnailchecker.Module,
+		messagesender.Module,
 		fx.Invoke(pgx.New),
 	).Run()
 }

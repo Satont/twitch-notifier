@@ -31,8 +31,8 @@ func NewWorker(opts WorkerOpts) error {
 
 	w := worker.New(temporalClient, queueName, worker.Options{})
 
-	w.RegisterWorkflow(opts.Workflow.Workflow)
-	w.RegisterActivity(opts.Activity.ThumbnailCheckerTemporalActivity)
+	w.RegisterWorkflow(opts.Workflow.SendTelegram)
+	w.RegisterActivity(opts.Activity.SendTelegram)
 
 	opts.LC.Append(
 		fx.Hook{
