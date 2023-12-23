@@ -20,7 +20,6 @@ type WorkerOpts struct {
 }
 
 func NewWorker(opts WorkerOpts) error {
-	// The client and worker are heavyweight objects that should be created once per process.
 	temporalClient, err := client.Dial(
 		client.Options{
 			Logger: log.NewStructuredLogger(opts.Logger.GetSlog()),

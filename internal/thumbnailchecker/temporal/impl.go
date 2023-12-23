@@ -61,7 +61,7 @@ func (c *Temporal) ValidateThumbnail(ctx context.Context, thumbnailUrl string) e
 		return err
 	}
 
-	err = we.Get(context.Background(), nil)
+	err = we.Get(ctx, nil)
 	if err != nil {
 		return err
 	}
