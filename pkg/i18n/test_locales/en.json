@@ -1,7 +1,0 @@
-{
-  "hello": "world",
-  "templated": "hello {{ hello }}",
-	"nested": {
-		"templated": "hello {{ who }}"
-	}
-}
