@@ -3,7 +3,6 @@ package temporal
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/satont/twitch-notifier/internal/messagesender"
@@ -48,8 +47,7 @@ func (c *Temporal) SendMessageTelegram(ctx context.Context, opts messagesender.T
 		ID:        fmt.Sprintf("MSG: Telegram to %s #%s", uuid.NewString(), opts.ServiceChatID),
 		TaskQueue: queueName,
 		RetryPolicy: &temporal.RetryPolicy{
-			MaximumAttempts: 5,
-			InitialInterval: 10 * time.Second,
+			MaximumAttempts: 1,
 		},
 	}
 

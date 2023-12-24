@@ -3,6 +3,7 @@ package temporal
 import (
 	"context"
 
+	"github.com/satont/twitch-notifier/pkg/config"
 	"github.com/satont/twitch-notifier/pkg/logger"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
@@ -17,12 +18,14 @@ type WorkerOpts struct {
 	Workflow *Workflow
 	Activity *Activity
 	Logger   logger.Logger
+	Config   config.Config
 }
 
 func NewWorker(opts WorkerOpts) error {
 	temporalClient, err := client.Dial(
 		client.Options{
-			Logger: log.NewStructuredLogger(opts.Logger.GetSlog()),
+			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
+			HostPort: opts.Config.TemporalUrl,
 		},
 	)
 	if err != nil {

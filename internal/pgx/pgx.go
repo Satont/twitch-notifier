@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/satont/twitch-notifier/pkg/config"
 	"github.com/satont/twitch-notifier/pkg/logger"
 	"go.uber.org/fx"
 )
@@ -13,12 +14,13 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Logger logger.Logger
+	Config config.Config
 }
 
 func New(opts Opts) (*pgxpool.Pool, error) {
 	pgx, err := pgxpool.New(
 		context.Background(),
-		"postgres://postgres:postgres@localhost:5432/twitch_notifier",
+		opts.Config.PostgresUrl,
 	)
 	if err != nil {
 		return nil, err
@@ -31,7 +33,11 @@ func New(opts Opts) (*pgxpool.Pool, error) {
 				return nil
 			},
 			OnStart: func(ctx context.Context) error {
-				// return pgx.Ping(ctx)
+				err := pgx.Ping(ctx)
+				if err != nil {
+					return err
+				}
+
 				opts.Logger.Info("Connected to postgres")
 				return nil
 			},

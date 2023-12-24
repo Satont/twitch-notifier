@@ -9,3 +9,11 @@ type Channel struct {
 	ChannelID string
 	Service   StreamingService
 }
+
+type PlatformChannelInformation struct {
+	BroadcasterID   string
+	BroadcasterName string
+	GameName        string
+	Title           string
+	ChannelLink     string
+}

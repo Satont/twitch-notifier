@@ -29,16 +29,15 @@ type Workflow struct {
 	activity *Activity
 }
 
-const telegramActivityMaximumAttempts = 1
+const telegramActivityMaximumAttempts = 5
 
 func (c *Workflow) SendTelegram(ctx workflow.Context, opts messagesender.TelegramOpts) error {
 	ao := workflow.ActivityOptions{
 		TaskQueue:           queueName,
 		StartToCloseTimeout: 10 * time.Second,
 		RetryPolicy: &temporal.RetryPolicy{
-			MaximumInterval:        15 * time.Second,
-			MaximumAttempts:        telegramActivityMaximumAttempts,
-			NonRetryableErrorTypes: nil,
+			MaximumAttempts: telegramActivityMaximumAttempts,
+			InitialInterval: 2 * time.Second,
 		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)

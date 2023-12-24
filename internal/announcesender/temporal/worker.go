@@ -15,10 +15,10 @@ type WorkerOpts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Workflow *Workflow
-	Activity *Activity
-	Logger   logger.Logger
-	Config   config.Config
+	Config     config.Config
+	Logger     logger.Logger
+	Workflow   *Workflow
+	Activities *Activities
 }
 
 func NewWorker(opts WorkerOpts) error {
@@ -34,8 +34,8 @@ func NewWorker(opts WorkerOpts) error {
 
 	w := worker.New(temporalClient, queueName, worker.Options{})
 
-	w.RegisterWorkflow(opts.Workflow.Workflow)
-	w.RegisterActivity(opts.Activity.ThumbnailCheckerTemporalActivity)
+	w.RegisterWorkflow(opts.Workflow.SendOnline)
+	w.RegisterActivity(opts.Activities.GetChannelInformation)
 
 	opts.LC.Append(
 		fx.Hook{

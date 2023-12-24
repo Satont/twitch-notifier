@@ -1,21 +1,17 @@
 package logger
 
 import (
+	"github.com/satont/twitch-notifier/pkg/config"
 	"go.uber.org/fx"
 )
 
-// TODO: read from config
-func NewFx() func() *Impl {
-	return func() *Impl {
+var FxOption = fx.Annotate(
+	func(cfg config.Config) *Impl {
 		return New(
 			Opts{
-				Env: "development",
+				Env: cfg.AppEnv,
 			},
 		)
-	}
-}
-
-var Module = fx.Annotate(
-	NewFx,
+	},
 	fx.As(new(Logger)),
 )

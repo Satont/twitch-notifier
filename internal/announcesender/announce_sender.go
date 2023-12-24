@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate go run go.uber.org/mock/mockgen -source=announce_sender.go -destination=mocks/mock.go
+
 type AnnounceSender interface {
 	SendOnline(ctx context.Context, opts ChannelOnlineOpts) error
 	SendOffline(ctx context.Context, opts ChannelOfflineOpts) error

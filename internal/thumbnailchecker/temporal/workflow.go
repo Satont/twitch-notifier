@@ -28,8 +28,7 @@ const activityMaximumAttempts = 50
 
 func (c *Workflow) Workflow(ctx workflow.Context, thumbNailUrl string) error {
 	ao := workflow.ActivityOptions{
-		TaskQueue:           queueName,
-		StartToCloseTimeout: 10 * time.Second,
+		TaskQueue: queueName,
 		RetryPolicy: &temporal.RetryPolicy{
 			MaximumInterval:        15 * time.Second,
 			MaximumAttempts:        activityMaximumAttempts,
