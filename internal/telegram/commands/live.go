@@ -3,14 +3,15 @@ package commands
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/samber/lo"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/telegram/types"
 	"go.uber.org/zap"
-	"strings"
-	"time"
 )
 
 type LiveCommand struct {
@@ -132,7 +133,7 @@ func (c *LiveCommand) HandleCommand(ctx context.Context, msg *tgb.MessageUpdate)
 	return msg.
 		Answer(strings.Join(message, "\n\n")).
 		ParseMode(tg.MD).
-		DisableWebPagePreview(true).
+		LinkPreviewOptions(tg.LinkPreviewOptions{IsDisabled: true}).
 		DoVoid(ctx)
 }
 

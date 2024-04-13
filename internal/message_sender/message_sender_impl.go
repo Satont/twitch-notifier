@@ -63,7 +63,9 @@ func (m *MessageSender) SendMessage(ctx context.Context, chat *db_models.Chat, o
 		} else {
 			query := m.telegram.
 				SendMessage(tg.ChatID(chatId), opts.Text).
-				DisableWebPagePreview(true)
+				LinkPreviewOptions(tg.LinkPreviewOptions{
+					IsDisabled: true,
+				})
 
 			if keyboard != nil && keyboard.InlineKeyboard != nil && len(keyboard.InlineKeyboard) > 0 {
 				query = query.ReplyMarkup(keyboard)

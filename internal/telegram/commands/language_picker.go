@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/mr-linch/go-tg"
 	"github.com/mr-linch/go-tg/tgb"
 	"github.com/satont/twitch-notifier/internal/db"
 	"github.com/satont/twitch-notifier/internal/db/db_models"
 	tgtypes "github.com/satont/twitch-notifier/internal/telegram/types"
 	"go.uber.org/zap"
-	"strings"
 )
 
 type LanguagePicker struct {
@@ -49,7 +50,7 @@ func (c *LanguagePicker) HandleCallback(ctx context.Context, msg *tgb.CallbackQu
 	}
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.Message.ID).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -69,7 +70,7 @@ func (c *LanguagePicker) handleSetLanguage(ctx context.Context, msg *tgb.Callbac
 
 	_, err := c.Services.Chat.Update(
 		ctx,
-		msg.Message.Chat.ID.PeerID(),
+		msg.Message.Chat().ID.PeerID(),
 		db_models.ChatServiceTelegram,
 		&db.ChatUpdateQuery{
 			Settings: &db.ChatUpdateSettingsQuery{

@@ -197,7 +197,7 @@ func (c *FollowsCommand) prevPageQuery(ctx context.Context, msg *tgb.CallbackQue
 	}
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -215,7 +215,7 @@ func (c *FollowsCommand) nextPageQuery(ctx context.Context, msg *tgb.CallbackQue
 	}
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }

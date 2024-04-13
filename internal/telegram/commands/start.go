@@ -133,7 +133,7 @@ func (c *StartCommand) handleCallback(ctx context.Context, msg *tgb.CallbackQuer
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -162,7 +162,7 @@ func (c *StartCommand) handleImageInNotificationSettings(
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -193,7 +193,7 @@ func (c *StartCommand) handleTitleNotificationSettings(
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -224,7 +224,7 @@ func (c *StartCommand) handleGameNotificationSettings(
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -254,7 +254,7 @@ func (c *StartCommand) handleGameAndTitleNotificationSettings(
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }
@@ -285,7 +285,7 @@ func (c *StartCommand) handleOfflineNotificationSettings(
 	keyboard := c.buildKeyboard(ctx)
 
 	return msg.Client.
-		EditMessageReplyMarkup(msg.Message.Chat.ID, msg.Message.ID).
+		EditMessageReplyMarkup(msg.Message.Chat().ID, msg.Message.MessageID()).
 		ReplyMarkup(*keyboard).
 		DoVoid(ctx)
 }

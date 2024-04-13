@@ -3,15 +3,16 @@ package commands
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twitch-notifier/internal/db"
-	"github.com/satont/twitch-notifier/internal/db/db_models"
-	"github.com/satont/twitch-notifier/internal/telegram/types"
-	"github.com/satont/twitch-notifier/internal/types"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+
+	"github.com/satont/twitch-notifier/internal/db"
+	"github.com/satont/twitch-notifier/internal/db/db_models"
+	tg_types "github.com/satont/twitch-notifier/internal/telegram/types"
+	"github.com/satont/twitch-notifier/internal/types"
 
 	"github.com/google/uuid"
 	"github.com/mr-linch/go-tg"
@@ -135,11 +136,8 @@ func TestLanguagePicker_HandleCallback(t *testing.T) {
 	err := cmd.HandleCallback(ctx, &tgb.CallbackQueryUpdate{
 		Client: test_utils.NewTelegramClient(server),
 		CallbackQuery: &tg.CallbackQuery{
-			Message: &tg.Message{
-				ID: 1,
-				Chat: tg.Chat{
-					ID: tg.ChatID(1),
-				},
+			Message: &tg.MaybeInaccessibleMessage{
+				InaccessibleMessage: &tg.InaccessibleMessage{MessageID: 1, Chat: tg.Chat{ID: tg.ChatID(1)}},
 			},
 		},
 	})
@@ -197,10 +195,12 @@ func TestLanguagePicker_handleSetLanguage(t *testing.T) {
 	err := cmd.handleSetLanguage(ctx, &tgb.CallbackQueryUpdate{
 		Client: test_utils.NewTelegramClient(server),
 		CallbackQuery: &tg.CallbackQuery{
-			Message: &tg.Message{
-				ID: 1,
-				Chat: tg.Chat{
-					ID: tg.ChatID(1),
+			Message: &tg.MaybeInaccessibleMessage{
+				Message: &tg.Message{
+					ID: 1,
+					Chat: tg.Chat{
+						ID: tg.ChatID(1),
+					},
 				},
 			},
 			Data: "language_picker_set_ru",
