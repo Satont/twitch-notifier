@@ -24,6 +24,10 @@
     "follows": {
       "total": "Вы подписаны на уведомления {{ count }} каналов. Кликните на никнейм стримера, чтобы отписаться от уведомлений."
     },
+    "unfollow": {
+      "callbackButton": "Отписаться от {{ streamer }}",
+      "success": "Вы отписались от {{ streamer }}"
+    },
     "start": {
       "game_change_notification_setting": {
         "button": "Уведомление о смене категории"

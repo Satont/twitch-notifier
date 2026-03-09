@@ -1,0 +1,43 @@
+name = "twitch-notifier"
+main = "src/index.ts"
+compatibility_date = "2026-03-06"
+compatibility_flags = [
+	"nodejs_compat"
+]
+workers_dev = true
+
+[observability]
+enabled = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "twitch-notifier-db"
+database_id = ""  # Will be filled after creating D1 database
+
+[[kv_namespaces]]
+binding = "twitch-notifier-kv"
+id = "1"
+
+# Environment Variables
+[vars]
+APP_ENV = "development"
+
+# Secrets (use wrangler secret put)
+# TELEGRAM_TOKEN = ""
+# TWITCH_CLIENT_ID = ""
+# TWITCH_CLIENT_SECRET = ""
+# TELEGRAM_BOT_ADMINS = "comma-separated user IDs"
+# TWITCH_EVENTSUB_SECRET = "for webhook verification"
+
+# BOT INFO FOR SKIP /me REQUEST ON EACH REQUEST
+#BOT_INFO = """{
+#    "id": 1234567890,
+#    "is_bot": true,
+#    "first_name": "mybot",
+#    "username": "MyBot",
+#    "can_join_groups": true,
+#    "can_read_all_group_messages": false,
+#    "supports_inline_queries": true,
+#    "can_connect_to_business": false
+#}"""
