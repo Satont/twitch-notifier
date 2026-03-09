@@ -5,9 +5,11 @@
   "description": "Telegram bot for Twitch stream notifications on Cloudflare Workers",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "npm run db:migrate:local && wrangler dev",
     "deploy": "wrangler deploy",
-    "db:generate": "drizzle-kit generate",
+    "deploy:with-migrations": "./scripts/deploy.sh",
+    "postdeploy": "npm run db:migrate",
+    "db:create": "wrangler d1 migrations create",
     "db:migrate": "wrangler d1 migrations apply twitch-notifier-db",
     "db:migrate:local": "wrangler d1 migrations apply twitch-notifier-db --local",
     "db:studio": "drizzle-kit studio"

@@ -24,7 +24,7 @@ app.post('/telegram-webhook', async (c) => {
   const env = c.env;
 
   // Create database connection (serverless-agnostic)
-  const dbClient = drizzle(env.DB);
+  const dbClient = drizzle(env.twitch_notifier_db);
   const dbConnection = new CloudflareD1Connection(dbClient);
 
   // Create repository factory
@@ -69,7 +69,7 @@ app.post('/telegram-webhook', async (c) => {
 // Twitch EventSub webhook endpoint
 app.post('/twitch-webhook', async (c) => {
   const env = c.env;
-  const db = drizzle(env.DB);
+  const db = drizzle(env.twitch_notifier_db);
 
   return await handleTwitchWebhook(c.req.raw, env, db);
 });

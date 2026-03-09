@@ -16,12 +16,15 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
   const chatId = ctx.chat?.id;
   if (!chatId) return;
 
-  const chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
+  let chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
   if (!chat || !chat.settings) return;
 
   // Handle toggle settings
   if (data.startsWith('toggle_')) {
     await handleToggleSetting(ctx, data, chat);
+    // Перезагрузить чат из БД чтобы получить актуальные настройки
+    chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
+    if (!chat) return;
     await sendSettingsMenu(ctx, chat);
   }
 
@@ -36,10 +39,22 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
     if (ctx.services.i18n.isValidLocale(lang)) {
       await ctx.services.chatRepo.updateSettings(chat.settings.id, { language: lang });
       ctx.session.language = lang;
+      
+      // Обновляем ctx.t() для использования нового языка
+      ctx.t = (key: string, params?: Record<string, any>) => {
+        return ctx.services.i18n.t(lang, key, params);
+      };
+      
+      // Перезагрузить чат из БД
+      chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
+      if (!chat) return;
+      
       await ctx.answerCallbackQuery(
         ctx.services.i18n.t(lang, 'language.changed')
       );
-      await sendLanguagePicker(ctx);
+      
+      // Вернуться в главное меню с новым языком
+      await sendSettingsMenu(ctx, chat);
     }
   }
 

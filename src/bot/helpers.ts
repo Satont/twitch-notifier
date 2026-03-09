@@ -30,7 +30,7 @@ export async function sendSettingsMenu(ctx: BotContext, chat: Chat) {
       'toggle_image'
     ).row()
     .text(
-      ctx.t('commands.start.language.button'),
+      `🌐 ${ctx.t('commands.start.language.button')}`,
       'language_picker'
     ).row()
     .url('Github', 'https://github.com/Satont/twitch-notifier');
@@ -100,19 +100,60 @@ export async function handleToggleSetting(ctx: BotContext, data: string, chat: C
     case 'toggle_game_change':
       updates.gameChangeNotification = !chat.settings.gameChangeNotification;
       chat.settings.gameChangeNotification = updates.gameChangeNotification;
+      
+      // Если включили game change, а title change тоже включен, то включаем game_and_title
+      if (updates.gameChangeNotification && chat.settings.titleChangeNotification) {
+        updates.gameAndTitleChangeNotification = true;
+        chat.settings.gameAndTitleChangeNotification = true;
+      }
+      // Если выключили game change, то выключаем game_and_title
+      if (!updates.gameChangeNotification) {
+        updates.gameAndTitleChangeNotification = false;
+        chat.settings.gameAndTitleChangeNotification = false;
+      }
       break;
+      
     case 'toggle_offline':
       updates.offlineNotification = !chat.settings.offlineNotification;
       chat.settings.offlineNotification = updates.offlineNotification;
       break;
+      
     case 'toggle_title_change':
       updates.titleChangeNotification = !chat.settings.titleChangeNotification;
       chat.settings.titleChangeNotification = updates.titleChangeNotification;
+      
+      // Если включили title change, а game change тоже включен, то включаем game_and_title
+      if (updates.titleChangeNotification && chat.settings.gameChangeNotification) {
+        updates.gameAndTitleChangeNotification = true;
+        chat.settings.gameAndTitleChangeNotification = true;
+      }
+      // Если выключили title change, то выключаем game_and_title
+      if (!updates.titleChangeNotification) {
+        updates.gameAndTitleChangeNotification = false;
+        chat.settings.gameAndTitleChangeNotification = false;
+      }
       break;
+      
     case 'toggle_game_and_title':
       updates.gameAndTitleChangeNotification = !chat.settings.gameAndTitleChangeNotification;
       chat.settings.gameAndTitleChangeNotification = updates.gameAndTitleChangeNotification;
+      
+      // Если включили game_and_title, включаем оба
+      if (updates.gameAndTitleChangeNotification) {
+        updates.gameChangeNotification = true;
+        updates.titleChangeNotification = true;
+        chat.settings.gameChangeNotification = true;
+        chat.settings.titleChangeNotification = true;
+      }
+      // Если выключили game_and_title, выключаем оба
+      else {
+        updates.gameChangeNotification = false;
+        updates.titleChangeNotification = false;
+        chat.settings.gameChangeNotification = false;
+        chat.settings.titleChangeNotification = false;
+      }
       break;
+      
     case 'toggle_image':
       updates.imageInNotification = !chat.settings.imageInNotification;
       chat.settings.imageInNotification = updates.imageInNotification;
