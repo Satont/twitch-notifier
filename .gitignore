@@ -11,3 +11,4 @@ ent/**/*
 wrangler.toml
 node_modules
 .wrangler
+.dev.vars
