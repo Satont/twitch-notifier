@@ -38,7 +38,14 @@ export async function sendSettingsMenu(ctx: BotContext, chat: Chat) {
   const description = ctx.t('bot.description');
 
   if (ctx.callbackQuery) {
-    await ctx.editMessageText(description, { reply_markup: keyboard });
+    try {
+      await ctx.editMessageText(description, { reply_markup: keyboard });
+    } catch (error: any) {
+      // Игнорируем ошибку "message is not modified"
+      if (!error?.message?.includes('message is not modified')) {
+        throw error;
+      }
+    }
   } else {
     await ctx.reply(description, { reply_markup: keyboard });
   }
@@ -161,7 +168,7 @@ export async function handleToggleSetting(ctx: BotContext, data: string, chat: C
   }
 
   if (Object.keys(updates).length > 0) {
-    await ctx.services.chatRepo.updateSettings(chat.settings.id, updates);
+    await ctx.services.chatRepo.updateSettings(chat.id, updates);
   }
 }
 

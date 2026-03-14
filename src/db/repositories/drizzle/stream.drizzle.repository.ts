@@ -20,16 +20,26 @@ export class StreamDrizzleRepository implements IStreamRepository {
   }
 
   async create(id: string, channelId: string, category: string, title: string): Promise<string> {
-    await this.db.insert(streams).values({
-      id,
-      channelId,
-      isLive: true,
-      category,
-      title,
-      startedAt: new Date().toISOString(),
-      titles: [title] as any,
-      categories: [category] as any,
-    });
+    try {
+      await this.db.insert(streams).values({
+        id,
+        channelId,
+        isLive: true,
+        category,
+        title,
+        startedAt: new Date().toISOString(),
+        titles: [title] as any,
+        categories: [category] as any,
+      });
+    } catch (error: any) {
+      // If the stream already exists (duplicate webhook), just return the id
+      if (error?.message?.includes('UNIQUE constraint failed') || 
+          error?.message?.includes('already exists')) {
+        console.log(`Stream ${id} already exists, skipping insert`);
+        return id;
+      }
+      throw error;
+    }
     
     return id;
   }

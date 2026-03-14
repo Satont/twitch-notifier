@@ -3,10 +3,12 @@ import { webhookCallback } from 'grammy';
 import { drizzle } from 'drizzle-orm/d1';
 import type { Env } from './types';
 import { createBot } from './bot';
-import { I18nService } from './services/i18n.service';
-import { TwitchService } from './services/twitch.service';
-import { TelegramService } from './services/telegram.service';
-import { EventSubService } from './services/eventsub.service';
+import {
+	TelegramService,
+	I18nService,
+	TwitchService,
+	EventSubService,
+} from '~/services';
 import { CloudflareD1Connection } from './db/connection';
 import { DrizzleRepositoryFactory } from './db/repository.factory';
 import { CloudflareKVSessionRepository } from './db/repositories/cloudflare-kv';
@@ -71,7 +73,9 @@ app.post('/twitch-webhook', async (c) => {
   const env = c.env;
   const db = drizzle(env.twitch_notifier_db);
 
-  return await handleTwitchWebhook(c.req.raw, env, db);
+  return await handleTwitchWebhook(c.req.raw, env, db, c.executionCtx);
 });
+
+console.log('App initialized');
 
 export default app;

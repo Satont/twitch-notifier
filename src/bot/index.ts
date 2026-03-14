@@ -29,7 +29,11 @@ export function createBot(
     sessionRepo: ISessionRepository;
   }
 ): Bot<BotContext> {
-  const bot = new Bot<BotContext>(env.TELEGRAM_TOKEN);
+  const bot = new Bot<BotContext>(env.TELEGRAM_TOKEN, {
+    client: {
+      timeoutSeconds: 60, // Увеличиваем timeout до 60 секунд
+    },
+  });
 
   // Use database session storage
   const sessionStorage = new DatabaseSessionStorage<BotSession>(

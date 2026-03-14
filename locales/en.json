@@ -2,7 +2,8 @@
 	"language": {
 		"name": "English",
 		"changed": "Language is set to english.",
-		"emoji": "🇬🇧"
+		"emoji": "🇬🇧",
+		"select": "Please select your language:"
 	},
 
 	"bot": {

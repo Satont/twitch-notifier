@@ -21,11 +21,15 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
 
   // Handle toggle settings
   if (data.startsWith('toggle_')) {
+    // Сразу отвечаем на callback, чтобы не было timeout
+    await ctx.answerCallbackQuery();
+    
     await handleToggleSetting(ctx, data, chat);
     // Перезагрузить чат из БД чтобы получить актуальные настройки
     chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
     if (!chat) return;
     await sendSettingsMenu(ctx, chat);
+    return; // Важно! Выходим, чтобы не вызывать answerCallbackQuery дважды
   }
 
   // Handle language picker
@@ -37,7 +41,7 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
   else if (data.startsWith('language_picker_set_')) {
     const lang = data.replace('language_picker_set_', '') as SupportedLanguage;
     if (ctx.services.i18n.isValidLocale(lang)) {
-      await ctx.services.chatRepo.updateSettings(chat.settings.id, { language: lang });
+      await ctx.services.chatRepo.updateSettings(chat.id, { language: lang });
       ctx.session.language = lang;
       
       // Обновляем ctx.t() для использования нового языка
@@ -55,6 +59,7 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
       
       // Вернуться в главное меню с новым языком
       await sendSettingsMenu(ctx, chat);
+      return; // Важно! Выходим, чтобы не вызывать answerCallbackQuery дважды
     }
   }
 
@@ -67,6 +72,7 @@ callbackQueryHandler.on('callback_query:data', async (ctx) => {
   else if (data.startsWith('channels_unfollow_')) {
     const channelId = data.replace('channels_unfollow_', '');
     await handleUnfollow(ctx, chat, channelId);
+    return; // handleUnfollow уже вызывает answerCallbackQuery
   }
 
   // Handle pagination

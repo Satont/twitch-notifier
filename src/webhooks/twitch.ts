@@ -45,7 +45,8 @@ interface EventSubVerification {
 export async function handleTwitchWebhook(
   request: Request,
   env: Env,
-  db: DrizzleD1Database
+  db: DrizzleD1Database,
+  executionCtx: ExecutionContext
 ): Promise<Response> {
   try {
     // Verify the signature
@@ -84,90 +85,8 @@ export async function handleTwitchWebhook(
     if (messageType === 'notification') {
       const notification = payload as EventSubNotification;
 
-      // Initialize services
-      const i18nService = new I18nService();
-      const twitchService = new TwitchService(env);
-      const telegramService = new TelegramService(env, i18nService);
-
-      // Initialize repositories via factory
-      const dbConnection = new CloudflareD1Connection(db);
-      const repositoryFactory = new DrizzleRepositoryFactory(dbConnection);
-      
-      const chatRepo = repositoryFactory.createChatRepository();
-      const channelRepo = repositoryFactory.createChannelRepository();
-      const followRepo = repositoryFactory.createFollowRepository();
-      const streamRepo = repositoryFactory.createStreamRepository();
-
-      // Initialize notification service
-      const notificationService = new NotificationService(
-        env,
-        db,
-        telegramService,
-        twitchService,
-        i18nService,
-        chatRepo,
-        channelRepo,
-        followRepo,
-        streamRepo
-      );
-
-      // Handle different event types
-      switch (notification.subscription.type) {
-        case 'stream.online': {
-          const event = notification.event;
-          const stream = await twitchService.getStreamByUserId(event.broadcaster_user_id);
-          if (stream) {
-            await notificationService.handleStreamOnline({
-              channelId: event.broadcaster_user_id,
-              channelName: event.broadcaster_user_name,
-              streamId: stream.id,
-              category: stream.gameName,
-              title: stream.title,
-              thumbnailUrl: stream.thumbnailUrl,
-            });
-          }
-          break;
-        }
-
-        case 'stream.offline': {
-          const event = notification.event;
-          await notificationService.handleStreamOffline({
-            channelId: event.broadcaster_user_id,
-            channelName: event.broadcaster_user_name,
-          });
-          break;
-        }
-
-        case 'channel.update': {
-          const event = notification.event;
-          const channel = await channelRepo.findByChannelId(event.broadcaster_user_id, 'twitch');
-          if (!channel) break;
-
-          const stream = await streamRepo.findLatestByChannelId(channel.id);
-          if (!stream || !stream.isLive) break;
-
-          // Check if category changed
-          if (stream.category && event.category_name !== stream.category) {
-            await notificationService.handleCategoryChange({
-              channelId: event.broadcaster_user_id,
-              channelName: event.broadcaster_user_name,
-              oldCategory: stream.category,
-              newCategory: event.category_name,
-            });
-          }
-
-          // Check if title changed
-          if (stream.title && event.title !== stream.title) {
-            await notificationService.handleTitleChange({
-              channelId: event.broadcaster_user_id,
-              channelName: event.broadcaster_user_name,
-              oldTitle: stream.title,
-              newTitle: event.title,
-            });
-          }
-          break;
-        }
-      }
+      // Respond immediately to prevent Twitch from retrying due to timeout
+      executionCtx.waitUntil(processNotification(notification, env, db));
 
       return new Response('OK', { status: 200 });
     }
@@ -182,5 +101,98 @@ export async function handleTwitchWebhook(
   } catch (error) {
     console.error('Error handling Twitch webhook:', error);
     return new Response('Internal Server Error', { status: 500 });
+  }
+}
+
+async function processNotification(
+  notification: EventSubNotification,
+  env: Env,
+  db: DrizzleD1Database
+): Promise<void> {
+  try {
+    console.log('Received Twitch EventSub notification:', notification.subscription.type, notification);
+
+    const i18nService = new I18nService();
+    await i18nService.init();
+
+    const twitchService = new TwitchService(env);
+    const telegramService = new TelegramService(env, i18nService);
+
+    const dbConnection = new CloudflareD1Connection(db);
+    const repositoryFactory = new DrizzleRepositoryFactory(dbConnection);
+
+    const chatRepo = repositoryFactory.createChatRepository();
+    const channelRepo = repositoryFactory.createChannelRepository();
+    const followRepo = repositoryFactory.createFollowRepository();
+    const streamRepo = repositoryFactory.createStreamRepository();
+
+    const notificationService = new NotificationService(
+      env,
+      db,
+      telegramService,
+      twitchService,
+      i18nService,
+      chatRepo,
+      channelRepo,
+      followRepo,
+      streamRepo
+    );
+
+    switch (notification.subscription.type) {
+      case 'stream.online': {
+        const event = notification.event;
+        const stream = await twitchService.getStreamByUserId(event.broadcaster_user_id);
+        if (stream) {
+          await notificationService.handleStreamOnline({
+            channelId: event.broadcaster_user_id,
+            channelName: event.broadcaster_user_name,
+            streamId: stream.id,
+            category: stream.gameName,
+            title: stream.title,
+            thumbnailUrl: stream.thumbnailUrl,
+          });
+        }
+        break;
+      }
+
+      case 'stream.offline': {
+        const event = notification.event;
+        await notificationService.handleStreamOffline({
+          channelId: event.broadcaster_user_id,
+          channelName: event.broadcaster_user_name,
+        });
+        break;
+      }
+
+      case 'channel.update': {
+        const event = notification.event;
+        const channel = await channelRepo.findByChannelId(event.broadcaster_user_id, 'twitch');
+        if (!channel) break;
+
+        const stream = await streamRepo.findLatestByChannelId(channel.id);
+        if (!stream || !stream.isLive) break;
+
+        if (stream.category && event.category_name !== stream.category) {
+          await notificationService.handleCategoryChange({
+            channelId: event.broadcaster_user_id,
+            channelName: event.broadcaster_user_name,
+            oldCategory: stream.category,
+            newCategory: event.category_name,
+          });
+        }
+
+        if (stream.title && event.title !== stream.title) {
+          await notificationService.handleTitleChange({
+            channelId: event.broadcaster_user_id,
+            channelName: event.broadcaster_user_name,
+            oldTitle: stream.title,
+            newTitle: event.title,
+          });
+        }
+        break;
+      }
+    }
+  } catch (error) {
+    console.error('Error processing Twitch notification:', error);
   }
 }

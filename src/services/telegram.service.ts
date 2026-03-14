@@ -58,7 +58,7 @@ export class TelegramService {
   private thumbnailBuilder: ThumbnailBuilder;
 
   constructor(env: Env, i18n: I18nService) {
-    this.bot = new Bot(env.TELEGRAM_TOKEN);
+    this.bot = new Bot(env.TELEGRAM_TOKEN, { client: { timeoutSeconds: 60 } });
     this.i18n = i18n;
     this.thumbnailBuilder = new ThumbnailBuilder();
   }
@@ -74,7 +74,7 @@ export class TelegramService {
 
     if (notification.showImage && notification.thumbnailUrl) {
       try {
-        const thumbnailUrl = await this.thumbnailBuilder.build(notification.thumbnailUrl, true);
+        const thumbnailUrl = this.thumbnailBuilder.build(notification.thumbnailUrl);
         await this.bot.api.sendPhoto(notification.chatId, new InputFile(new URL(thumbnailUrl)), {
           caption: text,
           parse_mode: 'HTML',

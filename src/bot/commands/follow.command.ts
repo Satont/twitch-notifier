@@ -100,7 +100,8 @@ async function handleFollow(ctx: BotContext, text: string) {
           )
         );
       } catch (error: any) {
-        if (error.message?.includes('UNIQUE constraint failed')) {
+        // Check if it's FollowAlreadyExistsError by checking error name or message
+        if (error.constructor.name === 'FollowAlreadyExistsError' || error.message === 'Follow already exists') {
           results.push(
             ctx.t(
               'commands.follow.errors.alreadyFollowed',
