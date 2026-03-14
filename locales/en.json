@@ -2,7 +2,8 @@
 	"language": {
 		"name": "English",
 		"changed": "Language is set to english.",
-		"emoji": "🇬🇧"
+		"emoji": "🇬🇧",
+		"select": "Please select your language:"
 	},
 
 	"bot": {
@@ -29,9 +30,10 @@
 			"total": "You followed to notifications from {{ count }} channels. Click on streamer nickname to unfollow from notifications."
 		},
 
-		"unfollow": {
-			"callbackButton": "Unfollow {{ streamer }}"
-		},
+	"unfollow": {
+		"callbackButton": "Unfollow {{ streamer }}",
+		"success": "Unfollowed from {{ streamer }}"
+	},
 
 		"start": {
 			"game_change_notification_setting": {

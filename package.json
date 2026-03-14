@@ -1,0 +1,42 @@
+{
+  "name": "twitch-notifier",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Telegram bot for Twitch stream notifications on Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run db:migrate:local && wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:with-migrations": "./scripts/deploy.sh",
+    "postdeploy": "bun run db:migrate",
+    "db:create": "wrangler d1 migrations create",
+    "db:migrate": "wrangler d1 migrations apply twitch-notifier-db",
+    "db:migrate:local": "wrangler d1 migrations apply twitch-notifier-db --local",
+    "db:studio": "drizzle-kit studio"
+  },
+  "keywords": [
+    "telegram",
+    "twitch",
+    "notifications",
+    "serverless"
+  ],
+  "author": "Satont <satontworldwide@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@grammyjs/conversations": "2.1.1",
+    "@twurple/api": "8.0.3",
+    "@twurple/auth": "8.0.3",
+    "@twurple/eventsub-http": "8.0.3",
+    "drizzle-orm": "0.45.1",
+    "grammy": "1.41.1",
+    "hono": "^4.7.11",
+    "i18next": "25.8.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260313.1",
+    "@types/node": "^22.10.6",
+    "drizzle-kit": "0.31.9",
+    "typescript": "^5.7.3",
+    "wrangler": "4.73.0"
+  }
+}

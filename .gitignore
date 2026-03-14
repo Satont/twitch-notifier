@@ -8,3 +8,6 @@ ent/**/*
 !ent/generate.go
 .vscode
 .DS_Store
+wrangler.toml
+node_modules
+.wrangler

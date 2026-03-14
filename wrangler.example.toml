@@ -1,0 +1,21 @@
+name = "twitch-notifier"
+main = "src/index.ts"
+compatibility_date = "2026-03-06"
+compatibility_flags = [
+	"nodejs_compat"
+]
+workers_dev = true
+
+[observability]
+enabled = true
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "twitch-notifier-db"
+database_id = ""  # Will be filled after creating D1 database
+migrations_dir = "./migrations"
+
+[[kv_namespaces]]
+binding = "twitch-notifier-kv"
+id = "1"
