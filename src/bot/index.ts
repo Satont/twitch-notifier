@@ -3,6 +3,7 @@ import { session } from 'grammy'
 import type { Env } from '../types/env';
 import type { BotSession, BotContext } from './types';
 import { I18nService } from '../services/i18n.service';
+import type { SupportedLanguage } from '../services/i18n.service';
 import { TwitchService } from '../services/twitch.service';
 import { EventSubService } from '../services/eventsub.service';
 import { DatabaseSessionStorage } from './storage';
@@ -56,6 +57,22 @@ export function createBot(
   bot.use(async (ctx, next) => {
     ctx.env = env;
     ctx.services = services;
+    await next();
+  });
+
+  // Ensure chat exists in database and sync session language
+  bot.use(async (ctx, next) => {
+    const chatId = ctx.chat?.id;
+    if (chatId) {
+      let chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
+      if (!chat) {
+        await ctx.services.chatRepo.create(chatId.toString(), 'telegram');
+        chat = await ctx.services.chatRepo.findByChatId(chatId, 'telegram');
+      }
+      if (chat?.settings) {
+        ctx.session.language = chat.settings.language as SupportedLanguage;
+      }
+    }
     await next();
   });
 
