@@ -29,7 +29,7 @@
 		"@twurple/api": "8.0.3",
 		"@twurple/auth": "8.0.3",
 		"@twurple/eventsub-http": "8.0.3",
-		"drizzle-orm": "0.45.1",
+		"drizzle-orm": "0.45.2",
 		"grammy": "1.42.0",
 		"hono": "^4.7.11",
 		"i18next": "25.8.14"
