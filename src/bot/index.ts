@@ -51,6 +51,7 @@ export function createBot(
 				totalPages: 1,
 			},
 		}),
+		getSessionKey: (ctx) => ctx.chat?.id?.toString(),
 		storage: sessionStorage,
 	}))
 
