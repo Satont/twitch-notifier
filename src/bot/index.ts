@@ -1,5 +1,7 @@
 import { Bot } from 'grammy';
 import { session } from 'grammy'
+import { autoRetry } from '@grammyjs/auto-retry';
+import { stream } from '@grammyjs/stream';
 import type { Env } from '../types/env';
 import type { BotSession, BotContext } from './types';
 import { I18nService } from '../services/i18n.service';
@@ -37,6 +39,8 @@ export function createBot(
     },
   });
 
+  bot.api.config.use(autoRetry());
+
   // Use database session storage
   const sessionStorage = new DatabaseSessionStorage<BotSession>(
     services.sessionRepo,
@@ -54,6 +58,8 @@ export function createBot(
 		getSessionKey: (ctx) => ctx.chat?.id?.toString(),
 		storage: sessionStorage,
 	}))
+
+  bot.use(stream());
 
   // Attach environment and services to context
   bot.use(async (ctx, next) => {

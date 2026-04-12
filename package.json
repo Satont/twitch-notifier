@@ -23,12 +23,14 @@
 	"author": "Satont <satontworldwide@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
+		"@grammyjs/auto-retry": "2.0.2",
 		"@grammyjs/conversations": "2.1.1",
+		"@grammyjs/stream": "1.0.1",
 		"@twurple/api": "8.0.3",
 		"@twurple/auth": "8.0.3",
 		"@twurple/eventsub-http": "8.0.3",
 		"drizzle-orm": "0.45.1",
-		"grammy": "1.41.1",
+		"grammy": "1.42.0",
 		"hono": "^4.7.11",
 		"i18next": "25.8.14"
 	},

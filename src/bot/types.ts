@@ -1,5 +1,6 @@
 import type { Context, SessionFlavor } from 'grammy';
 import type { ConversationFlavor } from '@grammyjs/conversations';
+import type { StreamFlavor } from '@grammyjs/stream';
 import type { SupportedLanguage } from '../services/i18n.service';
 import type { Env } from '../types/env';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
@@ -18,6 +19,7 @@ export interface BotSession {
 
 export type BotContext = Context &
   SessionFlavor<BotSession> &
+  StreamFlavor<Context> &
   ConversationFlavor<Context> & {
     t: (key: string, params?: Record<string, any>) => string;
     env: Env;

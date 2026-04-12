@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { webhookCallback } from "grammy";
 import { drizzle } from "drizzle-orm/d1";
 import type { Env } from "./types";
 import { createBot } from "./bot";
@@ -53,26 +54,14 @@ app.post("/telegram-webhook", async (c) => {
 		sessionRepo,
 	});
 
-	const update = await c.req.json();
-	const updateId = typeof update?.update_id === "number" ? update.update_id.toString() : undefined;
+	const handler = webhookCallback(bot, "hono", {
+		onTimeout: "return",
+		timeoutMilliseconds: 10_000,
+	});
 
-	if (updateId) {
-		const updateKey = `telegram_update:${updateId}`;
-		const seen = await env.twitch_notifier_kv.get(updateKey);
-		if (seen) {
-			return new Response("OK", { status: 200 });
-		}
-
-		await env.twitch_notifier_kv.put(updateKey, "1", { expirationTtl: 60 * 60 });
-	}
-
-	c.executionCtx.waitUntil(
-		bot.handleUpdate(update).catch((error) => {
-			console.error("Bot handler error:", error);
-		}),
-	);
-
-	return new Response("OK", { status: 200 });
+	const responsePromise = handler(c);
+	c.executionCtx.waitUntil(responsePromise);
+	return await responsePromise;
 });
 
 // Twitch EventSub webhook endpoint
