@@ -4,4 +4,5 @@ export { followsCommand } from './follows.command';
 export { liveCommand } from './live.command';
 export { createBroadcastCommand } from './broadcast.command';
 export { createChangeChannelIdCommand } from './change-channel-id.command';
+export { createSyncSubscriptionsCommand } from './sync-subscriptions.command';
 export { callbackQueryHandler } from './callback.handler';

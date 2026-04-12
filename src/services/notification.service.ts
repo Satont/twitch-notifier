@@ -16,7 +16,7 @@ export interface StreamOnlineEventData {
   streamId: string;
   category: string;
   title: string;
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 }
 
 export interface StreamOfflineEventData {
@@ -58,18 +58,35 @@ export class NotificationService {
       channel = await this.channelRepo.create(data.channelId, 'twitch');
     }
 
+    if (!channel.isLive) {
+      await this.channelRepo.update(channel.id, { isLive: true });
+    }
+
     // Create stream record
-    await this.streamRepo.create(
-      data.streamId,
-      channel.id,
-      data.category,
-      data.title
-    );
+    try {
+      await this.streamRepo.create(
+        data.streamId,
+        channel.id,
+        data.category,
+        data.title
+      );
+    } catch (error: any) {
+      // If the stream already exists, it's a duplicate webhook - skip notifications
+      if (error?.message?.includes('UNIQUE constraint failed') || 
+          error?.message?.includes('already exists')) {
+        console.log(`Stream ${data.streamId} already exists, skipping duplicate notification`);
+        return;
+      }
+      throw error;
+    }
 
     // Get all followers of this channel
     const follows = await this.followRepo.findByChannelId(channel.id);
 
+    console.log(`Sending online notification for ${data.channelName} to ${follows.length} followers`);
+
     // Send notifications to all followers
+    let sentCount = 0;
     for (const follow of follows) {
       try {
         const chat = await this.chatRepo.findById(follow.chatId);
@@ -85,19 +102,27 @@ export class NotificationService {
           thumbnailUrl: data.thumbnailUrl,
           showImage: chat.settings.imageInNotification,
         });
+        sentCount++;
       } catch (error) {
-        console.error('Failed to send online notification:', error);
+        console.error(`Failed to send online notification to chat ${follow.chatId}:`, error);
       }
     }
+    console.log(`Sent ${sentCount}/${follows.length} online notifications for ${data.channelName}`);
   }
 
   async handleStreamOffline(data: StreamOfflineEventData): Promise<void> {
     const channel = await this.channelRepo.findByChannelId(data.channelId, 'twitch');
-    if (!channel) return;
+    if (!channel) {
+      console.log(`Channel ${data.channelId} not found for stream.offline`);
+      return;
+    }
 
     // Get latest stream
     const stream = await this.streamRepo.findLatestByChannelId(channel.id);
-    if (!stream || !stream.isLive) return;
+    if (!stream || !stream.isLive) {
+      console.log(`No active stream found for ${data.channelName}, skipping offline notification`);
+      return;
+    }
 
     // Update stream as offline
     await this.streamRepo.update(stream.id, {
@@ -105,10 +130,17 @@ export class NotificationService {
       endedAt: new Date().toISOString(),
     });
 
+    if (channel.isLive) {
+      await this.channelRepo.update(channel.id, { isLive: false });
+    }
+
     // Get all followers
     const follows = await this.followRepo.findByChannelId(channel.id);
 
+    console.log(`Sending offline notification for ${data.channelName} to ${follows.length} followers`);
+
     // Send notifications to followers who want offline notifications
+    let sentCount = 0;
     for (const follow of follows) {
       try {
         const chat = await this.chatRepo.findById(follow.chatId);
@@ -130,10 +162,12 @@ export class NotificationService {
           categories: stream.categories || [],
           duration: durationStr,
         });
+        sentCount++;
       } catch (error) {
-        console.error('Failed to send offline notification:', error);
+        console.error(`Failed to send offline notification to chat ${follow.chatId}:`, error);
       }
     }
+    console.log(`Sent ${sentCount}/${follows.length} offline notifications for ${data.channelName}`);
   }
 
   async handleCategoryChange(data: StreamCategoryChangeEventData): Promise<void> {

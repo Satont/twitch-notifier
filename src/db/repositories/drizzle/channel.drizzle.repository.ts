@@ -30,6 +30,14 @@ export class ChannelDrizzleRepository implements IChannelRepository {
     return result[0] ? DomainMapper.toDomainChannel(result[0]) : undefined;
   }
 
+  async findAll(): Promise<Channel[]> {
+    const result = await this.db
+      .select()
+      .from(channels);
+    
+    return result.map(DomainMapper.toDomainChannel);
+  }
+
   async create(channelId: string, service: 'twitch' = 'twitch'): Promise<Channel> {
     const id = randomUUID();
     const result = await this.db.insert(channels).values({

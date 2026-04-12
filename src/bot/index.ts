@@ -15,6 +15,7 @@ import {
   liveCommand,
   createBroadcastCommand,
   createChangeChannelIdCommand,
+  createSyncSubscriptionsCommand,
   callbackQueryHandler
 } from './commands';
 
@@ -86,6 +87,7 @@ export function createBot(
   bot.use(liveCommand);
   bot.use(createBroadcastCommand(env));
   bot.use(createChangeChannelIdCommand(env));
+  bot.use(createSyncSubscriptionsCommand(env));
   bot.use(callbackQueryHandler);
 
   return bot;
